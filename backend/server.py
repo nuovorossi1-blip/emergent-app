@@ -621,10 +621,10 @@ def build_match_prompt(match: dict) -> str:
 # ============================================================
 
 LLM_OPTIONS = [
-    {"id": "deepseek-chat", "label": "DeepSeek V3 (chat)", "provider": "deepseek", "model": "deepseek-chat",
-     "cost_per_pred": 0.0014, "speed": "Veloce", "quality": "Buono", "desc": "Economicissimo (~€1,56/mese)"},
-    {"id": "deepseek-reasoner", "label": "DeepSeek R1 (reasoner)", "provider": "deepseek", "model": "deepseek-reasoner",
-     "cost_per_pred": 0.0027, "speed": "Lento", "quality": "Ottimo", "desc": "Ragionamento profondo, costo ridotto"},
+    {"id": "deepseek-chat", "label": "DeepSeek V4 Lite", "provider": "deepseek", "model": "deepseek-chat",
+     "cost_per_pred": 0.0014, "speed": "Veloce", "quality": "Buono", "desc": "Economicissimo (~€1,56/mese per 40 pred/giorno)"},
+    {"id": "deepseek-reasoner", "label": "DeepSeek V4 Pro", "provider": "deepseek", "model": "deepseek-reasoner",
+     "cost_per_pred": 0.0027, "speed": "Lento", "quality": "Ottimo", "desc": "Ragionamento profondo, costo ridotto (~€3/mese)"},
     {"id": "gemini-flash", "label": "Gemini 2.5 Flash", "provider": "gemini", "model": "gemini-2.5-flash",
      "cost_per_pred": 0.002, "speed": "Veloce", "quality": "Buono", "desc": "Veloce e bilanciato"},
     {"id": "gemini-pro", "label": "Gemini 2.5 Pro", "provider": "gemini", "model": "gemini-2.5-pro",
