@@ -36,15 +36,17 @@ export default function Home() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [days, setDays] = useState<string[]>([]);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [dayPickerOpen, setDayPickerOpen] = useState(false);
+  const [leaguePickerOpen, setLeaguePickerOpen] = useState(false);
 
-  const load = useCallback(async (day: string | null, q: string) => {
+  const load = useCallback(async (day: string | null) => {
     try {
       const [ms, ds] = await Promise.all([
-        api.matches(day || undefined, q || undefined),
+        api.matches(day || undefined),
         api.days(),
       ]);
       setMatches(ms);
@@ -59,17 +61,40 @@ export default function Home() {
 
   useFocusEffect(useCallback(() => {
     setLoading(true);
-    load(selectedDay, query);
-  }, [selectedDay, query, load]));
+    load(selectedDay);
+  }, [selectedDay, load]));
+
+  // When changing day, reset league filter (because available leagues change)
+  useEffect(() => { setSelectedLeague(null); }, [selectedDay]);
+
+  // Available leagues for the current day scope
+  const availableLeagues = useMemo(() => {
+    const set = new Set<string>();
+    matches.forEach((m) => set.add(m.manifestazione));
+    return Array.from(set).sort();
+  }, [matches]);
+
+  // Client-side filtered list
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return matches.filter((m) => {
+      if (selectedLeague && m.manifestazione !== selectedLeague) return false;
+      if (q) {
+        const hay = `${m.squadra1} ${m.squadra2} ${m.manifestazione}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [matches, selectedLeague, query]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, Match[]>();
-    for (const m of matches) {
+    for (const m of filtered) {
       if (!map.has(m.manifestazione)) map.set(m.manifestazione, []);
       map.get(m.manifestazione)!.push(m);
     }
     return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-  }, [matches]);
+  }, [filtered]);
 
   const selectedCount = matches.filter((m) => m.selected).length;
 
@@ -97,48 +122,82 @@ export default function Home() {
         </TouchableOpacity>
       </View>
 
-      {/* Filter bar */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filtersBar}
-      >
-        <TouchableOpacity
-          testID="filter-day"
-          onPress={() => setDayPickerOpen(true)}
-          style={styles.pill}
-        >
-          <Ionicons name="calendar-outline" size={14} color={colors.primary} />
-          <Text style={styles.pillTxt}>{selectedDay ? fmtDay(selectedDay) : "TUTTI"}</Text>
-        </TouchableOpacity>
-
-        <View style={styles.searchPill}>
-          <Ionicons name="search" size={14} color={colors.textMuted} />
-          <TextInput
-            testID="search-input"
-            placeholder="Cerca squadra"
-            placeholderTextColor={colors.textDim}
-            value={query}
-            onChangeText={setQuery}
-            style={styles.searchInput}
-          />
+      {/* Filter bar - ordered: 1) Day, 2) Championship, 3) Search */}
+      <View style={styles.filtersWrap}>
+        <View style={styles.filterRow}>
+          <Text style={styles.filterStep}>1</Text>
+          <TouchableOpacity
+            testID="filter-day"
+            onPress={() => setDayPickerOpen(true)}
+            style={styles.filterField}
+          >
+            <Ionicons name="calendar-outline" size={14} color={colors.primary} />
+            <Text style={styles.filterFieldTxt} numberOfLines={1}>
+              {selectedDay ? fmtDay(selectedDay) : "TUTTI I GIORNI"}
+            </Text>
+            <Ionicons name="chevron-down" size={14} color={colors.textMuted} />
+          </TouchableOpacity>
+          {selectedDay && (
+            <TouchableOpacity
+              testID="reset-day"
+              onPress={() => setSelectedDay(null)}
+              style={styles.resetBtn}
+            >
+              <Ionicons name="close" size={14} color={colors.textMuted} />
+            </TouchableOpacity>
+          )}
         </View>
 
-        {selectedDay && (
+        <View style={styles.filterRow}>
+          <Text style={styles.filterStep}>2</Text>
           <TouchableOpacity
-            testID="filter-all-days"
-            onPress={() => setSelectedDay(null)}
-            style={[styles.pill, styles.pillActive]}
+            testID="filter-league"
+            onPress={() => setLeaguePickerOpen(true)}
+            style={styles.filterField}
+            disabled={availableLeagues.length === 0}
           >
-            <Text style={[styles.pillTxt, { color: "#FFF" }]}>TUTTI I GIORNI</Text>
+            <Ionicons name="football-outline" size={14} color={colors.primary} />
+            <Text style={styles.filterFieldTxt} numberOfLines={1}>
+              {selectedLeague || "TUTTI I CAMPIONATI"}
+            </Text>
+            <Ionicons name="chevron-down" size={14} color={colors.textMuted} />
           </TouchableOpacity>
-        )}
-      </ScrollView>
+          {selectedLeague && (
+            <TouchableOpacity
+              testID="reset-league"
+              onPress={() => setSelectedLeague(null)}
+              style={styles.resetBtn}
+            >
+              <Ionicons name="close" size={14} color={colors.textMuted} />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <View style={styles.filterRow}>
+          <Text style={styles.filterStep}>3</Text>
+          <View style={styles.filterField}>
+            <Ionicons name="search" size={14} color={colors.primary} />
+            <TextInput
+              testID="search-input"
+              placeholder="Cerca partita per nome squadra"
+              placeholderTextColor={colors.textDim}
+              value={query}
+              onChangeText={setQuery}
+              style={styles.searchInput}
+            />
+            {query.length > 0 && (
+              <TouchableOpacity testID="reset-query" onPress={() => setQuery("")} hitSlop={10}>
+                <Ionicons name="close" size={14} color={colors.textMuted} />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      </View>
 
       {/* Counter */}
       <View style={styles.countRow}>
         <Text style={styles.countTxt}>
-          <Text style={styles.countNum}>{matches.length}</Text> partite
+          <Text style={styles.countNum}>{filtered.length}</Text> partite
           <Text style={styles.countSep}>  /  </Text>
           <Text style={styles.countNum}>{matches.length}</Text> totali
         </Text>
@@ -293,6 +352,30 @@ export default function Home() {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      {/* League picker modal */}
+      <Modal visible={leaguePickerOpen} transparent animationType="fade" onRequestClose={() => setLeaguePickerOpen(false)}>
+        <TouchableOpacity style={styles.modalBg} activeOpacity={1} onPress={() => setLeaguePickerOpen(false)}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Seleziona Campionato</Text>
+            <FlatList
+              data={[null, ...availableLeagues]}
+              keyExtractor={(it, i) => it ?? `all-${i}`}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  testID={`league-${item ?? "all"}`}
+                  onPress={() => { setSelectedLeague(item); setLeaguePickerOpen(false); }}
+                  style={[styles.dayItem, item === selectedLeague && styles.dayItemActive]}
+                >
+                  <Text style={[styles.dayItemTxt, item === selectedLeague && { color: "#FFF" }]}>
+                    {item || "TUTTI I CAMPIONATI"}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -312,20 +395,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999,
   },
   menuBtnTxt: { color: colors.text, fontSize: 12, fontWeight: "700" },
-  filtersBar: { gap: 8, paddingHorizontal: 16, paddingVertical: 10 },
-  pill: {
-    flexDirection: "row", alignItems: "center", gap: 6,
-    backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
-    paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999,
+  filtersWrap: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4, gap: 8 },
+  filterRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  filterStep: {
+    color: colors.primary, fontSize: 11, fontWeight: "900",
+    width: 18, height: 18, lineHeight: 18, textAlign: "center",
+    backgroundColor: "rgba(255,87,34,0.15)", borderRadius: 999,
   },
-  pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  pillTxt: { color: colors.text, fontSize: 11, fontWeight: "800", letterSpacing: 0.5 },
-  searchPill: {
-    flexDirection: "row", alignItems: "center", gap: 6,
+  filterField: {
+    flex: 1, flexDirection: "row", alignItems: "center", gap: 8,
     backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
-    paddingHorizontal: 12, paddingVertical: 4, borderRadius: 999, minWidth: 160,
+    paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10,
   },
-  searchInput: { color: colors.text, fontSize: 13, flex: 1, paddingVertical: 4 },
+  filterFieldTxt: { flex: 1, color: colors.text, fontSize: 12, fontWeight: "700", letterSpacing: 0.3 },
+  resetBtn: {
+    width: 36, height: 36, borderRadius: 10, backgroundColor: colors.surface,
+    borderWidth: 1, borderColor: colors.border, alignItems: "center", justifyContent: "center",
+  },
+  searchInput: { color: colors.text, fontSize: 13, flex: 1, paddingVertical: 0 },
   countRow: {
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
     paddingHorizontal: 16, paddingBottom: 8,
