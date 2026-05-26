@@ -2,9 +2,10 @@ export const colors = {
   bg: "#0A0A0A",
   surface: "#1A1A1A",
   surfaceHi: "#242424",
-  primary: "#FF5722",
-  primaryLight: "#FF8A00",
-  primaryDark: "#E64500",
+  // Soft gradient: warm yellow → orange → coral pink-red (NOT aggressive orange)
+  primary: "#FF8C42",       // mid warm
+  primaryLight: "#FFC857",  // top of gradient (warm yellow)
+  primaryDark: "#FF6B7A",   // bottom of gradient (coral pink-red)
   text: "#FFFFFF",
   textMuted: "#A1A1AA",
   textDim: "#71717A",
