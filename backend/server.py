@@ -709,18 +709,24 @@ async def run_ai_prediction(match: dict) -> dict:
         if not DEEPSEEK_API_KEY:
             raise HTTPException(500, "DEEPSEEK_API_KEY not configured")
         import litellm
+        # Reasoner model needs much higher token limit (thinking tokens consumed)
+        max_tok = 8000 if "reasoner" in llm["model"] else 2000
         try:
             resp = await litellm.acompletion(
                 model=f"deepseek/{llm['model']}",
                 api_key=DEEPSEEK_API_KEY,
                 messages=[
                     {"role": "system", "content": PREDICTION_SYSTEM},
-                    {"role": "user", "content": prompt},
+                    {"role": "user", "content": prompt + "\n\nIMPORTANTE: rispondi SOLO con il JSON, niente testo introduttivo, niente ragionamento, solo l'oggetto JSON."},
                 ],
-                temperature=0.7,
-                max_tokens=1500,
+                temperature=0.6,
+                max_tokens=max_tok,
             )
-            text = resp["choices"][0]["message"]["content"]
+            msg = resp["choices"][0]["message"]
+            text = msg.get("content") or msg.get("reasoning_content") or ""
+            # If reasoner returned content blank but reasoning has JSON, use reasoning
+            if not text.strip() and msg.get("reasoning_content"):
+                text = msg["reasoning_content"]
         except Exception as e:
             raise HTTPException(500, f"DeepSeek error: {e}")
     else:
@@ -738,16 +744,43 @@ async def run_ai_prediction(match: dict) -> dict:
         await db.settings.update_one({"key": "ai_count"}, {"$inc": {"value": 1}}, upsert=True)
     except Exception:
         pass
-    # Extract JSON
-    m = re.search(r'\{.*\}', text, re.DOTALL)
-    if not m:
-        return {"family": "INSTABILE", "analysis": text[:200], "playable_markets": [],
+    return parse_ai_json(text)
+
+
+def parse_ai_json(text: str) -> dict:
+    """Robust JSON extraction. Handles reasoning preambles, markdown fences, etc."""
+    if not text:
+        return {"family": "INSTABILE", "analysis": "Risposta vuota", "playable_markets": [],
                 "main_prediction": None, "confidence": "Bassa"}
-    try:
-        return json.loads(m.group(0))
-    except json.JSONDecodeError:
-        return {"family": "INSTABILE", "analysis": text[:200], "playable_markets": [],
-                "main_prediction": None, "confidence": "Bassa"}
+    # 1) Try markdown fenced JSON ```json ... ```
+    fence = re.search(r'```(?:json)?\s*(\{[\s\S]*?\})\s*```', text, re.IGNORECASE)
+    candidates = []
+    if fence:
+        candidates.append(fence.group(1))
+    # 2) Find all balanced JSON objects (greedy from each `{`)
+    starts = [i for i, c in enumerate(text) if c == '{']
+    for s in starts:
+        depth = 0
+        for i in range(s, len(text)):
+            if text[i] == '{':
+                depth += 1
+            elif text[i] == '}':
+                depth -= 1
+                if depth == 0:
+                    candidates.append(text[s:i+1])
+                    break
+    # Try parsing from longest to shortest (most likely the full payload)
+    candidates.sort(key=len, reverse=True)
+    for c in candidates:
+        try:
+            obj = json.loads(c)
+            if isinstance(obj, dict) and "family" in obj:
+                return obj
+        except json.JSONDecodeError:
+            continue
+    # Fallback
+    return {"family": "INSTABILE", "analysis": text[:300], "playable_markets": [],
+            "main_prediction": None, "confidence": "Bassa"}
 
 
 async def get_all_families_stats() -> str:
