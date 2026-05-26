@@ -28,6 +28,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
+DEEPSEEK_API_KEY = os.environ.get('DEEPSEEK_API_KEY', '')
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -620,21 +621,25 @@ def build_match_prompt(match: dict) -> str:
 # ============================================================
 
 LLM_OPTIONS = [
+    {"id": "deepseek-chat", "label": "DeepSeek V3 (chat)", "provider": "deepseek", "model": "deepseek-chat",
+     "cost_per_pred": 0.0014, "speed": "Veloce", "quality": "Buono", "desc": "Economicissimo (~€1,56/mese)"},
+    {"id": "deepseek-reasoner", "label": "DeepSeek R1 (reasoner)", "provider": "deepseek", "model": "deepseek-reasoner",
+     "cost_per_pred": 0.0027, "speed": "Lento", "quality": "Ottimo", "desc": "Ragionamento profondo, costo ridotto"},
     {"id": "gemini-flash", "label": "Gemini 2.5 Flash", "provider": "gemini", "model": "gemini-2.5-flash",
-     "cost_per_pred": 0.002, "speed": "Veloce", "quality": "Buono", "desc": "Più economico, ideale per uso intensivo"},
+     "cost_per_pred": 0.002, "speed": "Veloce", "quality": "Buono", "desc": "Veloce e bilanciato"},
     {"id": "gemini-pro", "label": "Gemini 2.5 Pro", "provider": "gemini", "model": "gemini-2.5-pro",
      "cost_per_pred": 0.025, "speed": "Medio", "quality": "Ottimo", "desc": "Ragionamento più profondo"},
     {"id": "claude-haiku", "label": "Claude Haiku 4.5", "provider": "anthropic", "model": "claude-haiku-4-5-20251001",
      "cost_per_pred": 0.005, "speed": "Veloce", "quality": "Buono", "desc": "Bilanciato economia/qualità"},
     {"id": "claude-sonnet", "label": "Claude Sonnet 4.5", "provider": "anthropic", "model": "claude-sonnet-4-5-20250929",
-     "cost_per_pred": 0.016, "speed": "Medio", "quality": "Eccellente", "desc": "Ragionamento top, più costoso"},
+     "cost_per_pred": 0.016, "speed": "Medio", "quality": "Eccellente", "desc": "Top ragionamento, più costoso"},
     {"id": "gpt-4o-mini", "label": "GPT-4o Mini", "provider": "openai", "model": "gpt-4o-mini",
      "cost_per_pred": 0.003, "speed": "Veloce", "quality": "Buono", "desc": "Veloce e ben bilanciato"},
     {"id": "gpt-4o", "label": "GPT-4o", "provider": "openai", "model": "gpt-4o",
      "cost_per_pred": 0.020, "speed": "Medio", "quality": "Ottimo", "desc": "Eccellente per analisi complesse"},
 ]
 
-DEFAULT_LLM = "gemini-flash"
+DEFAULT_LLM = "deepseek-chat"
 
 
 async def get_selected_llm() -> dict:
@@ -690,22 +695,43 @@ async def reset_budget():
 
 
 async def run_ai_prediction(match: dict) -> dict:
-    if not EMERGENT_LLM_KEY:
-        raise HTTPException(500, "EMERGENT_LLM_KEY not configured")
+    if not EMERGENT_LLM_KEY and not DEEPSEEK_API_KEY:
+        raise HTTPException(500, "Nessuna API key configurata")
     llm = await get_selected_llm()
-    chat = LlmChat(
-        api_key=EMERGENT_LLM_KEY,
-        session_id=f"pred-{match['id']}",
-        system_message=PREDICTION_SYSTEM,
-    ).with_model(llm["provider"], llm["model"])
     # Build prompt with feedback from market scores (machine learning loop)
     feedback = await get_all_families_stats()
     prompt = build_match_prompt(match)
     if feedback:
         prompt = feedback + "\n\nUSA QUESTO STORICO per aggiustare il ranking: dai priorità a mercati che hanno vinto più volte nella stessa famiglia, e considera anche i mercati con tanti 'persi opportunità' (avrebbero vinto ma non li avevi previsti).\n\n" + prompt
-    msg = UserMessage(text=prompt)
-    response = await chat.send_message(msg)
-    text = response if isinstance(response, str) else str(response)
+
+    if llm["provider"] == "deepseek":
+        # Direct LiteLLM call bypassing Emergent proxy
+        if not DEEPSEEK_API_KEY:
+            raise HTTPException(500, "DEEPSEEK_API_KEY not configured")
+        import litellm
+        try:
+            resp = await litellm.acompletion(
+                model=f"deepseek/{llm['model']}",
+                api_key=DEEPSEEK_API_KEY,
+                messages=[
+                    {"role": "system", "content": PREDICTION_SYSTEM},
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0.7,
+                max_tokens=1500,
+            )
+            text = resp["choices"][0]["message"]["content"]
+        except Exception as e:
+            raise HTTPException(500, f"DeepSeek error: {e}")
+    else:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"pred-{match['id']}",
+            system_message=PREDICTION_SYSTEM,
+        ).with_model(llm["provider"], llm["model"])
+        msg = UserMessage(text=prompt)
+        response = await chat.send_message(msg)
+        text = response if isinstance(response, str) else str(response)
     # Track estimated cost
     try:
         await db.settings.update_one({"key": "ai_spent"}, {"$inc": {"value": llm["cost_per_pred"]}}, upsert=True)
