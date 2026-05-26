@@ -49,14 +49,13 @@ export default function Home() {
       ]);
       setMatches(ms);
       setDays(ds);
-      if (!day && ds.length && selectedDay == null) setSelectedDay(ds[0]);
     } catch (e: any) {
       console.warn("load err", e?.message);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [selectedDay]);
+  }, []);
 
   useFocusEffect(useCallback(() => {
     setLoading(true);

@@ -82,10 +82,23 @@ export const api = {
     req<any>(`/import`, { method: "POST", body: JSON.stringify(payload) }),
   deleteAll: () => req<{ ok: boolean }>(`/matches/all`, { method: "DELETE" }),
   aiStudioPrompt: () => req<{ csv: string; count: number }>(`/aistudio/prompt`),
-  uploadExcel: async (uri: string, name: string) => {
+  uploadExcel: async (uri: string, name: string, mimeType?: string) => {
     const form = new FormData();
-    // @ts-ignore - RN FormData file shape
-    form.append("file", { uri, name, type: "application/octet-stream" });
+    if (typeof window !== "undefined" && window.fetch && uri.startsWith("blob:")) {
+      // Web: fetch the blob URL and append as Blob
+      const r = await fetch(uri);
+      const blob = await r.blob();
+      form.append("file", blob, name);
+    } else if (typeof window !== "undefined" && uri.startsWith("data:")) {
+      // Web data: URI
+      const r = await fetch(uri);
+      const blob = await r.blob();
+      form.append("file", blob, name);
+    } else {
+      // Native (iOS/Android): use uri reference
+      // @ts-ignore - RN FormData file shape
+      form.append("file", { uri, name, type: mimeType || "application/octet-stream" });
+    }
     const res = await fetch(`${BASE}/api/upload-excel`, { method: "POST", body: form });
     if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
     return res.json() as Promise<{ inserted: number; updated: number; skipped: number; total_parsed: number }>;

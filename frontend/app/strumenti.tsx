@@ -32,7 +32,7 @@ export default function Strumenti() {
     const file = res.assets[0];
     setBusy("upload");
     try {
-      const out = await api.uploadExcel(file.uri, file.name);
+      const out = await api.uploadExcel(file.uri, file.name, file.mimeType);
       Alert.alert(
         "Import completato",
         `Nuove: ${out.inserted}\nAggiornate (quote cambiate): ${out.updated}\nGià presenti: ${out.skipped}\nTotale lette: ${out.total_parsed}`,

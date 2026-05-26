@@ -123,26 +123,34 @@ class SelectionUpdate(BaseModel):
 # EXCEL PARSER
 # ============================================================
 
+DATE_HEADER_RE = re.compile(
+    r'(\d{1,2})\s*(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)',
+    re.IGNORECASE,
+)
+
+
+def parse_date_header(cell_value, base_year: int) -> Optional[date]:
+    """Detect a row that is a date header like 'lunedì, 25 maggio' or '12 maggio'."""
+    if cell_value is None or (isinstance(cell_value, float) and pd.isna(cell_value)):
+        return None
+    s = str(cell_value).lower()
+    m = DATE_HEADER_RE.search(s)
+    if not m:
+        return None
+    try:
+        return date(base_year, ITALIAN_MONTHS[m.group(2).lower()], int(m.group(1)))
+    except (ValueError, KeyError):
+        return None
+
+
 def parse_first_day(raw_df: pd.DataFrame) -> Optional[date]:
-    """Scan first ~10 rows for an Italian date like '12 maggio'."""
-    text_blob = ''
-    for r in range(min(15, len(raw_df))):
-        for c in range(min(10, raw_df.shape[1])):
-            v = raw_df.iat[r, c]
-            if pd.notna(v):
-                text_blob += ' ' + str(v).lower()
-    m = re.search(
-        r'(\d{1,2})\s*(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)',
-        text_blob
-    )
-    if m:
-        day = int(m.group(1))
-        month = ITALIAN_MONTHS[m.group(2)]
-        year = datetime.now().year
-        try:
-            return date(year, month, day)
-        except ValueError:
-            return None
+    """Scan first ~15 rows for an Italian date like '12 maggio' or 'lunedì, 25 maggio'."""
+    base_year = datetime.now().year
+    for r in range(min(20, len(raw_df))):
+        for c in range(min(6, raw_df.shape[1])):
+            d = parse_date_header(raw_df.iat[r, c], base_year)
+            if d:
+                return d
     return None
 
 
@@ -261,6 +269,7 @@ def parse_excel_bytes(content: bytes, filename: str) -> List[dict]:
     else:
         raw = pd.read_excel(bio, header=None, engine='openpyxl')
 
+    base_year = datetime.now().year
     first_day = parse_first_day(raw)
     if not first_day:
         first_day = datetime.now().date()
@@ -269,9 +278,19 @@ def parse_excel_bytes(content: bytes, filename: str) -> List[dict]:
     matches = []
     current_day = first_day
     prev_time_min: Optional[int] = None
+    explicit_day_set = False  # becomes True after we encounter an in-file date header
 
     for idx in range(len(raw)):
         row = raw.iloc[idx]
+
+        # Check first column for a date header (e.g. "lunedì, 25 maggio")
+        date_in_row = parse_date_header(row.iat[COL_ORA] if COL_ORA < len(row) else None, base_year)
+        if date_in_row:
+            current_day = date_in_row
+            prev_time_min = None  # reset
+            explicit_day_set = True
+            continue
+
         ora_raw = row.iat[COL_ORA] if COL_ORA < len(row) else None
         time_str = parse_time(ora_raw)
         if not time_str:
@@ -284,9 +303,9 @@ def parse_excel_bytes(content: bytes, filename: str) -> List[dict]:
 
         manif = str(row.iat[COL_MANIF]).strip() if COL_MANIF < len(row) and pd.notna(row.iat[COL_MANIF]) else 'N/D'
 
-        # Day rollover: when time goes BACK (e.g. 23:00 then 00:30)
+        # Day rollover only when there is NO explicit date header in the file
         cur_min = int(time_str[:2]) * 60 + int(time_str[3:])
-        if prev_time_min is not None and cur_min < prev_time_min:
+        if not explicit_day_set and prev_time_min is not None and cur_min < prev_time_min:
             current_day = current_day + timedelta(days=1)
         prev_time_min = cur_min
 
