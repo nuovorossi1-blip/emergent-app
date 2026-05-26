@@ -85,6 +85,10 @@ export const api = {
     req<any>(`/import`, { method: "POST", body: JSON.stringify(payload) }),
   deleteAll: () => req<{ ok: boolean }>(`/matches/all`, { method: "DELETE" }),
   aiStudioPrompt: () => req<{ csv: string; count: number }>(`/aistudio/prompt`),
+  getLlmSettings: () => req<{ options: any[]; selected_id: string }>("/settings/llm"),
+  setLlmSettings: (id: string) => req<{ ok: boolean; selected_id: string }>("/settings/llm", { method: "POST", body: JSON.stringify({ id }) }),
+  getBudget: () => req<{ estimated_spent_usd: number; predictions_made: number; current_model: string; cost_per_prediction_usd: number; topup_url: string }>("/settings/budget"),
+  resetBudget: () => req<{ ok: boolean }>("/settings/budget/reset", { method: "POST" }),
   uploadExcel: async (uri: string, name: string, mimeType?: string) => {
     const form = new FormData();
     if (typeof window !== "undefined" && window.fetch && uri.startsWith("blob:")) {

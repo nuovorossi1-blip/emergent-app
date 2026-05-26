@@ -125,9 +125,36 @@ export default function MatchDetail() {
           )}
         </View>
 
-        {/* AI prediction block - hidden when result already set */}
-        {!match.result && (
-        <View style={styles.aiBlock}>
+        {/* AI prediction block - always visible. Shows result_ok color when result is set */}
+        <View style={[
+          styles.aiBlock,
+          match.result && prediction?.main_prediction && {
+            borderColor: (() => {
+              const parts = match.result.split("-").map(n => parseInt(n, 10));
+              if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) return colors.border;
+              const home = parts[0], away = parts[1], total = home + away;
+              const m = (prediction.main_prediction || "").toUpperCase().replace(/\s/g, "");
+              let ok: boolean | null = null;
+              if (m === "1") ok = home > away;
+              else if (m === "X") ok = home === away;
+              else if (m === "2") ok = away > home;
+              else if (m.startsWith("1X")) ok = home >= away;
+              else if (m.startsWith("X2")) ok = away >= home;
+              else if (m.startsWith("12")) ok = home !== away;
+              else if (m.startsWith("O")) { const n = parseFloat(m.replace(/[^\d.]/g, "")); ok = total > n; }
+              else if (m.startsWith("U")) { const n = parseFloat(m.replace(/[^\d.]/g, "")); ok = total < n; }
+              else if (m === "GG") ok = home > 0 && away > 0;
+              else if (m === "NG") ok = home === 0 || away === 0;
+              else if (m.includes("MG") && m.includes("2-4")) {
+                if (m.includes("CASA")) ok = home >= 2 && home <= 4;
+                else if (m.includes("OSPITE")) ok = away >= 2 && away <= 4;
+                else ok = total >= 2 && total <= 4;
+              }
+              return ok === true ? colors.success : ok === false ? colors.danger : colors.border;
+            })(),
+            borderWidth: 2,
+          },
+        ]}>
           <View style={styles.aiHeader}>
             <Ionicons name="sparkles" size={16} color={colors.aiText} />
             <Text style={styles.aiTitle}>PRONOSTICO AI</Text>
@@ -214,7 +241,6 @@ export default function MatchDetail() {
             </TouchableOpacity>
           )}
         </View>
-        )}
 
         {/* Market families */}
         <Text style={styles.sectionTitle}>QUOTE PER FAMIGLIA DI MERCATO</Text>

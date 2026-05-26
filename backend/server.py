@@ -615,14 +615,89 @@ def build_match_prompt(match: dict) -> str:
     )
 
 
+# ============================================================
+# SETTINGS & LLM SELECTOR
+# ============================================================
+
+LLM_OPTIONS = [
+    {"id": "gemini-flash", "label": "Gemini 2.5 Flash", "provider": "gemini", "model": "gemini-2.5-flash",
+     "cost_per_pred": 0.002, "speed": "Veloce", "quality": "Buono", "desc": "Più economico, ideale per uso intensivo"},
+    {"id": "gemini-pro", "label": "Gemini 2.5 Pro", "provider": "gemini", "model": "gemini-2.5-pro",
+     "cost_per_pred": 0.025, "speed": "Medio", "quality": "Ottimo", "desc": "Ragionamento più profondo"},
+    {"id": "claude-haiku", "label": "Claude Haiku 4.5", "provider": "anthropic", "model": "claude-haiku-4-5-20251001",
+     "cost_per_pred": 0.005, "speed": "Veloce", "quality": "Buono", "desc": "Bilanciato economia/qualità"},
+    {"id": "claude-sonnet", "label": "Claude Sonnet 4.5", "provider": "anthropic", "model": "claude-sonnet-4-5-20250929",
+     "cost_per_pred": 0.016, "speed": "Medio", "quality": "Eccellente", "desc": "Ragionamento top, più costoso"},
+    {"id": "gpt-4o-mini", "label": "GPT-4o Mini", "provider": "openai", "model": "gpt-4o-mini",
+     "cost_per_pred": 0.003, "speed": "Veloce", "quality": "Buono", "desc": "Veloce e ben bilanciato"},
+    {"id": "gpt-4o", "label": "GPT-4o", "provider": "openai", "model": "gpt-4o",
+     "cost_per_pred": 0.020, "speed": "Medio", "quality": "Ottimo", "desc": "Eccellente per analisi complesse"},
+]
+
+DEFAULT_LLM = "gemini-flash"
+
+
+async def get_selected_llm() -> dict:
+    doc = await db.settings.find_one({"key": "llm_model"}, {"_id": 0})
+    llm_id = (doc or {}).get("value", DEFAULT_LLM)
+    for o in LLM_OPTIONS:
+        if o["id"] == llm_id:
+            return o
+    return LLM_OPTIONS[0]
+
+
+@api_router.get("/settings/llm")
+async def get_llm_settings():
+    selected = await get_selected_llm()
+    return {"options": LLM_OPTIONS, "selected_id": selected["id"]}
+
+
+@api_router.post("/settings/llm")
+async def set_llm_settings(payload: Dict[str, Any]):
+    llm_id = payload.get("id")
+    if not any(o["id"] == llm_id for o in LLM_OPTIONS):
+        raise HTTPException(400, "LLM id non valido")
+    await db.settings.update_one(
+        {"key": "llm_model"},
+        {"$set": {"key": "llm_model", "value": llm_id}},
+        upsert=True,
+    )
+    return {"ok": True, "selected_id": llm_id}
+
+
+@api_router.get("/settings/budget")
+async def get_budget_info():
+    """Aggregate estimated cost from local counter."""
+    doc = await db.settings.find_one({"key": "ai_spent"}, {"_id": 0})
+    spent = (doc or {}).get("value", 0.0)
+    selected = await get_selected_llm()
+    pred_count_doc = await db.settings.find_one({"key": "ai_count"}, {"_id": 0})
+    count = (pred_count_doc or {}).get("value", 0)
+    return {
+        "estimated_spent_usd": round(spent, 4),
+        "predictions_made": count,
+        "current_model": selected["label"],
+        "cost_per_prediction_usd": selected["cost_per_pred"],
+        "topup_url": "https://app.emergent.sh/chat",
+    }
+
+
+@api_router.post("/settings/budget/reset")
+async def reset_budget():
+    await db.settings.update_one({"key": "ai_spent"}, {"$set": {"value": 0.0}}, upsert=True)
+    await db.settings.update_one({"key": "ai_count"}, {"$set": {"value": 0}}, upsert=True)
+    return {"ok": True}
+
+
 async def run_ai_prediction(match: dict) -> dict:
     if not EMERGENT_LLM_KEY:
         raise HTTPException(500, "EMERGENT_LLM_KEY not configured")
+    llm = await get_selected_llm()
     chat = LlmChat(
         api_key=EMERGENT_LLM_KEY,
         session_id=f"pred-{match['id']}",
         system_message=PREDICTION_SYSTEM,
-    ).with_model("gemini", "gemini-2.5-flash")
+    ).with_model(llm["provider"], llm["model"])
     # Build prompt with feedback from market scores (machine learning loop)
     feedback = await get_all_families_stats()
     prompt = build_match_prompt(match)
@@ -631,6 +706,12 @@ async def run_ai_prediction(match: dict) -> dict:
     msg = UserMessage(text=prompt)
     response = await chat.send_message(msg)
     text = response if isinstance(response, str) else str(response)
+    # Track estimated cost
+    try:
+        await db.settings.update_one({"key": "ai_spent"}, {"$inc": {"value": llm["cost_per_pred"]}}, upsert=True)
+        await db.settings.update_one({"key": "ai_count"}, {"$inc": {"value": 1}}, upsert=True)
+    except Exception:
+        pass
     # Extract JSON
     m = re.search(r'\{.*\}', text, re.DOTALL)
     if not m:

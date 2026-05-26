@@ -460,6 +460,9 @@ export default function Home() {
             <FlatList
               data={[null, ...days]}
               keyExtractor={(it, i) => it ?? `all-${i}`}
+              initialScrollIndex={Math.max(0, (selectedDay ? [null, ...days].indexOf(selectedDay) : 0))}
+              getItemLayout={(_, index) => ({ length: 48, offset: 48 * index, index })}
+              onScrollToIndexFailed={() => {}}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   testID={`day-${item ?? "all"}`}

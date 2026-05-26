@@ -220,6 +220,15 @@ export default function Strumenti() {
           onPress={exportBackup}
         />
 
+        <Text style={styles.section}>AI & BUDGET</Text>
+        <Tool
+          testID="tool-llm"
+          icon="hardware-chip-outline"
+          title="Modello AI & Budget LLM"
+          desc="Scegli il modello (Gemini, Claude, GPT) e monitora la spesa stimata + ricarica."
+          onPress={() => router.push("/llm-settings")}
+        />
+
         <Text style={styles.section}>ANALISI</Text>
         <Tool
           testID="tool-book"
