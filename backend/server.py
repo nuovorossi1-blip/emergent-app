@@ -622,7 +622,7 @@ async def run_ai_prediction(match: dict) -> dict:
         api_key=EMERGENT_LLM_KEY,
         session_id=f"pred-{match['id']}",
         system_message=PREDICTION_SYSTEM,
-    ).with_model("anthropic", "claude-sonnet-4-5-20250929")
+    ).with_model("gemini", "gemini-2.5-flash")
     # Build prompt with feedback from market scores (machine learning loop)
     feedback = await get_all_families_stats()
     prompt = build_match_prompt(match)
@@ -942,7 +942,7 @@ async def delete_all():
 async def aistudio_prompt():
     selected = await db.matches.find({'selected': True}, {'_id': 0}).to_list(1000)
     if not selected:
-        selected = await db.matches.find({}, {'_id': 0}).limit(20).to_list(20)
+        return {"csv": "", "count": 0}
     csv_lines = ["Ora,Lega,Casa,Ospite,1,X,2,1X,X2,U1.5,O1.5,U2.5,O2.5,U3.5,O3.5,GG,NG"]
     for m in selected:
         o = m.get('odds', {})

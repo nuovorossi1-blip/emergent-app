@@ -7,10 +7,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useFocusEffect } from "expo-router";
 
-import { api, Match } from "@/src/api";
+import { api, Match, quickPrediction } from "@/src/api";
 import { colors } from "@/src/theme";
 import { ScoreInput } from "@/src/components/ScoreInput";
 import { confirmAction } from "@/src/utils/platform";
+import { AISTUDIO_FRAMEWORK } from "@/src/book-content";
+import { Platform } from "react-native";
 
 export default function Selected() {
   const router = useRouter();
@@ -76,6 +78,29 @@ export default function Selected() {
           <Ionicons name="chevron-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Selezionate ({items.length})</Text>
+        <TouchableOpacity
+          testID="sel-aistudio"
+          onPress={async () => {
+            if (items.length === 0) { Alert.alert("Vuoto", "Nessuna partita selezionata"); return; }
+            try {
+              const { csv, count } = await api.aiStudioPrompt();
+              const filled = AISTUDIO_FRAMEWORK.replace("{{CSV}}", csv);
+              let newWin: Window | null = null;
+              if (Platform.OS === "web" && typeof window !== "undefined") {
+                newWin = window.open("https://aistudio.google.com/prompts/new_chat", "_blank", "noopener,noreferrer");
+              }
+              try { if (Platform.OS === "web") await (navigator as any).clipboard.writeText(filled); } catch {}
+              Alert.alert("Prompt copiato ✓", `${count} partite. Incolla con Ctrl+V nella scheda AI Studio.`);
+              if (Platform.OS === "web" && !newWin) {
+                Alert.alert("Popup bloccato", "Abilita i popup e riprova.");
+              }
+            } catch (e: any) { Alert.alert("Errore", e?.message); }
+          }}
+          style={styles.aiStudioBtn}
+        >
+          <Ionicons name="planet" size={14} color={colors.primary} />
+          <Text style={styles.aiStudioBtnTxt}>AI STUDIO</Text>
+        </TouchableOpacity>
         <TouchableOpacity testID="sel-clear" onPress={clearAll} style={styles.iconBtn}>
           <Ionicons name="trash-outline" size={20} color={colors.danger} />
         </TouchableOpacity>
@@ -144,6 +169,12 @@ const styles = StyleSheet.create({
   header: { flexDirection: "row", alignItems: "center", paddingHorizontal: 8, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.border },
   iconBtn: { padding: 8 },
   title: { flex: 1, color: colors.text, fontSize: 16, fontWeight: "800", textAlign: "center" },
+  aiStudioBtn: {
+    flexDirection: "row", alignItems: "center", gap: 4,
+    backgroundColor: "rgba(255,87,34,0.15)", borderWidth: 1, borderColor: colors.primary,
+    paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999,
+  },
+  aiStudioBtnTxt: { color: colors.primary, fontWeight: "900", fontSize: 10, letterSpacing: 0.5 },
   empty: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12 },
   emptyTxt: { color: colors.textMuted, fontSize: 14 },
   list: { padding: 16, gap: 10 },

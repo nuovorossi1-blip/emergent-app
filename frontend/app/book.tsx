@@ -25,16 +25,30 @@ export default function Book() {
   const openAIStudio = async () => {
     try {
       const { csv, count } = await api.aiStudioPrompt();
+      if (count === 0) {
+        Alert.alert("Nessuna partita selezionata", "Seleziona almeno una partita prima di usare il framework AI Studio.");
+        return;
+      }
       const filled = AISTUDIO_FRAMEWORK.replace("{{CSV}}", csv);
-      // Copy to clipboard
+      // CRITICAL: open window BEFORE async clipboard call to avoid popup blocker
+      let newWin: Window | null = null;
+      if (Platform.OS === "web" && typeof window !== "undefined") {
+        newWin = window.open("https://aistudio.google.com/prompts/new_chat", "_blank", "noopener,noreferrer");
+      }
+      // Then copy to clipboard
       try {
         if (Platform.OS === "web" && typeof navigator !== "undefined") {
           await (navigator as any).clipboard.writeText(filled);
         }
       } catch {}
-      // Open AI Studio in a new tab immediately
-      openExternalUrl("https://aistudio.google.com/prompts/new_chat");
-      Alert.alert("Prompt copiato ✓", `${count} partite incluse.\nIncolla con Ctrl+V (o Cmd+V) nella chat che si è appena aperta.`);
+      if (Platform.OS !== "web") {
+        openExternalUrl("https://aistudio.google.com/prompts/new_chat");
+      }
+      if (Platform.OS === "web" && !newWin) {
+        Alert.alert("Popup bloccato", "Abilita i popup per questo sito e riprova, oppure apri manualmente https://aistudio.google.com/prompts/new_chat e incolla con Ctrl+V.");
+        return;
+      }
+      Alert.alert("Prompt copiato ✓", `${count} partite. Incolla con Ctrl+V nella nuova scheda di AI Studio.`);
     } catch (e: any) {
       Alert.alert("Errore", e?.message);
     }

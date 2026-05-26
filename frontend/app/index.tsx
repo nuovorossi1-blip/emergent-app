@@ -8,13 +8,15 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useFocusEffect } from "expo-router";
 
-import { api, Match } from "@/src/api";
+import { api, Match, quickPrediction } from "@/src/api";
 import { colors } from "@/src/theme";
 import BottomNav from "@/src/components/BottomNav";
 import { OddBadge } from "@/src/components/OddBadge";
 import { confirmAction } from "@/src/utils/platform";
 
 function bestSign(m: Match): { label: string; value?: number } {
+  const q = quickPrediction(m.odds);
+  if (q) return { label: q.market, value: q.odd };
   const candidates: [string, number | undefined][] = [
     ["1", m.odds.odd_1], ["X", m.odds.odd_X], ["2", m.odds.odd_2],
   ];
@@ -604,11 +606,11 @@ const styles = StyleSheet.create({
   timeTxt: { color: colors.text, fontSize: 16, fontWeight: "900", marginTop: 2 },
   oddCol: { alignItems: "flex-end", gap: 4 },
   signBadge: {
-    minWidth: 64, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10,
+    minWidth: 78, paddingHorizontal: 8, paddingVertical: 6, borderRadius: 10,
     alignItems: "center", justifyContent: "center",
   },
-  signTopLbl: { color: "#FFF", fontSize: 9, fontWeight: "800", opacity: 0.9, letterSpacing: 0.5 },
-  signValue: { color: "#FFF", fontSize: 17, fontWeight: "900" },
+  signTopLbl: { color: "#FFF", fontSize: 9, fontWeight: "800", opacity: 0.9, letterSpacing: 0.5, textAlign: "center" },
+  signValue: { color: "#FFF", fontSize: 15, fontWeight: "900", textAlign: "center" },
   smallBadges: { flexDirection: "row", gap: 4, marginTop: 2 },
   aiBadge: {
     flexDirection: "row", alignItems: "center", gap: 3,
