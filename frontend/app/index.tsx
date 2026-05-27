@@ -42,7 +42,7 @@ export default function Home() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === "web" && width >= 900;
-  const numCols = isDesktop ? (width >= 1400 ? 3 : 2) : 1;
+  const numCols = 1; // forced single-column list also on desktop (user request)
 
   const [matches, setMatches] = useState<Match[]>([]);
   const [days, setDays] = useState<string[]>([]);
@@ -95,14 +95,17 @@ export default function Home() {
   }, [matches, query, tierFilter, areaFilter, countryFilter]);
 
   const grouped = useMemo(() => {
+    if (sortByTime) {
+      // ORARIO mode: flat list ordered chronologically 00:00 → 23:59
+      const sorted = [...filtered].sort((a, b) => a.time.localeCompare(b.time));
+      return sorted.length ? [["⏱ ORDINE CRONOLOGICO", sorted] as [string, Match[]]] : [];
+    }
     const map = new Map<string, Match[]>();
     for (const m of filtered) {
       if (!map.has(m.manifestazione)) map.set(m.manifestazione, []);
       map.get(m.manifestazione)!.push(m);
     }
-    const entries = Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-    if (sortByTime) entries.forEach(([, arr]) => arr.sort((x, y) => x.time.localeCompare(y.time)));
-    return entries;
+    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
   }, [filtered, sortByTime]);
 
   const selectedCount = matches.filter((m) => m.selected).length;
