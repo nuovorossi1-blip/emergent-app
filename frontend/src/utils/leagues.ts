@@ -1,62 +1,99 @@
 // League acronym dictionary
-// Parses codes like "ITA1", "AMINAZ", "CPSUDAM", "BRA1RS"
+// Parses codes like "ITA1", "AMINAZ", "CPSUDAM", "BRA1RS", "ARM1"
 
+// 3-letter country codes (Italian convention provided by user)
 const COUNTRY: Record<string, string> = {
-  ITA: "Italia",
-  ENG: "Inghilterra",
-  ING: "Inghilterra",
-  SPA: "Spagna",
-  ESP: "Spagna",
-  GER: "Germania",
-  DEU: "Germania",
-  FRA: "Francia",
-  BRA: "Brasile",
-  ARG: "Argentina",
-  NED: "Olanda",
-  OLA: "Olanda",
-  POR: "Portogallo",
-  ISR: "Israele",
-  USA: "Stati Uniti",
-  MEX: "Messico",
-  COL: "Colombia",
-  CHL: "Cile",
-  URY: "Uruguay",
-  PAR: "Paraguay",
-  BOL: "Bolivia",
-  ECU: "Ecuador",
-  TUR: "Turchia",
-  GRE: "Grecia",
-  BEL: "Belgio",
-  SUI: "Svizzera",
-  SCO: "Scozia",
-  IRL: "Irlanda",
-  NOR: "Norvegia",
-  SWE: "Svezia",
-  DEN: "Danimarca",
-  FIN: "Finlandia",
-  POL: "Polonia",
-  CZE: "Cechia",
-  HUN: "Ungheria",
-  ROM: "Romania",
-  BUL: "Bulgaria",
-  SRB: "Serbia",
-  CRO: "Croazia",
-  AUT: "Austria",
-  RUS: "Russia",
-  UKR: "Ucraina",
-  JPN: "Giappone",
-  KOR: "Corea del Sud",
-  CHN: "Cina",
-  AUS: "Australia",
-  EGY: "Egitto",
-  MAR: "Marocco",
-  TUN: "Tunisia",
+  AFG: "Afghanistan",
+  ALB: "Albania",
   ALG: "Algeria",
-  RSA: "Sudafrica",
-  NGA: "Nigeria",
+  AND: "Andorra",
+  ANG: "Angola",
+  ARA: "Arabia Saudita",
+  ARG: "Argentina",
+  ARM: "Armenia",
+  AUS: "Australia",
+  AUT: "Austria",
+  AZE: "Azerbaigian",
+  BEL: "Belgio",
+  BOL: "Bolivia",
+  BRA: "Brasile",
+  BUL: "Bulgaria",
+  CAM: "Camerun",
+  CAN: "Canada",
+  CHI: "Cile",
+  CIN: "Cina",
+  COL: "Colombia",
+  COR: "Corea del Sud",
+  COS: "Costa Rica",
+  CRO: "Croazia",
+  DAN: "Danimarca",
+  ECU: "Ecuador",
+  EGI: "Egitto",
+  ESA: "El Salvador",
+  EST: "Estonia",
+  FIN: "Finlandia",
+  FRA: "Francia",
+  GAL: "Galles",
+  GEO: "Georgia",
+  GER: "Germania",
   GHA: "Ghana",
-  CIV: "Costa d'Avorio",
+  GIA: "Giappone",
+  GIO: "Giordania",
+  GRE: "Grecia",
+  GUA: "Guatemala",
+  GUI: "Guinea",
+  HON: "Honduras",
   IND: "India",
+  ING: "Inghilterra",
+  IRA: "Iran",
+  IRL: "Irlanda",
+  ISL: "Islanda",
+  ISR: "Israele",
+  ITA: "Italia",
+  KAZ: "Kazakistan",
+  KEN: "Kenya",
+  LET: "Lettonia",
+  LIT: "Lituania",
+  LUX: "Lussemburgo",
+  MAR: "Marocco",
+  MEX: "Messico",
+  MOL: "Moldavia",
+  MON: "Montenegro",
+  NIG: "Nigeria",
+  NOR: "Norvegia",
+  NUA: "Nuova Zelanda",
+  OLA: "Olanda",
+  PAN: "Panama",
+  PAR: "Paraguay",
+  PER: "Perù",
+  POL: "Polonia",
+  POR: "Portogallo",
+  QAT: "Qatar",
+  REP: "Repubblica Ceca",
+  ROM: "Romania",
+  RUS: "Russia",
+  SCO: "Scozia",
+  SEN: "Senegal",
+  SER: "Serbia",
+  SIN: "Singapore",
+  SLO: "Slovenia",
+  SPA: "Spagna",
+  SRI: "Sri Lanka",
+  SUD: "Sudafrica",
+  SUR: "Suriname",
+  SVE: "Svezia",
+  SVI: "Svizzera",
+  TAG: "Tagikistan",
+  TAI: "Thailandia",
+  TUN: "Tunisia",
+  TUR: "Turchia",
+  UCR: "Ucraina",
+  UNG: "Ungheria",
+  URU: "Uruguay",
+  USA: "Stati Uniti",
+  UZB: "Uzbekistan",
+  VEN: "Venezuela",
+  VIE: "Vietnam",
 };
 
 const CATEGORY: Record<string, string> = {
@@ -64,11 +101,13 @@ const CATEGORY: Record<string, string> = {
   "2": "Seconda Divisione",
   "3": "Terza Divisione",
   "4": "Quarta Divisione",
+  "5": "Quinta Divisione",
   F: "Femminile",
+  U17: "Under 17",
   U19: "Under 19",
   U20: "Under 20",
   U21: "Under 21",
-  U17: "Under 17",
+  U23: "Under 23",
   CP: "Coppa Nazionale",
   CUP: "Coppa Nazionale",
   RS: "Riserve",
@@ -77,68 +116,92 @@ const CATEGORY: Record<string, string> = {
   CONF: "Conference League",
 };
 
-const MISC: Record<string, string> = {
-  AMI: "Amichevole",
-  NAZ: "Nazionali",
-  MOND: "Mondiali",
-  SUD: "Sud",
-  AM: "America",
-  NORD: "Nord",
-  CEN: "Centro",
-  EUR: "Europa",
-  ASI: "Asia",
-  AFR: "Africa",
-};
-
 const AREA_BY_COUNTRY: Record<string, string> = {
+  // Europa
   Italia: "Europa", Inghilterra: "Europa", Spagna: "Europa", Germania: "Europa",
-  Francia: "Europa", Olanda: "Europa", Portogallo: "Europa", Israele: "Europa",
-  Turchia: "Europa", Grecia: "Europa", Belgio: "Europa", Svizzera: "Europa",
-  Scozia: "Europa", Irlanda: "Europa", Norvegia: "Europa", Svezia: "Europa",
-  Danimarca: "Europa", Finlandia: "Europa", Polonia: "Europa", Cechia: "Europa",
-  Ungheria: "Europa", Romania: "Europa", Bulgaria: "Europa", Serbia: "Europa",
-  Croazia: "Europa", Austria: "Europa", Russia: "Europa", Ucraina: "Europa",
+  Francia: "Europa", Olanda: "Europa", Portogallo: "Europa", Belgio: "Europa",
+  Svizzera: "Europa", Scozia: "Europa", Irlanda: "Europa", Norvegia: "Europa",
+  Svezia: "Europa", Danimarca: "Europa", Finlandia: "Europa", Polonia: "Europa",
+  "Repubblica Ceca": "Europa", Ungheria: "Europa", Romania: "Europa",
+  Bulgaria: "Europa", Serbia: "Europa", Croazia: "Europa", Austria: "Europa",
+  Russia: "Europa", Ucraina: "Europa", Turchia: "Europa", Grecia: "Europa",
+  Galles: "Europa", Georgia: "Europa", Albania: "Europa", Andorra: "Europa",
+  Armenia: "Europa", Azerbaigian: "Europa", Estonia: "Europa", Islanda: "Europa",
+  Lettonia: "Europa", Lituania: "Europa", Lussemburgo: "Europa",
+  Moldavia: "Europa", Montenegro: "Europa", Slovenia: "Europa",
+  // America
   Brasile: "America", Argentina: "America", "Stati Uniti": "America",
   Messico: "America", Colombia: "America", Cile: "America", Uruguay: "America",
-  Paraguay: "America", Bolivia: "America", Ecuador: "America",
+  Paraguay: "America", Bolivia: "America", Ecuador: "America", Perù: "America",
+  Venezuela: "America", Canada: "America", "Costa Rica": "America",
+  "El Salvador": "America", Guatemala: "America", Honduras: "America",
+  Panama: "America", Suriname: "America",
+  // Asia
   Giappone: "Asia", "Corea del Sud": "Asia", Cina: "Asia", India: "Asia",
-  Australia: "Asia",
+  "Arabia Saudita": "Asia", Iran: "Asia", Kazakistan: "Asia", Qatar: "Asia",
+  Giordania: "Asia", Singapore: "Asia", Tagikistan: "Asia", Thailandia: "Asia",
+  Uzbekistan: "Asia", Vietnam: "Asia", "Sri Lanka": "Asia", Afghanistan: "Asia",
+  Israele: "Asia",
+  // Oceania
+  Australia: "Oceania", "Nuova Zelanda": "Oceania",
+  // Africa
   Egitto: "Africa", Marocco: "Africa", Tunisia: "Africa", Algeria: "Africa",
-  Sudafrica: "Africa", Nigeria: "Africa", Ghana: "Africa", "Costa d'Avorio": "Africa",
+  Sudafrica: "Africa", Nigeria: "Africa", Ghana: "Africa", Camerun: "Africa",
+  Senegal: "Africa", Kenya: "Africa", Angola: "Africa", Guinea: "Africa",
 };
+
+// Special tournament prefixes (not country-based)
+const SPECIAL: { match: RegExp; label: string; area: string }[] = [
+  { match: /^AMIU(\d{2})/, label: "Amichevole Under", area: "Mondo" },
+  { match: /^AMINAZ/, label: "Amichevole Nazionali", area: "Mondo" },
+  { match: /^AMI/, label: "Amichevole", area: "Mondo" },
+  { match: /^CPSUDAM/, label: "Coppa Sudamericana", area: "America" },
+  { match: /^CPLIB/, label: "Coppa Libertadores", area: "America" },
+  { match: /^CPCAR/, label: "Coppa Caraibica", area: "America" },
+  { match: /^CONCAF/, label: "Concacaf", area: "America" },
+  { match: /^CHAM/, label: "Champions League", area: "Europa" },
+  { match: /^EUR(?!O)/, label: "Europa League", area: "Europa" },
+  { match: /^CONF/, label: "Conference League", area: "Europa" },
+  { match: /^MOND/, label: "Mondiali", area: "Mondo" },
+];
 
 export function parseLeagueCode(code: string): {
   country?: string;
   category?: string;
   area: string;
-  label: string;
+  label: string;       // human readable e.g. "Argentina · Massima Serie"
+  shortLabel: string;  // compact e.g. "ARG1 (Argentina)"
   isTop: boolean;
 } {
-  if (!code) return { area: "Mondo", label: "—", isTop: false };
-  const c = code.trim().toUpperCase();
+  if (!code) return { area: "Mondo", label: "—", shortLabel: "—", isTop: false };
+  const raw = code.trim();
+  const c = raw.toUpperCase();
 
-  // Try misc/special at start
+  // 1) SPECIAL tournaments
+  for (const s of SPECIAL) {
+    if (s.match.test(c)) {
+      return {
+        area: s.area,
+        label: s.label,
+        shortLabel: `${raw} (${s.label})`,
+        isTop: false,
+      };
+    }
+  }
+
+  // 2) Country 3-letter prefix
   let country: string | undefined;
   let category: string | undefined;
   let area = "Mondo";
   const parts: string[] = [];
 
-  // Detect amichevole / coppa / mondiale prefixes
-  if (c.startsWith("AMI")) { parts.push("Amichevole"); }
-  if (c.startsWith("CP") || c.startsWith("CUP")) { parts.push("Coppa"); }
-  if (c.includes("MOND")) { parts.push("Mondiale"); area = "Mondo"; }
-  if (c.includes("SUDAM")) { parts.push("Sudamerica"); area = "America"; }
-  if (c.includes("NORDAM")) { parts.push("Nordamerica"); area = "America"; }
-
-  // Try 3-letter country prefix
   for (const [prefix, name] of Object.entries(COUNTRY)) {
     if (c.startsWith(prefix)) {
       country = name;
       parts.push(name);
       area = AREA_BY_COUNTRY[name] || "Mondo";
       const rest = c.slice(prefix.length);
-      // Try to detect category suffix
-      const catMatch = rest.match(/^(U\d{2}|F|CP|CUP|RS|CH|EU|CONF)$/);
+      const catMatch = rest.match(/^(U\d{2}|F|CP|CUP|RS|CH|EU|CONF)/);
       if (catMatch) {
         category = CATEGORY[catMatch[1]] || catMatch[1];
         parts.push(category);
@@ -147,7 +210,6 @@ export function parseLeagueCode(code: string): {
         if (numMatch) {
           category = CATEGORY[numMatch[1]] || `Serie ${numMatch[1]}`;
           parts.push(category);
-          // Check suffix after number
           const tail = rest.slice(numMatch[1].length);
           if (tail) {
             const tailLabel = CATEGORY[tail] || "";
@@ -159,15 +221,8 @@ export function parseLeagueCode(code: string): {
     }
   }
 
-  // Detect NAZ in code for nazionali
-  if (c.includes("NAZ") && !parts.includes("Nazionali")) parts.push("Nazionali");
-
-  const isTop = /1(?!\d)/.test(c) && !!country && (c.match(/^[A-Z]+1/) !== null);
-  return {
-    country,
-    category,
-    area,
-    label: parts.join(" · ") || c,
-    isTop,
-  };
+  const isTop = !!country && /^[A-Z]+1(?!\d)/.test(c);
+  const label = parts.join(" · ") || c;
+  const shortLabel = country ? `${raw} (${country})` : raw;
+  return { country, category, area, label, shortLabel, isTop };
 }

@@ -13,6 +13,7 @@ import { ScoreInput } from "@/src/components/ScoreInput";
 import { confirmAction } from "@/src/utils/platform";
 import { AISTUDIO_FRAMEWORK } from "@/src/book-content";
 import { Platform } from "react-native";
+import { parseLeagueCode } from "@/src/utils/leagues";
 
 export default function Selected() {
   const router = useRouter();
@@ -142,21 +143,34 @@ export default function Selected() {
       ) : (
         <>
           <ScrollView contentContainerStyle={styles.list}>
-            {items.map((m) => (
+            {items.map((m) => {
+              const pre = quickPrediction(m.odds);
+              const lc = parseLeagueCode(m.manifestazione);
+              return (
               <View key={m.id} style={styles.card}>
                 <TouchableOpacity
                   testID={`sel-open-${m.id}`}
                   onPress={() => router.push(`/match/${m.id}`)}
                   style={styles.cardLeft}
                 >
-                  <Text style={styles.cardLeague}>{m.manifestazione}</Text>
+                  <Text style={styles.cardLeague}>{lc.shortLabel}</Text>
                   <Text style={styles.cardTeams}>{m.squadra1} – {m.squadra2}</Text>
                   <Text style={styles.cardWhen}>{m.day} · {m.time}</Text>
-                  {m.main_prediction && (
-                    <View style={styles.predTag}>
-                      <Text style={styles.predTagTxt}>{m.main_prediction}</Text>
-                    </View>
-                  )}
+                  <View style={styles.predRow}>
+                    {pre && (
+                      <View style={styles.preTag}>
+                        <Ionicons name="flash" size={10} color={colors.primary} />
+                        <Text style={styles.preTagTxt}>{pre.market}</Text>
+                        <Text style={styles.preTagOdd}>@ {pre.odd.toFixed(2)}</Text>
+                      </View>
+                    )}
+                    {m.main_prediction && (
+                      <View style={styles.predTag}>
+                        <Ionicons name="sparkles" size={10} color={colors.aiText} />
+                        <Text style={styles.predTagTxt}>{m.main_prediction}</Text>
+                      </View>
+                    )}
+                  </View>
                 </TouchableOpacity>
                 <View style={styles.cardRight}>
                   <ScoreInput
@@ -174,7 +188,8 @@ export default function Selected() {
                   </TouchableOpacity>
                 </View>
               </View>
-            ))}
+              );
+            })}
             <View style={{ height: 100 }} />
           </ScrollView>
 
@@ -209,8 +224,12 @@ const styles = StyleSheet.create({
   cardLeague: { color: colors.primary, fontSize: 10, fontWeight: "900", letterSpacing: 1, textTransform: "uppercase" },
   cardTeams: { color: colors.text, fontSize: 14, fontWeight: "800", marginTop: 2 },
   cardWhen: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
-  predTag: { alignSelf: "flex-start", backgroundColor: colors.aiBg, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, marginTop: 4 },
+  predTag: { flexDirection: "row", alignItems: "center", gap: 4, alignSelf: "flex-start", backgroundColor: colors.aiBg, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
   predTagTxt: { color: colors.aiText, fontSize: 10, fontWeight: "800" },
+  predRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 6 },
+  preTag: { flexDirection: "row", alignItems: "center", gap: 4, alignSelf: "flex-start", backgroundColor: "rgba(255,140,0,0.18)", borderWidth: 1, borderColor: "rgba(255,140,0,0.45)", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  preTagTxt: { color: colors.primary, fontSize: 10, fontWeight: "900", letterSpacing: 0.5 },
+  preTagOdd: { color: colors.text, fontSize: 10, fontWeight: "700", opacity: 0.85 },
   cardRight: { alignItems: "flex-end", gap: 6 },
   resInput: { width: 70, backgroundColor: colors.surfaceHi, borderWidth: 1, borderColor: colors.border, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 6, color: colors.text, textAlign: "center", fontWeight: "700" },
   removeBtn: { padding: 4 },

@@ -261,6 +261,11 @@ export default function Home() {
                           {m.selected && <Ionicons name="checkmark" size={14} color="#FFF" />}
                         </TouchableOpacity>
                         <View style={styles.teams}>
+                          {sortByTime && (
+                            <Text style={styles.teamLeagueTag} numberOfLines={1}>
+                              {parseLeagueCode(m.manifestazione).shortLabel}
+                            </Text>
+                          )}
                           <Text style={styles.teamTxt} numberOfLines={1}>{m.squadra1.toUpperCase()}</Text>
                           <Text style={styles.teamTxt} numberOfLines={1}>{m.squadra2.toUpperCase()}</Text>
                         </View>
@@ -393,6 +398,7 @@ const styles = StyleSheet.create({
   checkOn: { backgroundColor: colors.primary, borderColor: colors.primary },
   teams: { flex: 1, gap: 2 },
   teamTxt: { color: colors.text, fontSize: 13, fontWeight: "900", letterSpacing: 0.5 },
+  teamLeagueTag: { color: colors.primary, fontSize: 9, fontWeight: "900", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 3 },
   timeCol: { alignItems: "center", paddingHorizontal: 4 },
   timeDate: { color: colors.textDim, fontSize: 10, fontWeight: "700" },
   timeNum: { color: colors.text, fontSize: 18, fontWeight: "900", marginTop: 2 },
