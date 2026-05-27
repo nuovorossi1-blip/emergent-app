@@ -74,7 +74,7 @@ export default function Selected() {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
-        <TouchableOpacity testID="sel-back" onPress={() => { try { router.back(); } catch { router.replace("/"); } }} style={styles.iconBtn}>
+        <TouchableOpacity testID="sel-back" onPress={() => router.replace("/")} style={styles.iconBtn}>
           <Ionicons name="chevron-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Selezionate ({items.length})</Text>

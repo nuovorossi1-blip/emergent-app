@@ -57,7 +57,7 @@ export default function Home() {
   const [tierFilter, setTierFilter] = useState<"top" | null>(null);
   const [areaFilter, setAreaFilter] = useState<string | null>(null);
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
-  const [sortByTime, setSortByTime] = useState(true);
+  const [sortByTime, setSortByTime] = useState(false);
 
   const load = useCallback(async (day: string | null) => {
     try {
