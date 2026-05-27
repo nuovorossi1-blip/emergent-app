@@ -567,6 +567,93 @@ CUP_KEYWORDS = ["COPPA", "CUP", "CHAMP", "EUROPA", "CONFERENCE", "LIBERTADORES",
                 "FA ", "EFL", "DFB", "COPPA ITALIA"]
 
 
+# ============================================================
+# LEAGUE CODE PARSER (Python equivalent of frontend/src/utils/leagues.ts)
+# ============================================================
+
+LEAGUE_COUNTRY_CODES = {
+    "AFG": "Afghanistan", "ALB": "Albania", "ALG": "Algeria", "AND": "Andorra",
+    "ANG": "Angola", "ARA": "Arabia Saudita", "ARG": "Argentina", "ARM": "Armenia",
+    "AUS": "Australia", "AUT": "Austria", "AZE": "Azerbaigian", "BEL": "Belgio",
+    "BOL": "Bolivia", "BRA": "Brasile", "BUL": "Bulgaria", "CAM": "Camerun",
+    "CAN": "Canada", "CHI": "Cile", "CIN": "Cina", "COL": "Colombia",
+    "COR": "Corea del Sud", "COS": "Costa Rica", "CRO": "Croazia", "DAN": "Danimarca",
+    "ECU": "Ecuador", "EGI": "Egitto", "ESA": "El Salvador", "EST": "Estonia",
+    "FIN": "Finlandia", "FRA": "Francia", "GAL": "Galles", "GEO": "Georgia",
+    "GER": "Germania", "GHA": "Ghana", "GIA": "Giappone", "GIO": "Giordania",
+    "GRE": "Grecia", "GUA": "Guatemala", "GUI": "Guinea", "HON": "Honduras",
+    "IND": "India", "ING": "Inghilterra", "IRA": "Iran", "IRL": "Irlanda",
+    "ISL": "Islanda", "ISR": "Israele", "ITA": "Italia", "KAZ": "Kazakistan",
+    "KEN": "Kenya", "LET": "Lettonia", "LIT": "Lituania", "LUX": "Lussemburgo",
+    "MAR": "Marocco", "MEX": "Messico", "MOL": "Moldavia", "MON": "Montenegro",
+    "NIG": "Nigeria", "NOR": "Norvegia", "NUA": "Nuova Zelanda", "OLA": "Olanda",
+    "PAN": "Panama", "PAR": "Paraguay", "PER": "Perù", "POL": "Polonia",
+    "POR": "Portogallo", "QAT": "Qatar", "REP": "Repubblica Ceca", "ROM": "Romania",
+    "RUS": "Russia", "SCO": "Scozia", "SEN": "Senegal", "SER": "Serbia",
+    "SIN": "Singapore", "SLO": "Slovenia", "SPA": "Spagna", "SRI": "Sri Lanka",
+    "SUD": "Sudafrica", "SUR": "Suriname", "SVE": "Svezia", "SVI": "Svizzera",
+    "TAG": "Tagikistan", "TAI": "Thailandia", "TUN": "Tunisia", "TUR": "Turchia",
+    "UCR": "Ucraina", "UNG": "Ungheria", "URU": "Uruguay", "USA": "Stati Uniti",
+    "UZB": "Uzbekistan", "VEN": "Venezuela", "VIE": "Vietnam",
+}
+
+LEAGUE_CATEGORY = {
+    "1": "Prima Lega", "2": "Seconda Lega", "3": "Terza Lega",
+    "4": "Quarta Lega", "5": "Quinta Lega", "6": "Sesta Lega",
+    "F": "Femminile", "U17": "Under 17", "U19": "Under 19",
+    "U20": "Under 20", "U21": "Under 21", "U23": "Under 23",
+    "CP": "Coppa", "CUP": "Coppa", "RS": "Riserve",
+    "CH": "Champions League", "EU": "Europa League", "CONF": "Conference League",
+}
+
+LEAGUE_SPECIAL = [
+    (re.compile(r"^AMIU(\d{2})"), lambda m: f"Amichevole Under {m.group(1)}"),
+    (re.compile(r"^AMINAZ"), lambda m: "Amichevole Nazionali"),
+    (re.compile(r"^AMICLUB"), lambda m: "Amichevole Club"),
+    (re.compile(r"^AMIF"), lambda m: "Amichevole Femminile"),
+    (re.compile(r"^AMI"), lambda m: "Amichevole"),
+    (re.compile(r"^CPSUDAM"), lambda m: "Coppa Sudamericana"),
+    (re.compile(r"^CPLIB"), lambda m: "Coppa Libertadores"),
+    (re.compile(r"^CPCAR"), lambda m: "Coppa Caraibica"),
+    (re.compile(r"^CONCAF"), lambda m: "Concacaf"),
+    (re.compile(r"^CHAM"), lambda m: "Champions League"),
+    (re.compile(r"^EUR(?!O)"), lambda m: "Europa League"),
+    (re.compile(r"^CONF"), lambda m: "Conference League"),
+    (re.compile(r"^MOND"), lambda m: "Mondiali"),
+]
+
+
+def parse_league_label(code: str) -> str:
+    """Return a human-readable competition label like 'Italia Prima Lega' or 'Ecuador Coppa'."""
+    if not code:
+        return ""
+    c = code.strip().upper()
+    # Special tournaments
+    for pat, builder in LEAGUE_SPECIAL:
+        m = pat.match(c)
+        if m:
+            return builder(m)
+    # Country prefix
+    for prefix, name in LEAGUE_COUNTRY_CODES.items():
+        if c.startswith(prefix):
+            parts = [name]
+            rest = c[len(prefix):]
+            # Letter category first (U19, F, CP, CUP, RS, CH, EU, CONF)
+            cat_match = re.match(r"^(U\d{2}|F|CP|CUP|RS|CH|EU|CONF)", rest)
+            if cat_match:
+                parts.append(LEAGUE_CATEGORY.get(cat_match.group(1), cat_match.group(1)))
+            else:
+                num_match = re.match(r"^(\d+)", rest)
+                if num_match:
+                    n = num_match.group(1)
+                    parts.append(LEAGUE_CATEGORY.get(n, f"Serie {n}"))
+                    tail = rest[len(n):]
+                    if tail and tail in LEAGUE_CATEGORY:
+                        parts.append(LEAGUE_CATEGORY[tail])
+            return " ".join(parts)
+    return ""
+
+
 def detect_league_context(manifestazione: str) -> str:
     """Return contextual hints about championship DNA and cup status."""
     if not manifestazione:
@@ -589,7 +676,9 @@ def detect_league_context(manifestazione: str) -> str:
 
 
 def build_match_prompt(match: dict) -> str:
-    context = detect_league_context(match.get('manifestazione', ''))
+    manif = match.get('manifestazione', '')
+    context = detect_league_context(manif)
+    parsed_comp = parse_league_label(manif)
     o = match['odds']
     def fmt(k, label):
         v = o.get(k)
@@ -606,8 +695,9 @@ def build_match_prompt(match: dict) -> str:
         fmt('odd_GG', 'GG'), fmt('odd_NG', 'NG'),
     ]
     ctx_block = f"\nCONTESTO CAMPIONATO: {context}\n" if context else ""
+    comp_line = f" ({parsed_comp})" if parsed_comp else ""
     return (
-        f"PARTITA: {match['manifestazione']} · {match['time']} "
+        f"PARTITA: {manif}{comp_line} · {match['time']} "
         f"{match['squadra1']} vs {match['squadra2']}\n"
         f"Quote: {' | '.join(parts)}"
         f"{ctx_block}"
@@ -1083,7 +1173,7 @@ async def aistudio_prompt():
     selected = await db.matches.find({'selected': True}, {'_id': 0}).to_list(1000)
     if not selected:
         return {"csv": "", "count": 0}
-    csv_lines = ["Ora,Lega,Casa,Ospite,1,X,2,1X,X2,U1.5,O1.5,U2.5,O2.5,U3.5,O3.5,GG,NG"]
+    csv_lines = ["Ora,Lega,Competizione,Casa,Ospite,1,X,2,1X,X2,U1.5,O1.5,U2.5,O2.5,U3.5,O3.5,GG,NG"]
     for m in selected:
         o = m.get('odds', {})
         def v(k):
@@ -1091,8 +1181,9 @@ async def aistudio_prompt():
             return "" if x is None else str(x)
         # Sanitize commas in team / league names
         def s(x): return str(x).replace(',', ' ').strip()
+        comp_label = parse_league_label(m['manifestazione']) or ""
         csv_lines.append(",".join([
-            m['time'], s(m['manifestazione']), s(m['squadra1']), s(m['squadra2']),
+            m['time'], s(m['manifestazione']), s(comp_label), s(m['squadra1']), s(m['squadra2']),
             v('odd_1'), v('odd_X'), v('odd_2'),
             v('odd_1X'), v('odd_X2'),
             v('odd_U15'), v('odd_O15'),

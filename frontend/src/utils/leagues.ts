@@ -97,19 +97,20 @@ const COUNTRY: Record<string, string> = {
 };
 
 const CATEGORY: Record<string, string> = {
-  "1": "Massima Serie",
-  "2": "Seconda Divisione",
-  "3": "Terza Divisione",
-  "4": "Quarta Divisione",
-  "5": "Quinta Divisione",
+  "1": "Prima Lega",
+  "2": "Seconda Lega",
+  "3": "Terza Lega",
+  "4": "Quarta Lega",
+  "5": "Quinta Lega",
+  "6": "Sesta Lega",
   F: "Femminile",
   U17: "Under 17",
   U19: "Under 19",
   U20: "Under 20",
   U21: "Under 21",
   U23: "Under 23",
-  CP: "Coppa Nazionale",
-  CUP: "Coppa Nazionale",
+  CP: "Coppa",
+  CUP: "Coppa",
   RS: "Riserve",
   CH: "Champions League",
   EU: "Europa League",
@@ -228,6 +229,10 @@ export function parseLeagueCode(code: string): {
 
   const isTop = !!country && /^[A-Z]+1(?!\d)/.test(c);
   const label = parts.join(" · ") || c;
-  const shortLabel = country ? `${raw} (${country})` : raw;
+  // Build shortLabel with country + category (+ tail suffix like Riserve/Femminile/Coppa)
+  // Examples: "ITA1 (Italia Prima Lega)", "ECUCP (Ecuador Coppa)", "ARG2RS (Argentina Seconda Lega Riserve)"
+  const shortLabel = country
+    ? `${raw} (${parts.join(" ")})`
+    : raw;
   return { country, category, area, label, shortLabel, isTop };
 }

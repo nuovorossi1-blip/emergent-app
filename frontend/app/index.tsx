@@ -267,7 +267,7 @@ export default function Home() {
                 <View style={styles.leagueHeader}>
                   <Ionicons name="football-outline" size={14} color={colors.primary} />
                   <Text style={styles.leagueTxt}>{league}</Text>
-                  {lc.country && <Text style={styles.leagueCountry}>({(lc.country || lc.area).toUpperCase()})</Text>}
+                  {lc.country && <Text style={styles.leagueCountry}>({lc.label.toUpperCase()})</Text>}
                   <View style={{ flex: 1 }} />
                   <Text style={styles.leagueCount}>{items.length}</Text>
                 </View>
