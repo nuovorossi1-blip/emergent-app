@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator,
   TextInput, RefreshControl, Modal, FlatList, Alert, useWindowDimensions, Platform,
@@ -38,6 +38,9 @@ function fmtDateBadge(d: string) { const dt = parseISO(d); return `${dt.getDate(
 
 function predLabel(m: Match): string { const q = quickPrediction(m.odds); if (q) { const map: Record<string, string> = { "O1.5": "Ov1.5", "O2.5": "Ov2.5", "O3.5": "Ov3.5", "U1.5": "Un1.5", "U2.5": "Un2.5", "U3.5": "Un3.5" }; return map[q.market] || q.market; } const o = m.odds; const arr: [string, number?][] = [["1", o.odd_1], ["X", o.odd_X], ["2", o.odd_2]]; let best = "1X2", low = Infinity; for (const [l, v] of arr) if (v && v < low) { low = v; best = l; } return best; }
 
+// Module-level scroll position cache to restore between navigations
+let savedScrollY = 0;
+
 export default function Home() {
   const router = useRouter();
   const { width } = useWindowDimensions();
@@ -58,6 +61,7 @@ export default function Home() {
   const [areaFilter, setAreaFilter] = useState<string | null>(null);
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
   const [sortByTime, setSortByTime] = useState(false);
+  const scrollRef = useRef<ScrollView | null>(null);
 
   const load = useCallback(async (day: string | null) => {
     try {
@@ -77,7 +81,18 @@ export default function Home() {
     })();
   }, [didInit, load]);
 
-  useFocusEffect(useCallback(() => { if (!didInit) return; setLoading(true); load(selectedDay); }, [selectedDay, load, didInit]));
+  useFocusEffect(useCallback(() => {
+    if (!didInit) return;
+    setLoading(true);
+    load(selectedDay).then(() => {
+      // Restore scroll position after data is loaded
+      if (savedScrollY > 0) {
+        setTimeout(() => {
+          scrollRef.current?.scrollTo({ y: savedScrollY, animated: false });
+        }, 80);
+      }
+    });
+  }, [selectedDay, load, didInit]));
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -123,6 +138,12 @@ export default function Home() {
     },
   });
   const goToToday = () => { const d = nearestDay(days); setSelectedDay(d); setCountryFilter(null); setAreaFilter(null); setQuery(""); setTierFilter(null); };
+
+  // Reset scroll when user actively changes filters or day (NOT when returning from match detail)
+  useEffect(() => {
+    savedScrollY = 0;
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [selectedDay, query, tierFilter, areaFilter, countryFilter, sortByTime]);
 
   // Day strip: 5 visible days centered around selectedDay
   const dayStrip = useMemo(() => {
@@ -238,7 +259,7 @@ export default function Home() {
           <TouchableOpacity onPress={() => router.push("/strumenti")} style={styles.emptyBtn}><Text style={styles.emptyBtnTxt}>Carica Excel</Text></TouchableOpacity>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={[styles.list, isDesktop && { paddingHorizontal: 24 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(selectedDay); }} tintColor={colors.primary} />}>
+        <ScrollView ref={scrollRef} onScroll={(e) => { savedScrollY = e.nativeEvent.contentOffset.y; }} scrollEventThrottle={250} contentContainerStyle={[styles.list, isDesktop && { paddingHorizontal: 24 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { savedScrollY = 0; setRefreshing(true); load(selectedDay); }} tintColor={colors.primary} />}>
           {grouped.map(([league, items]) => {
             const lc = parseLeagueCode(league);
             return (
@@ -273,6 +294,7 @@ export default function Home() {
                           <Text style={styles.timeDate}>{fmtDateBadge(m.day)}</Text>
                           <Text style={styles.timeNum}>{m.time}</Text>
                         </View>
+                        <View style={styles.predCol}>
                         <LinearGradient colors={[colors.primaryLight, colors.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.predBadge}>
                           <Text style={styles.predTxt}>{pred}</Text>
                           {hasRes && (
@@ -285,6 +307,13 @@ export default function Home() {
                             </>
                           )}
                         </LinearGradient>
+                        {m.main_prediction ? (
+                          <View style={styles.aiBadge}>
+                            <Ionicons name="sparkles" size={9} color={colors.aiText} />
+                            <Text style={styles.aiBadgeTxt} numberOfLines={1}>{m.main_prediction}</Text>
+                          </View>
+                        ) : null}
+                        </View>
                       </TouchableOpacity>
                     );
                   })}
@@ -403,6 +432,9 @@ const styles = StyleSheet.create({
   timeDate: { color: colors.textDim, fontSize: 10, fontWeight: "700" },
   timeNum: { color: colors.text, fontSize: 18, fontWeight: "900", marginTop: 2 },
   predBadge: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12, minWidth: 90 },
+  predCol: { alignItems: "flex-end", gap: 4 },
+  aiBadge: { flexDirection: "row", alignItems: "center", gap: 3, backgroundColor: colors.aiBg, borderWidth: 1, borderColor: "rgba(96,165,250,0.35)", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, maxWidth: 120 },
+  aiBadgeTxt: { color: colors.aiText, fontSize: 9, fontWeight: "900", letterSpacing: 0.3 },
   predTxt: { color: "#FFF", fontSize: 16, fontWeight: "900" },
   predSep: { width: 1, height: 32, backgroundColor: "rgba(255,255,255,0.4)" },
   resNum: { color: "#FFF", fontSize: 14, fontWeight: "900", lineHeight: 16 },

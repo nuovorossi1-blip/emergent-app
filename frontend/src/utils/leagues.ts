@@ -151,18 +151,21 @@ const AREA_BY_COUNTRY: Record<string, string> = {
 };
 
 // Special tournament prefixes (not country-based)
-const SPECIAL: { match: RegExp; label: string; area: string }[] = [
-  { match: /^AMIU(\d{2})/, label: "Amichevole Under", area: "Mondo" },
-  { match: /^AMINAZ/, label: "Amichevole Nazionali", area: "Mondo" },
-  { match: /^AMI/, label: "Amichevole", area: "Mondo" },
-  { match: /^CPSUDAM/, label: "Coppa Sudamericana", area: "America" },
-  { match: /^CPLIB/, label: "Coppa Libertadores", area: "America" },
-  { match: /^CPCAR/, label: "Coppa Caraibica", area: "America" },
-  { match: /^CONCAF/, label: "Concacaf", area: "America" },
-  { match: /^CHAM/, label: "Champions League", area: "Europa" },
-  { match: /^EUR(?!O)/, label: "Europa League", area: "Europa" },
-  { match: /^CONF/, label: "Conference League", area: "Europa" },
-  { match: /^MOND/, label: "Mondiali", area: "Mondo" },
+// Can use a `build` function to construct the label dynamically from regex match groups
+const SPECIAL: { match: RegExp; build: (m: RegExpMatchArray) => string; area: string }[] = [
+  { match: /^AMIU(\d{2})/, build: (m) => `Amichevole Under ${m[1]}`, area: "Mondo" },
+  { match: /^AMIF/, build: () => "Amichevole Femminile", area: "Mondo" },
+  { match: /^AMINAZ/, build: () => "Amichevole Nazionali", area: "Mondo" },
+  { match: /^AMICLUB/, build: () => "Amichevole Club", area: "Mondo" },
+  { match: /^AMI/, build: () => "Amichevole", area: "Mondo" },
+  { match: /^CPSUDAM/, build: () => "Coppa Sudamericana", area: "America" },
+  { match: /^CPLIB/, build: () => "Coppa Libertadores", area: "America" },
+  { match: /^CPCAR/, build: () => "Coppa Caraibica", area: "America" },
+  { match: /^CONCAF/, build: () => "Concacaf", area: "America" },
+  { match: /^CHAM/, build: () => "Champions League", area: "Europa" },
+  { match: /^EUR(?!O)/, build: () => "Europa League", area: "Europa" },
+  { match: /^CONF/, build: () => "Conference League", area: "Europa" },
+  { match: /^MOND/, build: () => "Mondiali", area: "Mondo" },
 ];
 
 export function parseLeagueCode(code: string): {
@@ -179,11 +182,13 @@ export function parseLeagueCode(code: string): {
 
   // 1) SPECIAL tournaments
   for (const s of SPECIAL) {
-    if (s.match.test(c)) {
+    const mm = c.match(s.match);
+    if (mm) {
+      const label = s.build(mm);
       return {
         area: s.area,
-        label: s.label,
-        shortLabel: `${raw} (${s.label})`,
+        label,
+        shortLabel: `${raw} (${label})`,
         isTop: false,
       };
     }
