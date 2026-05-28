@@ -43,7 +43,7 @@ export default function Stats() {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
-        <TouchableOpacity testID="stats-back" onPress={() => router.back()} style={styles.iconBtn}>
+        <TouchableOpacity testID="stats-back" onPress={() => router.canGoBack() ? router.back() : router.replace("/profilo")} style={styles.iconBtn}>
           <Ionicons name="chevron-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>

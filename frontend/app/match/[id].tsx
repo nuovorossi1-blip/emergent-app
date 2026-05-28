@@ -8,9 +8,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
-import { api, Match, Prediction, MARKET_FAMILIES, ODD_LABELS, OddsKey } from "@/src/api";
+import { api, Match, Prediction, MARKET_FAMILIES, ODD_LABELS, OddsKey, quickPredictionFamily, rankPicks } from "@/src/api";
 import { colors } from "@/src/theme";
 import { ScoreInput } from "@/src/components/ScoreInput";
+import { predictionQueue } from "@/src/utils/predictionQueue";
 
 export default function MatchDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -18,15 +19,17 @@ export default function MatchDetail() {
   const [match, setMatch] = useState<Match | null>(null);
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [loading, setLoading] = useState(true);
-  const [aiLoading, setAiLoading] = useState(false);
+  const [aiPending, setAiPending] = useState(false);
   const [result, setResult] = useState("");
+  const [marketStats, setMarketStats] = useState<{ market: string; win_rate: number; total: number; family: string }[]>([]);
 
   const load = useCallback(async () => {
     try {
-      const m = await api.match(id!);
+      const [m, stats] = await Promise.all([api.match(id!), api.marketStats().catch(() => [])]);
       setMatch(m);
       setPrediction(m.prediction ?? null);
       setResult(m.result || "");
+      setMarketStats(stats || []);
     } catch (e: any) {
       Alert.alert("Errore", e?.message || "Caricamento");
     } finally {
@@ -36,18 +39,49 @@ export default function MatchDetail() {
 
   useEffect(() => { load(); }, [load]);
 
-  const runPrediction = async (forceRegen: boolean = false) => {
+  // Subscribe to background prediction queue so the UI reflects in-flight requests
+  useEffect(() => {
     if (!id) return;
-    setAiLoading(true);
-    try {
-      const p = await api.predict(id, forceRegen);
-      setPrediction(p);
-      await load();
-    } catch (e: any) {
-      Alert.alert("Errore AI", e?.message || "Impossibile generare");
-    } finally {
-      setAiLoading(false);
-    }
+    const updateState = async () => {
+      const wasPending = predictionQueue.isPending(id);
+      setAiPending(wasPending);
+      // If a background prediction just finished, refresh the data
+      if (!wasPending && match && !match.prediction && prediction === null) {
+        try { const m = await api.match(id); setMatch(m); setPrediction(m.prediction ?? null); } catch {}
+      }
+    };
+    updateState();
+    const unsub = predictionQueue.subscribe(updateState);
+    return unsub;
+  }, [id]);
+
+  // Polling fallback while a background prediction is in flight
+  useEffect(() => {
+    if (!aiPending || !id) return;
+    const interval = setInterval(async () => {
+      try {
+        const m = await api.match(id);
+        if (m.prediction) {
+          setMatch(m);
+          setPrediction(m.prediction);
+          clearInterval(interval);
+        }
+      } catch {}
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [aiPending, id]);
+
+  const runPrediction = (forceRegen: boolean = false) => {
+    if (!id) return;
+    // FIRE-AND-FORGET: la richiesta viene avviata e tracciata dalla queue globale.
+    // L'utente può tornare alla home; quando la risposta arriva, lo stato si aggiorna.
+    setAiPending(true);
+    predictionQueue.enqueue(id, forceRegen).then((p) => {
+      if (p) {
+        setPrediction(p);
+        load();
+      }
+    });
   };
 
   const saveResult = async () => {
@@ -100,7 +134,7 @@ export default function MatchDetail() {
     <SafeAreaView style={styles.safe} edges={["top"]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={styles.iconBtn}>
+        <TouchableOpacity testID="back-btn" onPress={() => router.canGoBack() ? router.back() : router.replace("/")} style={styles.iconBtn}>
           <Ionicons name="chevron-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>{match.manifestazione}</Text>
@@ -124,6 +158,54 @@ export default function MatchDetail() {
             </View>
           )}
         </View>
+
+        {/* Pre-pronostic family — local heuristic */}
+        {(() => {
+          const fam = quickPredictionFamily(match.odds);
+          if (fam.length === 0) return null;
+          const llmMarkets = match.playable_markets?.map((p) => p.market) || (match.main_prediction ? [match.main_prediction] : []);
+          const ranked = rankPicks(fam, llmMarkets, marketStats);
+          return (
+            <View style={styles.preBlock}>
+              <View style={styles.preHeader}>
+                <Ionicons name="flash" size={14} color={colors.primary} />
+                <Text style={styles.preTitle}>FAMIGLIA PRE-PRONOSTICO (locale)</Text>
+              </View>
+              <Text style={styles.preHint}>Mercati validi dalle quote, ordinati per affidabilità (concordanza AI + win-rate storico). Solo quote ≥ 1.40 e nessun segno 1/2/X se la quota corrispondente è &gt; 1.85.</Text>
+              {ranked.map((p, i) => (
+                <View key={i} style={[styles.preItem, p.source === "pre+ai" && styles.preItemConcord]}>
+                  <View style={[styles.preRank, i === 0 && styles.preRankTop]}>
+                    <Text style={[styles.preRankTxt, i === 0 && { color: "#FFF" }]}>{i + 1}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      <Text style={styles.preMarket}>{p.market}</Text>
+                      {p.odd > 0 && <Text style={styles.preOdd}>@ {p.odd.toFixed(2)}</Text>}
+                      <Text style={styles.preFamily}>{p.family}</Text>
+                      {p.source === "pre+ai" && (
+                        <View style={styles.concordTag}>
+                          <Ionicons name="checkmark-done" size={10} color="#10B981" />
+                          <Text style={styles.concordTxt}>PRE+AI</Text>
+                        </View>
+                      )}
+                      {p.source === "ai" && (
+                        <View style={[styles.concordTag, { backgroundColor: colors.aiBg, borderColor: colors.aiText }]}>
+                          <Ionicons name="sparkles" size={10} color={colors.aiText} />
+                          <Text style={[styles.concordTxt, { color: colors.aiText }]}>SOLO AI</Text>
+                        </View>
+                      )}
+                      {p.win_rate !== null && (
+                        <View style={[styles.wrTag, p.win_rate >= 60 ? { backgroundColor: "rgba(16,185,129,0.18)" } : { backgroundColor: "rgba(239,68,68,0.18)" }]}>
+                          <Text style={[styles.wrTxt, p.win_rate >= 60 ? { color: "#10B981" } : { color: "#EF4444" }]}>WR {p.win_rate.toFixed(0)}% ({p.total})</Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
+          );
+        })()}
 
         {/* AI prediction block - always visible. Shows result_ok color when result is set */}
         <View style={[
@@ -203,10 +285,10 @@ export default function MatchDetail() {
               <TouchableOpacity
                 testID="regen-ai"
                 onPress={() => runPrediction(true)}
-                disabled={aiLoading}
+                disabled={aiPending}
                 style={styles.regenBtn}
               >
-                {aiLoading ? (
+                {aiPending ? (
                   <ActivityIndicator color={colors.primary} size="small" />
                 ) : (
                   <>
@@ -220,7 +302,7 @@ export default function MatchDetail() {
             <TouchableOpacity
               testID="gen-ai"
               onPress={() => runPrediction(false)}
-              disabled={aiLoading}
+              disabled={aiPending}
               style={styles.aiBtn}
               activeOpacity={0.85}
             >
@@ -229,8 +311,11 @@ export default function MatchDetail() {
                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
                 style={styles.aiBtnInner}
               >
-                {aiLoading ? (
-                  <ActivityIndicator color="#FFF" />
+                {aiPending ? (
+                  <>
+                    <ActivityIndicator color="#FFF" />
+                    <Text style={[styles.aiBtnTxt, { marginLeft: 8 }]}>Generazione in corso…</Text>
+                  </>
                 ) : (
                   <>
                     <Ionicons name="sparkles" size={16} color="#FFF" />
@@ -318,6 +403,22 @@ const styles = StyleSheet.create({
   rankTxt: { color: colors.textMuted, fontWeight: "900", fontSize: 12 },
   playableMarket: { color: colors.text, fontSize: 14, fontWeight: "900" },
   playableReason: { color: colors.textMuted, fontSize: 11, marginTop: 2, lineHeight: 16 },
+  preBlock: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: "rgba(255,140,0,0.35)", gap: 8 },
+  preHeader: { flexDirection: "row", alignItems: "center", gap: 8 },
+  preTitle: { color: colors.primary, fontSize: 12, fontWeight: "900", letterSpacing: 1, flex: 1 },
+  preHint: { color: colors.textMuted, fontSize: 11, lineHeight: 16, marginBottom: 4 },
+  preItem: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 8, paddingHorizontal: 10, backgroundColor: colors.surfaceHi, borderRadius: 10 },
+  preItemConcord: { borderWidth: 1, borderColor: "rgba(16,185,129,0.45)", backgroundColor: "rgba(16,185,129,0.10)" },
+  preRank: { width: 22, height: 22, borderRadius: 11, backgroundColor: colors.border, alignItems: "center", justifyContent: "center" },
+  preRankTop: { backgroundColor: colors.primary },
+  preRankTxt: { color: colors.textMuted, fontWeight: "900", fontSize: 11 },
+  preMarket: { color: colors.text, fontSize: 13, fontWeight: "900" },
+  preOdd: { color: colors.primary, fontSize: 12, fontWeight: "800" },
+  preFamily: { color: colors.textDim, fontSize: 9, fontWeight: "800", letterSpacing: 0.5, textTransform: "uppercase" },
+  concordTag: { flexDirection: "row", alignItems: "center", gap: 3, backgroundColor: "rgba(16,185,129,0.20)", borderWidth: 1, borderColor: "rgba(16,185,129,0.45)", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 5 },
+  concordTxt: { color: "#10B981", fontSize: 9, fontWeight: "900", letterSpacing: 0.5 },
+  wrTag: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 5 },
+  wrTxt: { fontSize: 9, fontWeight: "900", letterSpacing: 0.3 },
   aiBtn: { borderRadius: 12, overflow: "hidden" },
   aiBtnInner: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 14 },
   aiBtnTxt: { color: "#FFF", fontSize: 14, fontWeight: "800" },

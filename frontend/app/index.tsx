@@ -13,6 +13,7 @@ import { colors } from "@/src/theme";
 import BottomNav from "@/src/components/BottomNav";
 import { confirmAction } from "@/src/utils/platform";
 import { parseLeagueCode } from "@/src/utils/leagues";
+import { predictionQueue } from "@/src/utils/predictionQueue";
 
 function todayISO() {
   const d = new Date();
@@ -80,7 +81,20 @@ export default function Home() {
   const [sortByTime, setSortByTime] = useState(false);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [marketStats, setMarketStats] = useState<{ market: string; win_rate: number; total: number; family: string }[]>([]);
+  const [pendingPreds, setPendingPreds] = useState<Set<string>>(new Set());
   const scrollRef = useRef<ScrollView | null>(null);
+
+  // Subscribe to background prediction queue → re-render to show spinners on pending matches
+  useEffect(() => {
+    const update = () => setPendingPreds(new Set(predictionQueue.pendingIds()));
+    update();
+    const unsub = predictionQueue.subscribe(update);
+    // Poll matches when any prediction is pending → auto-refresh when AI completes
+    const interval = setInterval(() => {
+      if (predictionQueue.size() > 0) load(selectedDay);
+    }, 4000);
+    return () => { unsub(); clearInterval(interval); };
+  }, []);
 
   const load = useCallback(async (day: string | null) => {
     try {
@@ -338,6 +352,12 @@ export default function Home() {
                             <View style={styles.aiBadge}>
                               <Ionicons name="sparkles" size={9} color={colors.aiText} />
                               <Text style={styles.aiBadgeTxt} numberOfLines={1}>{m.main_prediction}</Text>
+                            </View>
+                          ) : null}
+                          {pendingPreds.has(m.id) ? (
+                            <View style={[styles.aiBadge, { backgroundColor: colors.aiBg }]}>
+                              <ActivityIndicator size="small" color={colors.aiText} />
+                              <Text style={styles.aiBadgeTxt} numberOfLines={1}>AI...</Text>
                             </View>
                           ) : null}
                         </View>
