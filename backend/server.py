@@ -1029,6 +1029,7 @@ async def predict_match(match_id: str, force: bool = False):
         {'$set': {
             'family': result.get('family'),
             'main_prediction': result.get('main_prediction'),
+            'playable_markets': result.get('playable_markets', []),
         }},
     )
     record.pop('_id', None)
@@ -1106,6 +1107,27 @@ async def stats_scores():
     for fam in by_family:
         by_family[fam].sort(key=lambda x: (-x.get("win_rate", 0), -x.get("total", 0)))
     return by_family
+
+
+@api_router.get("/ml/stats")
+async def ml_stats():
+    """Return flat list of market scores with win_rate, sorted by sample size desc."""
+    docs = await db.market_scores.find({}, {'_id': 0}).to_list(500)
+    out = []
+    for d in docs:
+        total = d.get("total", 0)
+        if total == 0:
+            continue
+        wins = d.get("wins", 0)
+        out.append({
+            "family": d.get("family", ""),
+            "market": d.get("market", ""),
+            "wins": wins,
+            "total": total,
+            "win_rate": round((wins / total) * 100, 1),
+        })
+    out.sort(key=lambda x: (-x["total"], -x["win_rate"]))
+    return out
 
 
 @api_router.post("/stats/reset")

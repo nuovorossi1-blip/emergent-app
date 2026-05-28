@@ -8,7 +8,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useFocusEffect } from "expo-router";
 
-import { api, Match, quickPrediction } from "@/src/api";
+import { api, Match, quickPrediction, quickPredictionFamily, rankPicks, RankedPick } from "@/src/api";
 import { colors } from "@/src/theme";
 import BottomNav from "@/src/components/BottomNav";
 import { confirmAction } from "@/src/utils/platform";
@@ -36,7 +36,24 @@ function fmtDayShort(d: string) { const dt = parseISO(d); const today = todayISO
 function fmtDayLong(d: string) { const dt = parseISO(d); return `${DAY_FULL_IT[dt.getDay()]} ${dt.getDate()} ${MONTH_FULL_IT[dt.getMonth()]}`; }
 function fmtDateBadge(d: string) { const dt = parseISO(d); return `${dt.getDate()} ${MONTH_LONG_IT[dt.getMonth()]} ${String(dt.getFullYear()).slice(2)}`; }
 
-function predLabel(m: Match): string { const q = quickPrediction(m.odds); if (q) { const map: Record<string, string> = { "O1.5": "Ov1.5", "O2.5": "Ov2.5", "O3.5": "Ov3.5", "U1.5": "Un1.5", "U2.5": "Un2.5", "U3.5": "Un3.5" }; return map[q.market] || q.market; } const o = m.odds; const arr: [string, number?][] = [["1", o.odd_1], ["X", o.odd_X], ["2", o.odd_2]]; let best = "1X2", low = Infinity; for (const [l, v] of arr) if (v && v < low) { low = v; best = l; } return best; }
+function predLabel(m: Match, stats: { market: string; win_rate: number; total: number; family: string }[] = []): { label: string; isAi: boolean; isConcord: boolean } {
+  // Build pre-pronostic family + LLM markets list, compute final ranking.
+  const fam = quickPredictionFamily(m.odds);
+  const llmMarkets: string[] = m.playable_markets?.map((p) => p.market) || (m.main_prediction ? [m.main_prediction] : []);
+  const ranked = rankPicks(fam, llmMarkets, stats);
+  const top = ranked[0];
+  const map: Record<string, string> = { "O1.5": "Ov1.5", "O2.5": "Ov2.5", "O3.5": "Ov3.5", "U1.5": "Un1.5", "U2.5": "Un2.5", "U3.5": "Un3.5" };
+  if (top) {
+    const label = map[top.market] || top.market;
+    return { label, isAi: top.source !== "pre", isConcord: top.source === "pre+ai" };
+  }
+  // Fallback: lowest 1X2
+  const o = m.odds;
+  const arr: [string, number?][] = [["1", o.odd_1], ["X", o.odd_X], ["2", o.odd_2]];
+  let best = "1X2", low = Infinity;
+  for (const [l, v] of arr) if (v && v < low) { low = v; best = l; }
+  return { label: best, isAi: false, isConcord: false };
+}
 
 // Module-level scroll position cache to restore between navigations
 let savedScrollY = 0;
@@ -61,12 +78,14 @@ export default function Home() {
   const [areaFilter, setAreaFilter] = useState<string | null>(null);
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
   const [sortByTime, setSortByTime] = useState(false);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [marketStats, setMarketStats] = useState<{ market: string; win_rate: number; total: number; family: string }[]>([]);
   const scrollRef = useRef<ScrollView | null>(null);
 
   const load = useCallback(async (day: string | null) => {
     try {
-      const [ms, ds] = await Promise.all([api.matches(day || undefined), api.days()]);
-      setMatches(ms); setDays(ds); return ds;
+      const [ms, ds, stats] = await Promise.all([api.matches(day || undefined), api.days(), api.marketStats().catch(() => [])]);
+      setMatches(ms); setDays(ds); setMarketStats(stats || []); return ds;
     } catch { return []; } finally { setLoading(false); setRefreshing(false); }
   }, []);
 
@@ -111,9 +130,10 @@ export default function Home() {
 
   const grouped = useMemo(() => {
     if (sortByTime) {
-      // ORARIO mode: flat list ordered chronologically 00:00 → 23:59
-      const sorted = [...filtered].sort((a, b) => a.time.localeCompare(b.time));
-      return sorted.length ? [["⏱ ORDINE CRONOLOGICO", sorted] as [string, Match[]]] : [];
+      // ORARIO mode: flat list ordered chronologically (asc or desc)
+      const sorted = [...filtered].sort((a, b) => sortDir === "asc" ? a.time.localeCompare(b.time) : b.time.localeCompare(a.time));
+      const arrow = sortDir === "asc" ? "↑ 00:00→23:59" : "↓ 23:59→00:00";
+      return sorted.length ? [[`⏱ ORDINE CRONOLOGICO ${arrow}`, sorted] as [string, Match[]]] : [];
     }
     const map = new Map<string, Match[]>();
     for (const m of filtered) {
@@ -121,7 +141,7 @@ export default function Home() {
       map.get(m.manifestazione)!.push(m);
     }
     return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-  }, [filtered, sortByTime]);
+  }, [filtered, sortByTime, sortDir]);
 
   const selectedCount = matches.filter((m) => m.selected).length;
   const toggleSelect = async (m: Match) => {
@@ -229,6 +249,12 @@ export default function Home() {
           <Ionicons name="time-outline" size={14} color={sortByTime ? colors.primary : colors.text} />
           <Text style={[styles.filterPillTxt, sortByTime && { color: colors.primary }]}>ORARIO</Text>
         </TouchableOpacity>
+        {sortByTime && (
+          <TouchableOpacity onPress={() => setSortDir(sortDir === "asc" ? "desc" : "asc")} style={[styles.filterPill, { paddingHorizontal: 12, borderColor: colors.primary }]} testID="sort-dir-btn">
+            <Ionicons name={sortDir === "asc" ? "arrow-up" : "arrow-down"} size={14} color={colors.primary} />
+            <Text style={[styles.filterPillTxt, { color: colors.primary }]}>{sortDir === "asc" ? "ASC" : "DESC"}</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {showSearch && (
@@ -273,7 +299,7 @@ export default function Home() {
                 </View>
                 <View style={isDesktop ? styles.cardsGrid : undefined}>
                   {items.map((m) => {
-                    const pred = predLabel(m);
+                    const pred = predLabel(m, marketStats);
                     const resParts = (m.result || "").split("-");
                     const hasRes = resParts.length === 2 && !isNaN(+resParts[0]) && !isNaN(+resParts[1]);
                     return (
@@ -295,24 +321,25 @@ export default function Home() {
                           <Text style={styles.timeNum}>{m.time}</Text>
                         </View>
                         <View style={styles.predCol}>
-                        <LinearGradient colors={[colors.primaryLight, colors.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.predBadge}>
-                          <Text style={styles.predTxt}>{pred}</Text>
-                          {hasRes && (
-                            <>
-                              <View style={styles.predSep} />
-                              <View>
-                                <Text style={styles.resNum}>{resParts[0]}</Text>
-                                <Text style={styles.resNum}>{resParts[1]}</Text>
-                              </View>
-                            </>
-                          )}
-                        </LinearGradient>
-                        {m.main_prediction ? (
-                          <View style={styles.aiBadge}>
-                            <Ionicons name="sparkles" size={9} color={colors.aiText} />
-                            <Text style={styles.aiBadgeTxt} numberOfLines={1}>{m.main_prediction}</Text>
-                          </View>
-                        ) : null}
+                          <LinearGradient colors={pred.isConcord ? ["#34D399", "#10B981"] : [colors.primaryLight, colors.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.predBadge}>
+                            {pred.isConcord && <Ionicons name="checkmark-done" size={10} color="#FFF" style={{ marginRight: 2 }} />}
+                            <Text style={styles.predTxt}>{pred.label}</Text>
+                            {hasRes && (
+                              <>
+                                <View style={styles.predSep} />
+                                <View>
+                                  <Text style={styles.resNum}>{resParts[0]}</Text>
+                                  <Text style={styles.resNum}>{resParts[1]}</Text>
+                                </View>
+                              </>
+                            )}
+                          </LinearGradient>
+                          {m.main_prediction && !pred.isConcord ? (
+                            <View style={styles.aiBadge}>
+                              <Ionicons name="sparkles" size={9} color={colors.aiText} />
+                              <Text style={styles.aiBadgeTxt} numberOfLines={1}>{m.main_prediction}</Text>
+                            </View>
+                          ) : null}
                         </View>
                       </TouchableOpacity>
                     );
