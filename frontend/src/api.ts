@@ -90,7 +90,7 @@ export const api = {
   setLlmSettings: (id: string) => req<{ ok: boolean; selected_id: string }>("/settings/llm", { method: "POST", body: JSON.stringify({ id }) }),
   getBudget: () => req<{ estimated_spent_usd: number; predictions_made: number; current_model: string; cost_per_prediction_usd: number; topup_url: string }>("/settings/budget"),
   resetBudget: () => req<{ ok: boolean }>("/settings/budget/reset", { method: "POST" }),
-  marketStats: () => req<{ family: string; market: string; wins: number; total: number; win_rate: number }[]>("/ml/stats"),
+  marketStats: () => req<{ family: string; market: string; wins: number; losses: number; total: number; missed: number; win_rate: number }[]>("/ml/stats"),
   uploadExcel: async (uri: string, name: string, mimeType?: string) => {
     const form = new FormData();
     if (typeof window !== "undefined" && window.fetch && uri.startsWith("blob:")) {
@@ -191,7 +191,7 @@ export function quickPredictionFamily(odds: Odds): Candidate[] {
   // ============================================================
   // RANGE_CONTROLLATO: pavimento + tetto
   if (oO15 <= 1.40 && oU35 <= 1.40) {
-    push("MG 2-4", Math.max(1.40, (oO15 + oU35) / 2), "RANGE_CONTROLLATO");
+    push("MG 2-4 totali", Math.max(1.40, (oO15 + oU35) / 2), "RANGE_CONTROLLATO");
   }
   // GG + O1.5 combo
   if (oO25 <= 1.85 && oGG <= 1.85) push("GG + O1.5", Math.max(oGG, oO15), "OFFENSIVA_PULITA");
@@ -252,35 +252,72 @@ function normalizeMarket(m: string): string {
     .trim();
 }
 
+/**
+ * Check if two markets are DISCORDANT (impossible to both win on the same match).
+ * Returns true if discordant, false otherwise.
+ */
+export function areDiscordant(a: string, b: string): boolean {
+  const na = normalizeMarket(a);
+  const nb = normalizeMarket(b);
+  if (na === nb) return false;
+  const PAIRS: [RegExp, RegExp][] = [
+    [/^1$/, /^2$/], [/^1$/, /^X$/], [/^1$/, /^X2$/],
+    [/^2$/, /^X$/], [/^2$/, /^1X$/],
+    [/^1X$/, /^X2$/],   // technically both can win if X
+    [/^GG$/, /^NG$/],
+    [/^O1\.5$/, /^U1\.5$/], [/^O2\.5$/, /^U2\.5$/], [/^O3\.5$/, /^U3\.5$/],
+    [/MG 2-4.*CASA/, /MG 2-4.*OSPITE/],
+  ];
+  for (const [p1, p2] of PAIRS) {
+    if ((p1.test(na) && p2.test(nb)) || (p1.test(nb) && p2.test(na))) return true;
+  }
+  // O ≥ X.5 conflicts with U ≤ X.5 (e.g. O2.5 + U2.5, O3.5 + U2.5)
+  const overMatch = /^O(\d\.\d)/.exec(na) || /^O(\d\.\d)/.exec(nb);
+  const underMatch = /^U(\d\.\d)/.exec(na) || /^U(\d\.\d)/.exec(nb);
+  if (overMatch && underMatch) {
+    const oN = parseFloat(overMatch[1]);
+    const uN = parseFloat(underMatch[1]);
+    if (oN >= uN) return true;
+  }
+  return false;
+}
+
 export type RankedPick = {
   market: string;
   odd: number;
   family: string;
   win_rate: number | null;   // null = no historical data
   total: number;             // sample size
+  missed: number;            // missed opportunities (won but not predicted)
   source: "pre+ai" | "pre" | "ai";  // concordance flag
   boost: number;             // score for ranking
+  isCandidate: boolean;      // YELLOW prediction: 0 W/L + ≥5 missed, sample reliable
 };
+
+const MIN_RELIABLE_SAMPLE = 5;   // win-rate considered usable from this many results
+const CANDIDATE_MIN_MISSED = 5;  // yellow flag threshold
 
 /**
  * Build the FINAL ranked list combining pre-pronostic family + LLM markets,
  * with win-rate (when sample is reliable) and concordance BOOST.
  *
  * Rules applied:
- *  - quote < 1.40 → escluso
+ *  - quote < 1.40 → escluso (filtered at family level)
  *  - concordanza pre+AI = boost massimo (+0.30)
- *  - win_rate aggiunge fino a +1.00 (se ≥3 risultati storici)
- *  - quote più sicure (basse) leggermente favorite a parità
+ *  - win_rate aggiunge fino a +1.00 (se ≥5 risultati storici)
+ *  - quote più "sicure" (1.40-1.85) leggermente favorite
+ *  - quote alte (>2.00) penalizzate (-0.15 per ogni unità sopra)
+ *  - sample size bias: confidence = wr * (1 - 1/sqrt(total))  → poche valutazioni = meno peso
  */
 export function rankPicks(
   preFamily: Candidate[],
   llmMarkets: string[],
-  stats: { market: string; win_rate: number; total: number; family: string }[] = [],
+  stats: { market: string; win_rate: number; total: number; missed?: number; family: string }[] = [],
 ): RankedPick[] {
   const norm = (m: string) => normalizeMarket(m);
-  const statsByMarket = new Map<string, { rate: number; total: number }>();
+  const statsByMarket = new Map<string, { rate: number; total: number; missed: number }>();
   for (const s of stats) {
-    statsByMarket.set(norm(s.market), { rate: s.win_rate, total: s.total });
+    statsByMarket.set(norm(s.market), { rate: s.win_rate, total: s.total, missed: s.missed || 0 });
   }
   const llmSet = new Set(llmMarkets.map(norm));
 
@@ -289,28 +326,34 @@ export function rankPicks(
   for (const c of preFamily) {
     const k = norm(c.market);
     const st = statsByMarket.get(k);
+    const reliable = st && st.total >= MIN_RELIABLE_SAMPLE;
     map.set(k, {
       market: c.market,
       odd: c.odd,
       family: c.family,
-      win_rate: st && st.total >= 3 ? st.rate : null,
+      win_rate: reliable ? st!.rate : null,
       total: st?.total || 0,
+      missed: st?.missed || 0,
       source: llmSet.has(k) ? "pre+ai" : "pre",
       boost: 0,
+      isCandidate: !!st && st.total === 0 && st.missed >= CANDIDATE_MIN_MISSED,
     });
   }
   for (const lm of llmMarkets) {
     const k = norm(lm);
     if (map.has(k)) continue;
     const st = statsByMarket.get(k);
+    const reliable = st && st.total >= MIN_RELIABLE_SAMPLE;
     map.set(k, {
       market: lm,
-      odd: 0,  // unknown from pre side, only AI suggests
+      odd: 0,
       family: "AI_ONLY",
-      win_rate: st && st.total >= 3 ? st.rate : null,
+      win_rate: reliable ? st!.rate : null,
       total: st?.total || 0,
+      missed: st?.missed || 0,
       source: "ai",
       boost: 0,
+      isCandidate: !!st && st.total === 0 && st.missed >= CANDIDATE_MIN_MISSED,
     });
   }
 
@@ -318,13 +361,52 @@ export function rankPicks(
   const out: RankedPick[] = [];
   for (const p of map.values()) {
     let score = 0;
-    if (p.source === "pre+ai") score += 0.30;       // concordanza
-    if (p.win_rate !== null) score += (p.win_rate / 100);   // win-rate fino a +1.00
-    if (p.odd > 0 && p.odd < 2.00) score += 0.10;   // quota credibile
+    if (p.source === "pre+ai") score += 0.30;
+    if (p.win_rate !== null && p.total >= MIN_RELIABLE_SAMPLE) {
+      // Sample-size weighted confidence
+      const weight = 1 - 1 / Math.sqrt(p.total);
+      score += (p.win_rate / 100) * weight;
+    }
+    // Quote band bonuses/penalties
+    if (p.odd > 0) {
+      if (p.odd >= 1.40 && p.odd <= 1.85) score += 0.15;      // sweet spot
+      else if (p.odd > 1.85 && p.odd < 2.00) score += 0.05;
+      else if (p.odd >= 2.00) score -= 0.15 * (p.odd - 1.85); // penalize high odds
+    }
     p.boost = score;
     out.push(p);
   }
   // Ordina per boost desc, poi per quota asc (più sicura prima)
   out.sort((a, b) => b.boost - a.boost || (a.odd || 99) - (b.odd || 99));
   return out;
+}
+
+/**
+ * Pick the FINAL bet from a ranked list, applying:
+ *  - "no bet" if top of pre family and top of AI family are DISCORDANT
+ *  - cascade: if top has odd < 1.40, descend to next
+ */
+export function pickFinal(ranked: RankedPick[], aiMarkets: string[] = []): {
+  pick: RankedPick | null;
+  isNoBet: boolean;
+  reason?: string;
+} {
+  if (ranked.length === 0) return { pick: null, isNoBet: false };
+
+  // Check discordance: top concordant pick vs any AI suggestion
+  const topPre = ranked.find((r) => r.source !== "ai");
+  const aiList = aiMarkets.length > 0 ? aiMarkets : ranked.filter((r) => r.source !== "pre").map((r) => r.market);
+  if (topPre && aiList.length > 0) {
+    // If TOP of pre is discordant with TOP of AI → NO BET
+    const topAi = ranked.find((r) => r.source !== "pre");
+    if (topAi && areDiscordant(topPre.market, topAi.market)) {
+      return { pick: null, isNoBet: true, reason: `${topPre.market} vs ${topAi.market} discordanti` };
+    }
+  }
+
+  // Cascade: skip picks with odd < 1.40 (already filtered) — apply as belt-and-braces
+  for (const p of ranked) {
+    if (p.odd === 0 || p.odd >= 1.40) return { pick: p, isNoBet: false };
+  }
+  return { pick: ranked[0], isNoBet: false };
 }

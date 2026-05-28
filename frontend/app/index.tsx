@@ -8,7 +8,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useFocusEffect } from "expo-router";
 
-import { api, Match, quickPrediction, quickPredictionFamily, rankPicks, RankedPick } from "@/src/api";
+import { api, Match, quickPrediction, quickPredictionFamily, rankPicks, pickFinal, RankedPick } from "@/src/api";
 import { colors } from "@/src/theme";
 import BottomNav from "@/src/components/BottomNav";
 import { confirmAction } from "@/src/utils/platform";
@@ -37,23 +37,64 @@ function fmtDayShort(d: string) { const dt = parseISO(d); const today = todayISO
 function fmtDayLong(d: string) { const dt = parseISO(d); return `${DAY_FULL_IT[dt.getDay()]} ${dt.getDate()} ${MONTH_FULL_IT[dt.getMonth()]}`; }
 function fmtDateBadge(d: string) { const dt = parseISO(d); return `${dt.getDate()} ${MONTH_LONG_IT[dt.getMonth()]} ${String(dt.getFullYear()).slice(2)}`; }
 
-function predLabel(m: Match, stats: { market: string; win_rate: number; total: number; family: string }[] = []): { label: string; isAi: boolean; isConcord: boolean } {
+function predLabel(m: Match, stats: { market: string; win_rate: number; total: number; missed?: number; family: string }[] = []): { label: string; isAi: boolean; isConcord: boolean; isCandidate: boolean; isNoBet: boolean; isCorrect: boolean | null } {
   // Build pre-pronostic family + LLM markets list, compute final ranking.
   const fam = quickPredictionFamily(m.odds);
   const llmMarkets: string[] = m.playable_markets?.map((p) => p.market) || (m.main_prediction ? [m.main_prediction] : []);
   const ranked = rankPicks(fam, llmMarkets, stats);
-  const top = ranked[0];
+  const { pick, isNoBet } = pickFinal(ranked, llmMarkets);
   const map: Record<string, string> = { "O1.5": "Ov1.5", "O2.5": "Ov2.5", "O3.5": "Ov3.5", "U1.5": "Un1.5", "U2.5": "Un2.5", "U3.5": "Un3.5" };
-  if (top) {
-    const label = map[top.market] || top.market;
-    return { label, isAi: top.source !== "pre", isConcord: top.source === "pre+ai" };
+
+  // Evaluate "isCorrect": does the chosen market win vs the inserted result?
+  let isCorrect: boolean | null = null;
+  if (m.result && pick) {
+    const parts = m.result.split("-").map((x) => parseInt(x, 10));
+    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+      isCorrect = evalLocal(pick.market, parts[0], parts[1]);
+    }
+  }
+  if (isNoBet) return { label: "NO BET", isAi: false, isConcord: false, isCandidate: false, isNoBet: true, isCorrect: null };
+  if (pick) {
+    const label = map[pick.market] || pick.market;
+    return { label, isAi: pick.source !== "pre", isConcord: pick.source === "pre+ai", isCandidate: pick.isCandidate, isNoBet: false, isCorrect };
   }
   // Fallback: lowest 1X2
   const o = m.odds;
   const arr: [string, number?][] = [["1", o.odd_1], ["X", o.odd_X], ["2", o.odd_2]];
   let best = "1X2", low = Infinity;
   for (const [l, v] of arr) if (v && v < low) { low = v; best = l; }
-  return { label: best, isAi: false, isConcord: false };
+  return { label: best, isAi: false, isConcord: false, isCandidate: false, isNoBet: false, isCorrect: null };
+}
+
+/** Local market evaluator (mirror of backend logic for live display) */
+function evalLocal(market: string, home: number, away: number): boolean | null {
+  const total = home + away;
+  const m = market.trim().toUpperCase().replace(/\s+/g, " ");
+  if (m === "1") return home > away;
+  if (m === "X") return home === away;
+  if (m === "2") return away > home;
+  if (m === "1X" || m === "DC 1X") return home >= away;
+  if (m === "X2" || m === "DC X2") return away >= home;
+  if (m === "12" || m === "DC 12") return home !== away;
+  const overMatch = m.match(/^OV?\s?(\d\.\d)|^OVER\s?(\d\.\d)/);
+  if (overMatch) return total > parseFloat(overMatch[1] || overMatch[2]);
+  const underMatch = m.match(/^UN?\s?(\d\.\d)|^UNDER\s?(\d\.\d)/);
+  if (underMatch) return total < parseFloat(underMatch[1] || underMatch[2]);
+  if (m === "GG") return home > 0 && away > 0;
+  if (m === "NG") return home === 0 || away === 0;
+  if (m.includes("MG") && m.includes("2-4")) {
+    if (m.includes("CASA")) return home >= 2 && home <= 4;
+    if (m.includes("OSPITE")) return away >= 2 && away <= 4;
+    return total >= 2 && total <= 4;
+  }
+  // Combo (DC ... + ...)
+  if (m.includes("+")) {
+    const parts = market.split("+").map((p) => p.trim());
+    const results = parts.map((p) => evalLocal(p, home, away));
+    if (results.some((r) => r === null)) return null;
+    return results.every((r) => r === true);
+  }
+  return null;
 }
 
 // Module-level scroll position cache to restore between navigations
@@ -335,8 +376,23 @@ export default function Home() {
                           <Text style={styles.timeNum}>{m.time}</Text>
                         </View>
                         <View style={styles.predCol}>
-                          <LinearGradient colors={pred.isConcord ? ["#34D399", "#10B981"] : [colors.primaryLight, colors.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.predBadge}>
-                            {pred.isConcord && <Ionicons name="checkmark-done" size={10} color="#FFF" style={{ marginRight: 2 }} />}
+                          <LinearGradient
+                            colors={
+                              pred.isCorrect === true ? ["#10B981", "#059669"] :
+                              pred.isCorrect === false ? ["#EF4444", "#DC2626"] :
+                              pred.isNoBet ? ["#71717A", "#52525B"] :
+                              pred.isCandidate ? ["#F59E0B", "#D97706"] :
+                              pred.isConcord ? ["#34D399", "#10B981"] :
+                              [colors.primaryLight, colors.primaryDark]
+                            }
+                            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                            style={styles.predBadge}
+                          >
+                            {pred.isCorrect === true && <Ionicons name="checkmark-circle" size={11} color="#FFF" style={{ marginRight: 2 }} />}
+                            {pred.isCorrect === false && <Ionicons name="close-circle" size={11} color="#FFF" style={{ marginRight: 2 }} />}
+                            {pred.isConcord && pred.isCorrect === null && <Ionicons name="checkmark-done" size={10} color="#FFF" style={{ marginRight: 2 }} />}
+                            {pred.isCandidate && <Ionicons name="bulb" size={10} color="#FFF" style={{ marginRight: 2 }} />}
+                            {pred.isNoBet && <Ionicons name="close" size={10} color="#FFF" style={{ marginRight: 2 }} />}
                             <Text style={styles.predTxt}>{pred.label}</Text>
                             {hasRes && (
                               <>
@@ -348,7 +404,7 @@ export default function Home() {
                               </>
                             )}
                           </LinearGradient>
-                          {m.main_prediction && !pred.isConcord ? (
+                          {m.main_prediction && !pred.isConcord && !pred.isNoBet ? (
                             <View style={styles.aiBadge}>
                               <Ionicons name="sparkles" size={9} color={colors.aiText} />
                               <Text style={styles.aiBadgeTxt} numberOfLines={1}>{m.main_prediction}</Text>

@@ -1111,20 +1111,23 @@ async def stats_scores():
 
 @api_router.get("/ml/stats")
 async def ml_stats():
-    """Return flat list of market scores with win_rate, sorted by sample size desc."""
+    """Return flat list of market scores with win_rate and missed opportunities."""
     docs = await db.market_scores.find({}, {'_id': 0}).to_list(500)
     out = []
     for d in docs:
         total = d.get("total", 0)
-        if total == 0:
-            continue
+        missed = d.get("missed_wins", 0)
         wins = d.get("wins", 0)
+        if total == 0 and missed == 0:
+            continue
         out.append({
             "family": d.get("family", ""),
             "market": d.get("market", ""),
             "wins": wins,
+            "losses": max(0, total - wins),
             "total": total,
-            "win_rate": round((wins / total) * 100, 1),
+            "missed": missed,
+            "win_rate": round((wins / total) * 100, 1) if total > 0 else 0.0,
         })
     out.sort(key=lambda x: (-x["total"], -x["win_rate"]))
     return out
