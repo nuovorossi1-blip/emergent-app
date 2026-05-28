@@ -1170,7 +1170,11 @@ async def bulk_results(body: BulkResult):
 
 @api_router.get("/stats/scores")
 async def stats_scores():
-    docs = await db.market_scores.find({}, {'_id': 0}).to_list(500)
+    """Return GLOBAL (league=null) market scores grouped by family."""
+    docs = await db.market_scores.find(
+        {"$or": [{"league": None}, {"league": {"$exists": False}}]},
+        {'_id': 0}
+    ).to_list(500)
     by_family: Dict[str, list] = {}
     for d in docs:
         d["win_rate"] = round((d.get("wins", 0) / d.get("total", 1)) * 100, 1) if d.get("total", 0) > 0 else 0
@@ -1216,6 +1220,46 @@ async def ml_stats():
         })
     out.sort(key=lambda x: (-x["total"], -x["win_rate"]))
     return {"markets": out, "family_totals": family_totals}
+
+
+@api_router.post("/ml/backfill")
+async def ml_backfill():
+    """Backfill family_counters from existing matches with results+predictions.
+    Useful one-shot after schema migrations.
+    """
+    cursor = db.matches.find(
+        {"result": {"$nin": [None, ""]}},
+        {"_id": 0, "prediction": 1, "family": 1, "main_prediction": 1, "manifestazione": 1, "result": 1}
+    )
+    family_counts: Dict[str, int] = {}
+    family_league_counts: Dict[str, int] = {}
+    async for m in cursor:
+        # Family may be in either `prediction.family` (new schema) or top-level `family` (legacy)
+        fam = (m.get("prediction") or {}).get("family") or m.get("family")
+        if not fam:
+            continue
+        family_counts[fam] = family_counts.get(fam, 0) + 1
+        league = m.get("manifestazione")
+        if league:
+            key = f"{fam}||{league}"
+            family_league_counts[key] = family_league_counts.get(key, 0) + 1
+
+    # Reset and write
+    await db.family_counters.delete_many({})
+    for fam, count in family_counts.items():
+        await db.family_counters.update_one(
+            {"family": fam, "league": None},
+            {"$set": {"matches": count}},
+            upsert=True,
+        )
+    for key, count in family_league_counts.items():
+        fam, league = key.split("||", 1)
+        await db.family_counters.update_one(
+            {"family": fam, "league": league},
+            {"$set": {"matches": count}},
+            upsert=True,
+        )
+    return {"ok": True, "families": family_counts, "league_keys": len(family_league_counts)}
 
 
 @api_router.post("/stats/reset")
@@ -1506,7 +1550,12 @@ async def match_candidates(match_id: str):
     ) if family else None
     family_total = counter.get("matches", 0) if counter else 0
 
-    query = {"$or": [{"league": None}, {"league": {"$exists": False}}], "total": {"$lte": 0}}
+    query = {
+        "$and": [
+            {"$or": [{"league": None}, {"league": {"$exists": False}}]},
+            {"$or": [{"total": {"$lte": 0}}, {"total": {"$exists": False}}]},
+        ],
+    }
     if family:
         query["family"] = family
     docs = await db.market_scores.find(query, {"_id": 0}).to_list(100)

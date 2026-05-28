@@ -382,7 +382,7 @@ export default function Home() {
                               pred.isCorrect === false ? ["#EF4444", "#DC2626"] :
                               pred.isNoBet ? ["#71717A", "#52525B"] :
                               pred.isCandidate ? ["#F59E0B", "#D97706"] :
-                              pred.isConcord ? ["#34D399", "#10B981"] :
+                              pred.isConcord ? ["#60A5FA", "#3B82F6"] :
                               [colors.primaryLight, colors.primaryDark]
                             }
                             start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
