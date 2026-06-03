@@ -239,6 +239,8 @@ def classify_family(odds: Dict) -> Dict:
     )
 
     # Classify family
+    # Extreme favorite: bookmaker prices one side at ≤1.35 → monopolio offensivo
+    extreme_fav = (o1 <= 1.35) or (o2 <= 1.35)
     has_favorite = (o1 <= 1.85 or o2 <= 1.85)
     is_offensive = (oO25 <= 1.85 or oGG <= 1.85)
     is_closed = (oU25 <= 1.70 or oNG <= 1.70)
@@ -247,6 +249,10 @@ def classify_family(odds: Dict) -> Dict:
         family = "EQUILIBRATA_OFFENSIVA"
     elif not has_favorite and is_closed:
         family = "EQUILIBRATA_CHIUSA"
+    # DOMINANZA_CHIUSA: favorita estrema + NG vivo + tetto ancora forte
+    # (es. quota 1.24 + NG 1.75 + U3.5 1.50) → clean sheet + range controllato
+    elif extreme_fav and oNG <= 1.95 and oU35 <= 1.65:
+        family = "DOMINANZA_CHIUSA"
     elif has_favorite and goal_ceiling <= 3:
         family = "DOMINANZA_CON_TETTO"
     elif has_favorite and oO25 <= 1.65:
@@ -314,22 +320,52 @@ CANDIDATE_MARKETS = [
     "O1.5", "U1.5", "O2.5", "U2.5", "O3.5", "U3.5",
     "GG", "NG",
     "MG 2-4 totali", "MG 2-4 casa", "MG 2-4 ospite",
+    # Direct-result + Over combos (3-way "Risultato + Goal" markets)
+    "1 + O1.5", "2 + O1.5",
+    # Double-chance + Over/Under combos
     "DC 1X + O1.5", "DC X2 + O1.5", "DC 12 + O1.5",
     "DC 1X + U3.5", "DC X2 + U3.5", "DC 12 + U3.5",
 ]
 
 
-def structural_analysis(odds: Dict) -> Dict:
-    """Full output: structure + cluster + ranked markets with coverage/fragility."""
+def _combo_odd(market: str, odds: Dict) -> Optional[float]:
+    """Compute combo odd as product of components (for filtering only)."""
+    MAP = {
+        "1": "odd_1", "X": "odd_X", "2": "odd_2",
+        "1X": "odd_1X", "X2": "odd_X2", "12": "odd_12",
+        "O1.5": "odd_O15", "U1.5": "odd_U15",
+        "O2.5": "odd_O25", "U2.5": "odd_U25",
+        "O3.5": "odd_O35", "U3.5": "odd_U35",
+        "GG": "odd_GG", "NG": "odd_NG",
+    }
+    m = market.strip().upper().replace("DC ", "").replace("  ", " ")
+    if m in MAP:
+        return odds.get(MAP[m])
+    if "+" in m:
+        parts = [p.strip() for p in m.split("+")]
+        vals = [odds.get(MAP.get(p, "")) for p in parts]
+        if all(v and v > 0 for v in vals):
+            return round(vals[0] * vals[1], 3)
+    return None
+
+
+def structural_analysis(odds: Dict, min_odd: float = 1.40) -> Dict:
+    """Full output: structure + cluster + ranked markets with coverage/fragility.
+    
+    `min_odd` filters out picks that don't provide betting value (default 1.40).
+    """
     structure = classify_family(odds)
     cluster = simulate_cluster(odds, top_k=12)
-    # Concentrate on top 8 for coverage calc (cluster centrale)
     central = cluster[:8]
+    lam_h = structure["lambda_home"]
+    lam_a = structure["lambda_away"]
+    lam_min = min(lam_h, lam_a)
+    lam_max = max(lam_h, lam_a)
 
     # Filter markets by basic odds rules
     valid_markets = []
     for m in CANDIDATE_MARKETS:
-        # Skip 1/X/2 if their direct odds > 1.85 (regola assoluta)
+        # Skip direct signs if their odds > 1.85 (regola assoluta)
         if m == "1" and (odds.get("odd_1") or 99) > 1.85:
             continue
         if m == "2" and (odds.get("odd_2") or 99) > 1.85:
@@ -342,6 +378,15 @@ def structural_analysis(odds: Dict) -> Dict:
             continue
         if m == "12" and (odds.get("odd_12") or 99) > 1.85:
             continue
+        # Skip combos "X + O1.5" if base sign is unavailable / too short
+        if m == "1 + O1.5" and (odds.get("odd_1") or 99) > 1.85:
+            continue
+        if m == "2 + O1.5" and (odds.get("odd_2") or 99) > 1.85:
+            continue
+        # Apply min_odd filter using computed combo odds
+        combo_odd = _combo_odd(m, odds)
+        if combo_odd is not None and combo_odd < min_odd:
+            continue
         valid_markets.append(m)
 
     ranked = []
@@ -351,8 +396,32 @@ def structural_analysis(odds: Dict) -> Dict:
         # Skip if coverage < 30%
         if cov < 0.30:
             continue
-        # Score = coverage × (1 - fragility×0.3)
+        # Base score = coverage × (1 - fragility×0.3)
         score = cov * (1 - frag * 0.3)
+
+        # === DOMINANZA ESTREMA: bonus/malus per "monopolio offensivo" ===
+        # Quando una squadra ha λ ≥ 2.4 (forte) e l'altra λ ≤ 0.7 (debole),
+        # i risultati 0-3/0-4/1-3 sono molto vivi → premia chi li copre.
+        is_extreme = (lam_min <= 0.7 and lam_max >= 2.2)
+        if is_extreme:
+            mu = m.upper().replace("  ", " ")
+            # Boost: NG (clean sheet probabile)
+            if mu == "NG":
+                score *= 1.20
+            # Boost: combo "X + O1.5" del dominatore
+            if (lam_a >= lam_h and mu in ("2 + O1.5", "DC X2 + O1.5")):
+                score *= 1.25
+            if (lam_h >= lam_a and mu in ("1 + O1.5", "DC 1X + O1.5")):
+                score *= 1.25
+            # Malus: U3.5 puri (rotti facilmente da 0-4 / 1-3)
+            if mu == "U3.5":
+                score *= 0.80
+            # Malus: MG 2-4 casa quando ospite domina (e viceversa)
+            if "MG 2-4 CASA" in mu and lam_h < 1.0:
+                score *= 0.50
+            if "MG 2-4 OSPITE" in mu and lam_a < 1.0:
+                score *= 0.50
+
         ranked.append({
             "market": m,
             "coverage": cov,

@@ -490,16 +490,16 @@ const MARKET_TO_ODD_KEY: Record<string, string> = {
   "GG": "odd_GG", "NG": "odd_NG",
 };
 
-/** Ritorna la quota canonica per un mercato dato (anche DC combo). undefined se non derivabile. */
+/** Ritorna la quota canonica per un mercato dato (anche DC combo o "X + Y"). undefined se non derivabile. */
 export function getMarketOdd(market: string, odds: any): number | undefined {
   if (!market || !odds) return undefined;
   const m = market.trim().toUpperCase().replace(/\s+/g, "");
   const direct = MARKET_TO_ODD_KEY[m];
   if (direct && typeof odds[direct] === "number" && odds[direct] > 0) return odds[direct];
-  // DC X + Y → prodotto delle quote (approssimazione)
-  if (m.startsWith("DC")) {
+  // Combo X + Y  (es. "DC 1X + U3.5", "2 + O1.5", "1 + O1.5")
+  if (m.includes("+")) {
     const rest = market.replace(/^dc\s*/i, "").trim();
-    const parts = rest.split("+").map((s) => s.trim());
+    const parts = rest.split("+").map((s) => s.trim()).filter(Boolean);
     if (parts.length === 2) {
       const o1 = getMarketOdd(parts[0], odds);
       const o2 = getMarketOdd(parts[1], odds);
