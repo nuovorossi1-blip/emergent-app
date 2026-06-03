@@ -135,7 +135,7 @@ export default function MatchDetail() {
       value: match.odds[k] as number | undefined,
       estimated: (match.odds.estimated || []).includes(k),
     })).filter((x) => x.value != null);
-    items.sort((a, b) => (a.value! - b.value!));
+    // Order is canonical (1, X, 2 / 1X, X2, 12 / U, O / GG, NG) — no sort
     return { name: fam.name, items };
   });
 
