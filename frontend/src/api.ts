@@ -471,6 +471,7 @@ export type VerdictPick = {
   family?: string;
   concordance: number;           // numero di sistemi in cui appare (1-3)
   agreementLabel: "piena" | "forte" | "parziale" | "divergente";
+  vetoed?: boolean;              // true se il motore strutturale ha posto veto
 };
 
 const SRC_WEIGHTS: Record<VerdictSource, { top: number; decay: number; bonus: number }> = {
@@ -577,6 +578,13 @@ export function buildFinalVerdict(
   });
 
   // === Compute canonical odds (per bucket) and concordance bonus ===
+  // Build "whitelist" of markets approved by the structural engine (Poisson).
+  // Any market proposed by AI/PRE but NOT in this list is structurally suspect.
+  const structuralWhitelist = new Set<string>();
+  if (structural?.ranking) {
+    structural.ranking.forEach((r) => structuralWhitelist.add(norm(r.market)));
+  }
+
   for (const b of buckets.values()) {
     if (odds && (b.odd === undefined || b.odd === null)) {
       const computed = getMarketOdd(b.market, odds);
@@ -584,6 +592,23 @@ export function buildFinalVerdict(
     }
     if (b.sources.size === 3) b.score += 4;        // piena
     else if (b.sources.size === 2) b.score += 1.5; // forte
+  }
+
+  // === Structural veto: penalize markets rejected by the Poisson engine ===
+  // Only applied when we have a structural ranking to compare against.
+  const vetoedKeys = new Set<string>();
+  if (structural?.ranking && structural.ranking.length > 0) {
+    for (const b of buckets.values()) {
+      const key = norm(b.market);
+      const inStructural = structuralWhitelist.has(key);
+      // Skip veto if the market is in the structural top OR if it's only proposed by structural
+      const onlyStructural = b.sources.size === 1 && b.sources.has("structural");
+      if (!inStructural && !onlyStructural) {
+        // Apply heavy penalty (-60% score) but don't fully remove (user can still see it)
+        b.score *= 0.40;
+        vetoedKeys.add(key);
+      }
+    }
   }
 
   // === Build output ===
@@ -609,6 +634,7 @@ export function buildFinalVerdict(
         family: b.family,
         concordance: c,
         agreementLabel,
+        vetoed: vetoedKeys.has(norm(b.market)),
       };
     });
   out.sort((a, b) => b.score - a.score);

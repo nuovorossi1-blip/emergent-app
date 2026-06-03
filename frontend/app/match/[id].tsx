@@ -307,6 +307,12 @@ export default function MatchDetail() {
                           <Text style={styles.verdictAltMarket}>{a.market}</Text>
                           {a.odd && a.odd > 0 ? <Text style={styles.verdictAltOdd}>@ {a.odd.toFixed(2)}</Text> : null}
                           <Text style={[styles.verdictConcMini, { color: a.concordance === 3 ? colors.success : a.concordance === 2 ? colors.primary : colors.textDim }]}>{a.concordance}/3</Text>
+                          {a.vetoed && (
+                            <View style={styles.vetoTag}>
+                              <Ionicons name="warning" size={9} color="#FFF" />
+                              <Text style={styles.vetoTxt}>VETO STRUTTURALE</Text>
+                            </View>
+                          )}
                         </View>
                         <View style={{ marginTop: 4 }}>{rankBadges(a)}</View>
                       </View>
@@ -926,4 +932,9 @@ const styles = StyleSheet.create({
   verdictAltMarket: { color: colors.text, fontSize: 13, fontWeight: "800" },
   verdictAltOdd: { color: colors.primary, fontSize: 12, fontWeight: "800" },
   verdictConcMini: { fontSize: 10, fontWeight: "900" },
+  vetoTag: {
+    flexDirection: "row", alignItems: "center", gap: 3,
+    backgroundColor: colors.danger, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4,
+  },
+  vetoTxt: { color: "#FFF", fontSize: 9, fontWeight: "900", letterSpacing: 0.3 },
 });
