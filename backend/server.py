@@ -1234,6 +1234,25 @@ async def ml_stats():
     return {"markets": out, "family_totals": family_totals}
 
 
+from cluster_engine import structural_analysis
+
+
+@api_router.get("/match/{match_id}/structural")
+async def match_structural(match_id: str):
+    """Full structural analysis: family, cluster, market ranking with coverage/fragility."""
+    m = await db.matches.find_one({"id": match_id}, {"_id": 0})
+    if not m:
+        raise HTTPException(404, "match not found")
+    odds = m.get("odds") or {}
+    return structural_analysis(odds)
+
+
+@api_router.post("/predict/structural")
+async def predict_structural_from_odds(body: dict):
+    """Compute structural analysis from raw odds (for testing without DB match)."""
+    return structural_analysis(body.get("odds") or body)
+
+
 @api_router.post("/ml/backfill")
 async def ml_backfill():
     """Backfill family_counters from existing matches with results+predictions.
