@@ -8,7 +8,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
-import { api, Match, Prediction, MARKET_FAMILIES, ODD_LABELS, OddsKey, quickPredictionFamily, rankPicks, StructuralAnalysis, buildFinalVerdict, VerdictPick } from "@/src/api";
+import { api, Match, Prediction, MARKET_FAMILIES, ODD_LABELS, OddsKey, quickPredictionFamily, rankPicks, StructuralAnalysis, buildFinalVerdict, VerdictPick, getMarketOdd } from "@/src/api";
 import { colors } from "@/src/theme";
 import { ScoreInput } from "@/src/components/ScoreInput";
 import { FamilyLegendModal } from "@/src/components/FamilyLegendModal";
@@ -140,7 +140,16 @@ export default function MatchDetail() {
       estimated: (match.odds.estimated || []).includes(k),
     })).filter((x) => x.value != null);
     // Order is canonical (1, X, 2 / 1X, X2, 12 / U, O / GG, NG) — no sort
-    return { name: fam.name, items };
+    // Find the index of the MOST PROBABLE market (lowest odd) to highlight with star
+    let topIdx = -1;
+    let minVal = Infinity;
+    items.forEach((it, i) => {
+      if (typeof it.value === "number" && it.value < minVal) {
+        minVal = it.value;
+        topIdx = i;
+      }
+    });
+    return { name: fam.name, items, topIdx };
   });
 
   return (
@@ -178,7 +187,7 @@ export default function MatchDetail() {
           const fam = quickPredictionFamily(match.odds);
           const llmMarkets = prediction?.playable_markets?.map((p) => p.market) || (prediction?.main_prediction ? [prediction.main_prediction] : []);
           const preRanked = rankPicks(fam, llmMarkets, marketStats);
-          const verdict = buildFinalVerdict(structural, preRanked, prediction?.playable_markets);
+          const verdict = buildFinalVerdict(structural, preRanked, prediction?.playable_markets, match.odds);
           if (verdict.length === 0) return null;
           const top = verdict[0];
           const alts = verdict.slice(1, 4);
@@ -400,16 +409,26 @@ export default function MatchDetail() {
         })()}
 
         {/* ============ RANKING STRUTTURALE (Coverage + Fragility) ============ */}
-        {structural?.ranking && structural.ranking.length > 0 && (
+        {structural?.ranking && structural.ranking.length > 0 && (() => {
+          // Filter: only show markets with odd >= 1.40 (value threshold)
+          // If odd cannot be derived (e.g. MG markets), keep them.
+          const filtered = structural.ranking.filter((r) => {
+            const o = getMarketOdd(r.market, match.odds);
+            if (o === undefined) return true;
+            return o >= 1.40;
+          });
+          if (filtered.length === 0) return null;
+          return (
           <View style={styles.structRankBlock}>
             <View style={styles.structHeader}>
               <Ionicons name="ribbon" size={14} color={colors.aiText} />
               <Text style={styles.structTitle}>RANKING STRUTTURALE</Text>
-              <Text style={styles.clusterHint}>Coverage × Fragility</Text>
+              <Text style={styles.clusterHint}>Coverage × Fragility · quote ≥ 1.40</Text>
             </View>
-            {structural.ranking.map((r, i) => {
+            {filtered.map((r, i) => {
               const cov = Math.round(r.coverage * 100);
               const frag = Math.round(r.fragility * 100);
+              const odd = getMarketOdd(r.market, match.odds);
               const fragColor = r.fragility_label === "bassa" ? colors.success
                 : r.fragility_label === "media" ? colors.primary : colors.danger;
               return (
@@ -420,6 +439,9 @@ export default function MatchDetail() {
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                       <Text style={[styles.srMarket, i === 0 && { color: colors.aiText }]}>{r.market}</Text>
+                      {odd !== undefined && (
+                        <Text style={[styles.srOdd, i === 0 && { color: colors.aiText }]}>@ {odd.toFixed(2)}</Text>
+                      )}
                       <View style={[styles.srTag, { backgroundColor: "rgba(16,185,129,0.15)", borderColor: colors.success }]}>
                         <Text style={[styles.srTagTxt, { color: colors.success }]}>COV {cov}%</Text>
                       </View>
@@ -435,7 +457,8 @@ export default function MatchDetail() {
               );
             })}
           </View>
-        )}
+          );
+        })()}
 
         {/* Pre-pronostic family — local heuristic */}
         {(() => {
@@ -670,22 +693,25 @@ export default function MatchDetail() {
           <View key={fam.name} style={styles.famBlock}>
             <Text style={styles.famName}>{fam.name}</Text>
             <View style={styles.famGrid}>
-              {fam.items.map((it, idx) => (
-                <View key={it.key} style={[styles.famCard, idx === 0 && styles.famCardTop]}>
-                  <Text style={[styles.famLbl, idx === 0 && { color: "#FFE4D9" }]}>{it.label}</Text>
-                  <Text style={[styles.famVal, idx === 0 && { color: "#FFF" }]}>
+              {fam.items.map((it, idx) => {
+                const isTop = idx === fam.topIdx;
+                return (
+                <View key={it.key} style={[styles.famCard, isTop && styles.famCardTop]}>
+                  <Text style={[styles.famLbl, isTop && { color: "#FFE4D9" }]}>{it.label}</Text>
+                  <Text style={[styles.famVal, isTop && { color: "#FFF" }]}>
                     {it.value!.toFixed(2)}
                   </Text>
                   {it.estimated && (
-                    <Text style={[styles.famEst, idx === 0 && { color: "#FFE4D9" }]}>(stima)</Text>
+                    <Text style={[styles.famEst, isTop && { color: "#FFE4D9" }]}>(stima)</Text>
                   )}
-                  {idx === 0 && (
+                  {isTop && (
                     <View style={styles.topMark}>
                       <Ionicons name="star" size={9} color="#FFF" />
                     </View>
                   )}
                 </View>
-              ))}
+                );
+              })}
             </View>
           </View>
         ))}
@@ -864,6 +890,7 @@ const styles = StyleSheet.create({
   srRankTop: { backgroundColor: colors.aiText },
   srRankTxt: { color: colors.textMuted, fontSize: 11, fontWeight: "900" },
   srMarket: { color: colors.text, fontSize: 13, fontWeight: "900" },
+  srOdd: { color: colors.primary, fontSize: 12, fontWeight: "800" },
   srTag: { borderWidth: 1, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 5 },
   srTagTxt: { fontSize: 9, fontWeight: "900", letterSpacing: 0.3 },
   srBroken: { color: colors.textDim, fontSize: 10, marginTop: 4, fontStyle: "italic" },

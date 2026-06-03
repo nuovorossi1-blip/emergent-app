@@ -479,11 +479,44 @@ const SRC_WEIGHTS: Record<VerdictSource, { top: number; decay: number; bonus: nu
   pre:        { top: 5,  decay: 0.7, bonus: 0.6 }, // euristica locale = filtro debole
 };
 
+const MIN_VALUE_ODD = 1.40; // sotto 1.40 il pick è solo rischio, niente valore
+
+const MARKET_TO_ODD_KEY: Record<string, string> = {
+  "1": "odd_1", "X": "odd_X", "2": "odd_2",
+  "1X": "odd_1X", "X2": "odd_X2", "12": "odd_12",
+  "U1.5": "odd_U15", "O1.5": "odd_O15",
+  "U2.5": "odd_U25", "O2.5": "odd_O25",
+  "U3.5": "odd_U35", "O3.5": "odd_O35",
+  "GG": "odd_GG", "NG": "odd_NG",
+};
+
+/** Ritorna la quota canonica per un mercato dato (anche DC combo). undefined se non derivabile. */
+export function getMarketOdd(market: string, odds: any): number | undefined {
+  if (!market || !odds) return undefined;
+  const m = market.trim().toUpperCase().replace(/\s+/g, "");
+  const direct = MARKET_TO_ODD_KEY[m];
+  if (direct && typeof odds[direct] === "number" && odds[direct] > 0) return odds[direct];
+  // DC X + Y → prodotto delle quote (approssimazione)
+  if (m.startsWith("DC")) {
+    const rest = market.replace(/^dc\s*/i, "").trim();
+    const parts = rest.split("+").map((s) => s.trim());
+    if (parts.length === 2) {
+      const o1 = getMarketOdd(parts[0], odds);
+      const o2 = getMarketOdd(parts[1], odds);
+      if (o1 && o2) return Math.round(o1 * o2 * 100) / 100;
+    }
+  }
+  return undefined;
+}
+
 export function buildFinalVerdict(
   structural: StructuralAnalysis | null,
   preRanked: RankedPick[],
   aiMarkets: { market: string; reasoning?: string }[] | string[] | undefined,
+  odds?: any,
+  options?: { minOdd?: number },
 ): VerdictPick[] {
+  const minOdd = options?.minOdd ?? MIN_VALUE_ODD;
   const norm = normalizeMarket;
   type Bucket = {
     market: string;            // canonical display name (first seen)
@@ -543,30 +576,41 @@ export function buildFinalVerdict(
     if (!b.family) b.family = p.family;
   });
 
-  // === Concordance bonus ===
+  // === Compute canonical odds (per bucket) and concordance bonus ===
   for (const b of buckets.values()) {
-    if (b.sources.size === 3) b.score += 4;       // piena
+    if (odds && (b.odd === undefined || b.odd === null)) {
+      const computed = getMarketOdd(b.market, odds);
+      if (computed) b.odd = computed;
+    }
+    if (b.sources.size === 3) b.score += 4;        // piena
     else if (b.sources.size === 2) b.score += 1.5; // forte
   }
 
   // === Build output ===
-  const out: VerdictPick[] = Array.from(buckets.values()).map((b) => {
-    const c = b.sources.size;
-    const agreementLabel: VerdictPick["agreementLabel"] =
-      c === 3 ? "piena" : c === 2 ? "forte" : c === 1 ? "parziale" : "divergente";
-    return {
-      market: b.market,
-      score: Math.round(b.score * 100) / 100,
-      sources: Array.from(b.sources),
-      ranks: b.ranks,
-      odd: b.odd,
-      coverage: b.coverage,
-      fragility: b.fragility,
-      family: b.family,
-      concordance: c,
-      agreementLabel,
-    };
-  });
+  const out: VerdictPick[] = Array.from(buckets.values())
+    // Filter out picks below value threshold (sotto soglia = solo rischio, niente valore)
+    .filter((b) => {
+      // Se non riesco a determinare la quota → lascio passare (mercati MG non standard)
+      if (b.odd === undefined || b.odd === null) return true;
+      return b.odd >= minOdd;
+    })
+    .map((b) => {
+      const c = b.sources.size;
+      const agreementLabel: VerdictPick["agreementLabel"] =
+        c === 3 ? "piena" : c === 2 ? "forte" : c === 1 ? "parziale" : "divergente";
+      return {
+        market: b.market,
+        score: Math.round(b.score * 100) / 100,
+        sources: Array.from(b.sources),
+        ranks: b.ranks,
+        odd: b.odd,
+        coverage: b.coverage,
+        fragility: b.fragility,
+        family: b.family,
+        concordance: c,
+        agreementLabel,
+      };
+    });
   out.sort((a, b) => b.score - a.score);
   return out;
 }
