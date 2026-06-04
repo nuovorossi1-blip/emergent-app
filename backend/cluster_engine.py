@@ -325,15 +325,19 @@ CANDIDATE_MARKETS = [
     "1", "X", "2", "1X", "X2", "12",
     "O1.5", "U1.5", "O2.5", "U2.5", "O3.5", "U3.5",
     "GG", "NG",
-    # MG totali multipli: il motore boosta automaticamente quello che combacia
-    # con [pavimento, tetto] del cluster Poisson
-    "MG 0-2 totali", "MG 1-3 totali", "MG 2-4 totali", "MG 0-3 totali", "MG 1-4 totali",
-    "MG 2-4 casa", "MG 2-4 ospite",
-    "MG 1-3 casa", "MG 1-3 ospite",
-    # Direct-result + Over combos (3-way "Risultato + Goal" markets)
-    "1 + O1.5", "2 + O1.5",
+    # MG totali (NO "MG 0-X" — i bookmaker non offrono questo range,
+    # è ridondante con Under N.5)
+    "MG 1-2 totali", "MG 1-3 totali", "MG 1-4 totali",
+    "MG 2-3 totali", "MG 2-4 totali", "MG 2-5 totali",
+    "MG 3-4 totali", "MG 3-5 totali",
+    # MG per singola squadra
+    "MG 1-2 casa", "MG 1-3 casa", "MG 2-3 casa", "MG 2-4 casa",
+    "MG 1-2 ospite", "MG 1-3 ospite", "MG 2-3 ospite", "MG 2-4 ospite",
+    # Direct-result + Over combos (offensiva pulita con dominante)
+    "1 + O1.5", "2 + O1.5", "1 + O2.5", "2 + O2.5",
     # Double-chance + Over/Under combos
     "DC 1X + O1.5", "DC X2 + O1.5", "DC 12 + O1.5",
+    "DC 1X + O2.5", "DC X2 + O2.5", "DC 12 + O2.5",
     "DC 1X + U3.5", "DC X2 + U3.5", "DC 12 + U3.5",
 ]
 
@@ -414,18 +418,48 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40) -> Dict:
 
         # === MG "PERFETTO": boost quando il range combacia con [floor, ceiling] ===
         # Esempio: floor=1, ceiling=3 → "MG 1-3 totali" è il pronostico più calibrato
-        # alla struttura del match → riceve un +25% bonus
+        # alla struttura del match → riceve un +25% bonus.
+        # ANTI-LADRO: MG troppo ampi (span ≥ 4) sono ad alta coverage ma a quota
+        # ridicola (~1.10) → penalità per scoraggiare il PICK quando ci sono
+        # alternative più calibrate.
         import re as _re
-        if "MG" in m.upper() and "TOTALI" in m.upper():
+        if "MG" in m.upper():
             rng = _re.search(r"(\d+)\s*-\s*(\d+)", m)
             if rng:
                 lo, hi = int(rng.group(1)), int(rng.group(2))
-                # Calibrazione perfetta col cluster Poisson
-                if lo == floor and hi == ceiling:
-                    score *= 1.25
-                # Calibrazione vicina (offset ±1)
-                elif abs(lo - floor) <= 1 and abs(hi - ceiling) <= 1:
-                    score *= 1.10
+                span = hi - lo
+                MU = m.upper()
+                is_totali = "TOTALI" in MU
+                is_casa = "CASA" in MU
+                is_ospite = "OSPITE" in MU
+
+                if is_totali:
+                    if lo == floor and hi == ceiling:
+                        score *= 1.30
+                    elif abs(lo - floor) <= 1 and abs(hi - ceiling) <= 1:
+                        score *= 1.10
+                # MG casa/ospite: boost quando il range copre il lambda della squadra
+                # Esempio: λ_home=2.5 → MG 2-4 casa è ottimo (range copre la media)
+                elif is_casa:
+                    lam = lam_h
+                    if lo <= lam <= hi and span <= 3:
+                        score *= 1.25  # range calibrato sul lambda casa
+                    elif lo > 0 and span <= 3:
+                        score *= 1.05
+                elif is_ospite:
+                    lam = lam_a
+                    if lo <= lam <= hi and span <= 3:
+                        score *= 1.25  # range calibrato sul lambda ospite
+                    elif lo > 0 and span <= 3:
+                        score *= 1.05
+
+                # Penalty: MG totali troppo ampi (es. MG 1-4, MG 1-5)
+                # sono noiosi e con quote piatte → non hanno valore betting
+                if is_totali:
+                    if span >= 4 and cov >= 0.85:
+                        score *= 0.55
+                    elif span >= 3 and cov >= 0.90:
+                        score *= 0.70
 
         # === DOMINANZA ESTREMA: bonus/malus per "monopolio offensivo" ===
         # Quando una squadra ha λ ≥ 2.4 (forte) e l'altra λ ≤ 0.7 (debole),
