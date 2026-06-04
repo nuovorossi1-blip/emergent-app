@@ -127,12 +127,18 @@ def evaluate_market_strict(market: str, home: int, away: int) -> Optional[bool]:
             return total > float(o)
         if m == f"U{o}":
             return total < float(o)
-    if "MG" in m and "2-4" in m:
-        if "CASA" in m:
-            return 2 <= home <= 4
-        if "OSPITE" in m:
-            return 2 <= away <= 4
-        return 2 <= total <= 4
+    # MG (Multi Goal) generic: any range "A-B" applied to totale/casa/ospite
+    # Esempi: "MG 1-3 totali", "MG 0-2 totali", "MG 2-4 casa", "MG 1-3 ospite"
+    if "MG" in m:
+        import re as _re
+        rng = _re.search(r"(\d+)\s*-\s*(\d+)", m)
+        if rng:
+            lo, hi = int(rng.group(1)), int(rng.group(2))
+            if "CASA" in m:
+                return lo <= home <= hi
+            if "OSPITE" in m:
+                return lo <= away <= hi
+            return lo <= total <= hi
     if "+" in market:
         parts = [p.strip() for p in market.split("+")]
         results = [evaluate_market_strict(p, home, away) for p in parts]
@@ -319,7 +325,11 @@ CANDIDATE_MARKETS = [
     "1", "X", "2", "1X", "X2", "12",
     "O1.5", "U1.5", "O2.5", "U2.5", "O3.5", "U3.5",
     "GG", "NG",
-    "MG 2-4 totali", "MG 2-4 casa", "MG 2-4 ospite",
+    # MG totali multipli: il motore boosta automaticamente quello che combacia
+    # con [pavimento, tetto] del cluster Poisson
+    "MG 0-2 totali", "MG 1-3 totali", "MG 2-4 totali", "MG 0-3 totali", "MG 1-4 totali",
+    "MG 2-4 casa", "MG 2-4 ospite",
+    "MG 1-3 casa", "MG 1-3 ospite",
     # Direct-result + Over combos (3-way "Risultato + Goal" markets)
     "1 + O1.5", "2 + O1.5",
     # Double-chance + Over/Under combos
@@ -390,6 +400,9 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40) -> Dict:
         valid_markets.append(m)
 
     ranked = []
+    floor = structure["goal_floor"]
+    ceiling = structure["goal_ceiling"]
+
     for m in valid_markets:
         cov, covered, broken = coverage_for_market(m, central)
         frag = fragility_score(m, central)
@@ -398,6 +411,21 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40) -> Dict:
             continue
         # Base score = coverage × (1 - fragility×0.3)
         score = cov * (1 - frag * 0.3)
+
+        # === MG "PERFETTO": boost quando il range combacia con [floor, ceiling] ===
+        # Esempio: floor=1, ceiling=3 → "MG 1-3 totali" è il pronostico più calibrato
+        # alla struttura del match → riceve un +25% bonus
+        import re as _re
+        if "MG" in m.upper() and "TOTALI" in m.upper():
+            rng = _re.search(r"(\d+)\s*-\s*(\d+)", m)
+            if rng:
+                lo, hi = int(rng.group(1)), int(rng.group(2))
+                # Calibrazione perfetta col cluster Poisson
+                if lo == floor and hi == ceiling:
+                    score *= 1.25
+                # Calibrazione vicina (offset ±1)
+                elif abs(lo - floor) <= 1 and abs(hi - ceiling) <= 1:
+                    score *= 1.10
 
         # === DOMINANZA ESTREMA: bonus/malus per "monopolio offensivo" ===
         # Quando una squadra ha λ ≥ 2.4 (forte) e l'altra λ ≤ 0.7 (debole),
