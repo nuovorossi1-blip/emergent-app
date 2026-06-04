@@ -878,7 +878,7 @@ async def run_ai_prediction(match: dict) -> dict:
                     {"role": "system", "content": PREDICTION_SYSTEM},
                     {"role": "user", "content": prompt + "\n\nIMPORTANTE: rispondi SOLO con il JSON, niente testo introduttivo, niente ragionamento, solo l'oggetto JSON."},
                 ],
-                temperature=0.6,
+                temperature=0.2,  # bassa stocasticità: lieve variazione, ragionamento coerente
                 max_tokens=max_tok,
             )
             msg = resp["choices"][0]["message"]

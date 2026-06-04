@@ -632,6 +632,37 @@ export function buildFinalVerdict(
     }
   }
 
+  // === COERENZA STRUTTURALE: Penalità Under quando pavimento ≥ 2 ===
+  // Se il motore Poisson conferma un pavimento ≥ 2 (gol minimi attesi),
+  // i mercati Under con soglia troppo bassa sono strutturalmente fragili.
+  // Esempio: pavimento=2 + U3.5 → si vince solo per 2 o 3 gol totali,
+  // ma con λ_max alto è facile vedere il 3°/4° gol.
+  if (structural?.structure) {
+    const floor = structural.structure.goal_floor;
+    if (floor >= 2) {
+      for (const b of buckets.values()) {
+        const m = norm(b.market);
+        // Match U(N).5 con N <= floor + 1 → soglia troppo vicina al pavimento
+        const underMatch = m.match(/^U(\d+(?:\.\d+)?)/);
+        if (underMatch) {
+          const n = parseFloat(underMatch[1]);
+          if (n - floor <= 1.5) {
+            // Penalità: -25% allo score
+            b.score *= 0.75;
+          }
+        }
+        // Anche per combo "DC X + U(N).5"
+        const comboUnder = m.match(/\+U(\d+(?:\.\d+)?)/);
+        if (comboUnder) {
+          const n = parseFloat(comboUnder[1]);
+          if (n - floor <= 1.5) {
+            b.score *= 0.85; // penalità più lieve sui combo
+          }
+        }
+      }
+    }
+  }
+
   // === Build output ===
   const out: VerdictPick[] = Array.from(buckets.values())
     // Filter out picks below value threshold (sotto soglia = solo rischio, niente valore)

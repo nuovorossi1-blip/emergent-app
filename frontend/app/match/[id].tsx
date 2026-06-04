@@ -190,7 +190,12 @@ export default function MatchDetail() {
           const verdict = buildFinalVerdict(structural, preRanked, prediction?.playable_markets, match.odds);
           if (verdict.length === 0) return null;
           const top = verdict[0];
-          const alts = verdict.slice(1, 4);
+          // Alternative ordinate per concordanza DESC, poi score DESC:
+          // 3/3 prima, poi 2/3, poi 1/3 (a parità lo score decide)
+          const alts = verdict
+            .slice(1)
+            .sort((a, b) => (b.concordance - a.concordance) || (b.score - a.score))
+            .slice(0, 3);
 
           const concColor = top.concordance === 3 ? colors.success
             : top.concordance === 2 ? colors.primary : colors.textDim;
