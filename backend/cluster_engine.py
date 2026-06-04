@@ -438,6 +438,11 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40) -> Dict:
                         score *= 1.30
                     elif abs(lo - floor) <= 1 and abs(hi - ceiling) <= 1:
                         score *= 1.10
+                    # Penalty: MG totali con limite inferiore SOTTO il pavimento
+                    # Esempio: floor=2, MG 1-3 totali → il "1" non si avvera mai,
+                    # è ridondante = quota più bassa per niente valore extra.
+                    if lo < floor:
+                        score *= 0.55
                 # MG casa/ospite: boost quando il range copre il lambda della squadra
                 # MA penalty severa se il range parte da 1 (gol mai) e la squadra
                 # ha λ ≥ 2.0 → significa che fa almeno 2 gol, il "1" è ridondante.
@@ -446,6 +451,10 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40) -> Dict:
                     if lo == 1 and lam >= 2.0:
                         # MG 1-X casa con team a λ≥2.0 = scelta debole (quota ~1.30)
                         score *= 0.45
+                    # Penalty se il "1" del range è sotto il floor MA il team
+                    # è forte abbastanza da non fermarsi a 1 (lam >= 1.6)
+                    elif lo == 1 and lam >= 1.6 and floor >= 2:
+                        score *= 0.65
                     elif lo <= lam <= hi and span <= 3:
                         score *= 1.25  # range calibrato sul lambda casa
                     elif lo > 0 and span <= 3:
@@ -454,6 +463,8 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40) -> Dict:
                     lam = lam_a
                     if lo == 1 and lam >= 2.0:
                         score *= 0.45
+                    elif lo == 1 and lam >= 1.6 and floor >= 2:
+                        score *= 0.65
                     elif lo <= lam <= hi and span <= 3:
                         score *= 1.25  # range calibrato sul lambda ospite
                     elif lo > 0 and span <= 3:
