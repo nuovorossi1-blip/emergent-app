@@ -630,6 +630,27 @@ export function buildFinalVerdict(
         b.score += 1.5;
       }
     }
+
+    // GUARDRAIL: se il PICK strutturale #1 è robusto, garantisci che il suo
+    // score finale sia almeno il +15% sopra il massimo tra gli altri mercati.
+    // Questo evita che concordanze casuali AI+PRE su mercati inferiori
+    // (es. U2.5 quando il vero pick è MG 1-3 totali) battano il motore matematico.
+    if (robust) {
+      const topKey = norm(top.market);
+      const topBucket = buckets.get(topKey);
+      if (topBucket) {
+        let maxOther = 0;
+        for (const b of buckets.values()) {
+          if (norm(b.market) !== topKey && b.score > maxOther) {
+            maxOther = b.score;
+          }
+        }
+        const minRequired = maxOther * 1.15 + 0.5;
+        if (topBucket.score < minRequired) {
+          topBucket.score = minRequired;
+        }
+      }
+    }
   }
 
   // === COERENZA STRUTTURALE: Penalità Under quando pavimento ≥ 2 ===
