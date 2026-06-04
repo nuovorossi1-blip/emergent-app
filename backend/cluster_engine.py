@@ -439,16 +439,22 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40) -> Dict:
                     elif abs(lo - floor) <= 1 and abs(hi - ceiling) <= 1:
                         score *= 1.10
                 # MG casa/ospite: boost quando il range copre il lambda della squadra
-                # Esempio: λ_home=2.5 → MG 2-4 casa è ottimo (range copre la media)
+                # MA penalty severa se il range parte da 1 (gol mai) e la squadra
+                # ha λ ≥ 2.0 → significa che fa almeno 2 gol, il "1" è ridondante.
                 elif is_casa:
                     lam = lam_h
-                    if lo <= lam <= hi and span <= 3:
+                    if lo == 1 and lam >= 2.0:
+                        # MG 1-X casa con team a λ≥2.0 = scelta debole (quota ~1.30)
+                        score *= 0.45
+                    elif lo <= lam <= hi and span <= 3:
                         score *= 1.25  # range calibrato sul lambda casa
                     elif lo > 0 and span <= 3:
                         score *= 1.05
                 elif is_ospite:
                     lam = lam_a
-                    if lo <= lam <= hi and span <= 3:
+                    if lo == 1 and lam >= 2.0:
+                        score *= 0.45
+                    elif lo <= lam <= hi and span <= 3:
                         score *= 1.25  # range calibrato sul lambda ospite
                     elif lo > 0 and span <= 3:
                         score *= 1.05
@@ -475,6 +481,15 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40) -> Dict:
                 score *= 1.25
             if (lam_h >= lam_a and mu in ("1 + O1.5", "DC 1X + O1.5")):
                 score *= 1.25
+            # Boost: combo "X + O2.5" del dominatore (over moderato con copertura)
+            if (lam_a >= lam_h and mu in ("2 + O2.5", "DC X2 + O2.5")):
+                score *= 1.30
+            if (lam_h >= lam_a and mu in ("1 + O2.5", "DC 1X + O2.5")):
+                score *= 1.30
+            # Boost: O2.5 puro quando lam_total >= 2.8 (over moderato calibrato)
+            lam_tot = lam_h + lam_a
+            if mu == "O2.5" and lam_tot >= 2.8:
+                score *= 1.20
             # Malus: U3.5 puri (rotti facilmente da 0-4 / 1-3)
             if mu == "U3.5":
                 score *= 0.80
