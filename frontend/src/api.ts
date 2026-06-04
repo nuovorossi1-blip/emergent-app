@@ -611,6 +611,27 @@ export function buildFinalVerdict(
     }
   }
 
+  // === STRUCTURAL PRIMACY ===
+  // Il motore matematico (Poisson) è la guida. Se il suo PICK #1 è robusto
+  // (coverage ≥ 60%, fragility ≤ 35%) gli diamo un boost massiccio così non
+  // può essere battuto da una concordanza casuale AI+PRE su un pick inferiore.
+  if (structural?.ranking && structural.ranking.length > 0) {
+    const top = structural.ranking[0];
+    const robust = top.coverage >= 0.60 && top.fragility <= 0.35;
+    for (const b of buckets.values()) {
+      const rank = b.ranks.structural;
+      if (!rank) continue;
+      if (rank === 1) {
+        // PICK strutturale: boost forte se robusto, moderato altrimenti
+        b.score += robust ? 10 : 5;
+      } else if (rank === 2) {
+        b.score += 3;
+      } else if (rank === 3) {
+        b.score += 1.5;
+      }
+    }
+  }
+
   // === Build output ===
   const out: VerdictPick[] = Array.from(buckets.values())
     // Filter out picks below value threshold (sotto soglia = solo rischio, niente valore)
