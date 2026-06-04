@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator,
-  TextInput, RefreshControl, Modal, FlatList, Alert, useWindowDimensions, Platform,
+  TextInput, RefreshControl, Modal, FlatList, Alert, useWindowDimensions, Platform, BackHandler,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -11,6 +11,7 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { api, Match, quickPrediction, quickPredictionFamily, rankPicks, pickFinal, RankedPick } from "@/src/api";
 import { colors } from "@/src/theme";
 import BottomNav from "@/src/components/BottomNav";
+import { useBottomNav } from "@/src/components/BottomNavContext";
 import { confirmAction } from "@/src/utils/platform";
 import { parseLeagueCode } from "@/src/utils/leagues";
 import { predictionQueue } from "@/src/utils/predictionQueue";
@@ -105,6 +106,7 @@ export default function Home() {
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === "web" && width >= 900;
   const numCols = 1; // forced single-column list also on desktop (user request)
+  const bottomNav = useBottomNav();
 
   const [matches, setMatches] = useState<Match[]>([]);
   const [days, setDays] = useState<string[]>([]);
@@ -139,7 +141,21 @@ export default function Home() {
 
   const load = useCallback(async (day: string | null) => {
     try {
-      const [ms, ds, stats] = await Promise.all([api.matches(day || undefined), api.days(), api.marketStats().catch(() => ({ markets: [], family_totals: {} }))]);
+      // Se day è null, NON caricare tutti i match (4000+ = 2.4 MB lento)
+      // Carica solo days + marketStats. Match verranno fetchati appena
+      // selectedDay viene impostato dall'effect successivo.
+      if (day === null) {
+        const [ds, stats] = await Promise.all([
+          api.days(),
+          api.marketStats().catch(() => ({ markets: [], family_totals: {} })),
+        ]);
+        setDays(ds); setMarketStats(stats?.markets || []); return ds;
+      }
+      const [ms, ds, stats] = await Promise.all([
+        api.matches(day),
+        api.days(),
+        api.marketStats().catch(() => ({ markets: [], family_totals: {} })),
+      ]);
       setMatches(ms); setDays(ds); setMarketStats(stats?.markets || []); return ds;
     } catch { return []; } finally { setLoading(false); setRefreshing(false); }
   }, []);
@@ -155,9 +171,29 @@ export default function Home() {
     })();
   }, [didInit, load]);
 
+  // Android back button → conferma uscita app quando si è sulla home
+  useEffect(() => {
+    if (Platform.OS !== "android") return;
+    const handler = BackHandler.addEventListener("hardwareBackPress", () => {
+      Alert.alert(
+        "Esci dall'app",
+        "Vuoi davvero uscire dall'applicazione?",
+        [
+          { text: "Annulla", style: "cancel", onPress: () => {} },
+          { text: "Esci", style: "destructive", onPress: () => BackHandler.exitApp() },
+        ],
+        { cancelable: true },
+      );
+      return true; // blocca il default (chiusura immediata)
+    });
+    return () => handler.remove();
+  }, []);
+
   useFocusEffect(useCallback(() => {
     if (!didInit) return;
     setLoading(true);
+    // Forza show della BottomNav quando entri nella home
+    bottomNav.show();
     load(selectedDay).then(() => {
       // Restore scroll position after data is loaded
       if (savedScrollY > 0) {
@@ -340,7 +376,7 @@ export default function Home() {
           <TouchableOpacity onPress={() => router.push("/strumenti")} style={styles.emptyBtn}><Text style={styles.emptyBtnTxt}>Carica Excel</Text></TouchableOpacity>
         </View>
       ) : (
-        <ScrollView ref={scrollRef} onScroll={(e) => { savedScrollY = e.nativeEvent.contentOffset.y; }} scrollEventThrottle={16} decelerationRate="fast" keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.list, isDesktop && { paddingHorizontal: 24 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { savedScrollY = 0; setRefreshing(true); load(selectedDay); }} tintColor={colors.primary} />}>
+        <ScrollView ref={scrollRef} onScroll={(e) => { const y = e.nativeEvent.contentOffset.y; savedScrollY = y; bottomNav.handleScroll(y); }} scrollEventThrottle={16} decelerationRate="fast" keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.list, isDesktop && { paddingHorizontal: 24 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { savedScrollY = 0; setRefreshing(true); load(selectedDay); }} tintColor={colors.primary} />}>
           {grouped.map(([league, items]) => {
             const lc = parseLeagueCode(league);
             return (

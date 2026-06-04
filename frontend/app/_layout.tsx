@@ -7,6 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as NavigationBar from "expo-navigation-bar";
 
 import { useIconFonts } from "@/src/hooks/use-icon-fonts";
+import { BottomNavProvider } from "@/src/components/BottomNavContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -19,17 +20,13 @@ export default function RootLayout() {
     }
   }, [loaded, error]);
 
-  // Android: nascondi la system nav bar (back/home/recents)
-  // Riappare temporaneamente con swipe dal basso, poi si nasconde di nuovo.
   useEffect(() => {
     if (Platform.OS !== "android") return;
     (async () => {
       try {
         await NavigationBar.setBehaviorAsync("overlay-swipe");
         await NavigationBar.setVisibilityAsync("hidden");
-      } catch (e) {
-        // silenzioso: alcune versioni Android non supportano questa API
-      }
+      } catch (e) {}
     })();
   }, []);
 
@@ -37,8 +34,10 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#0A0A0A" }, animation: "slide_from_right", animationDuration: 220 }} />
+      <BottomNavProvider>
+        <StatusBar style="light" />
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#0A0A0A" }, animation: "slide_from_right", animationDuration: 220 }} />
+      </BottomNavProvider>
     </SafeAreaProvider>
   );
 }

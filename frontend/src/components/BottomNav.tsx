@@ -3,8 +3,10 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, usePathname } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated, { useAnimatedStyle, interpolate } from "react-native-reanimated";
 import { colors } from "@/src/theme";
 import { api } from "@/src/api";
+import { useBottomNav } from "@/src/components/BottomNavContext";
 
 type IconName = React.ComponentProps<typeof Ionicons>["name"];
 
@@ -20,6 +22,7 @@ export default function BottomNav() {
   const router = useRouter();
   const path = usePathname();
   const insets = useSafeAreaInsets();
+  const { visible } = useBottomNav();
   const [selCount, setSelCount] = useState(0);
 
   useEffect(() => {
@@ -35,13 +38,17 @@ export default function BottomNav() {
     return () => { active = false; clearInterval(t); };
   }, [path]);
 
-  // Padding bottom robusto: garantisce ≥ 40px anche se SafeAreaProvider
-  // non è disponibile. Su Pixel 10 con gesture nav: insets.bottom ≈ 28 → 48px totali.
-  // Su device classici (con tasti software): insets.bottom = 0 → 40px (sufficiente).
   const bottomPadding = Math.max(insets.bottom + 14, 40);
+  const navHeight = bottomPadding + 56; // 56 ≈ altezza contenuto tab + paddingTop
+
+  // Animazione translateY: 0 = visibile, navHeight = nascosta sotto schermo
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: interpolate(visible.value, [0, 1], [navHeight, 0]) }],
+    opacity: interpolate(visible.value, [0, 1], [0, 1]),
+  }));
 
   return (
-    <View style={[styles.wrap, { paddingBottom: bottomPadding }]}>
+    <Animated.View style={[styles.wrap, { paddingBottom: bottomPadding }, animStyle]}>
       {TABS.map((t) => {
         const active = (t.route === "/" && path === "/") || (t.route !== "/" && path?.startsWith(t.route));
         const isSchedina = t.route === "/selected";
@@ -68,7 +75,7 @@ export default function BottomNav() {
           </TouchableOpacity>
         );
       })}
-    </View>
+    </Animated.View>
   );
 }
 
