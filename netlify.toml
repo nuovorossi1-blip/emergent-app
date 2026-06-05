@@ -1,0 +1,20 @@
+[build]
+  base = "frontend"
+  publish = "frontend/dist"
+  command = "yarn install --frozen-lockfile && yarn build:web"
+
+[build.environment]
+  NODE_VERSION = "20"
+  EXPO_PUBLIC_BACKEND_URL = "https://match-quota-analyzer.preview.emergentagent.com"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
