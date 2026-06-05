@@ -15,6 +15,7 @@ import { AISTUDIO_FRAMEWORK } from "@/src/book-content";
 import { Platform } from "react-native";
 import { parseLeagueCode } from "@/src/utils/leagues";
 import { useBottomNav } from "@/src/components/BottomNavContext";
+import BottomNav from "@/src/components/BottomNav";
 
 export default function Selected() {
   const router = useRouter();
@@ -283,6 +284,7 @@ export default function Selected() {
           </View>
         </>
       )}
+      <BottomNav />
     </SafeAreaView>
   );
 }

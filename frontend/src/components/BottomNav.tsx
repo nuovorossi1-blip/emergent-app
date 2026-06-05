@@ -22,21 +22,19 @@ export default function BottomNav() {
   const router = useRouter();
   const path = usePathname();
   const insets = useSafeAreaInsets();
-  const { visible } = useBottomNav();
+  const { visible, show } = useBottomNav();
   const [selCount, setSelCount] = useState(0);
 
+  // Ogni cambio rotta → forza la BottomNav visibile (evita che resti nascosta
+  // dopo uno scroll giù in una schermata precedente) + aggiorna selCount
   useEffect(() => {
+    show();
     let active = true;
-    const fetchCount = async () => {
-      try {
-        const list = await api.selectedList();
-        if (active) setSelCount(list.length);
-      } catch {}
-    };
-    fetchCount();
-    const t = setInterval(fetchCount, 4000);
-    return () => { active = false; clearInterval(t); };
-  }, [path]);
+    api.selectedList().then(list => { if (active) setSelCount(list.length); }).catch(() => {});
+    return () => { active = false; };
+  }, [path, show]);
+
+  // setInterval rimosso: era spam continuo. Refresh ora avviene SOLO ad ogni cambio rotta.
 
   const bottomPadding = Math.max(insets.bottom + 14, 40);
   const navHeight = bottomPadding + 56; // 56 ≈ altezza contenuto tab + paddingTop
