@@ -1768,10 +1768,30 @@ async def aistudio_prompt():
 
 app.include_router(api_router)
 
+# ============================================================
+# CORS — Whitelist esplicita per produzione + dev locale
+# ============================================================
+# Origini autorizzate esplicitamente (produzione + Netlify deploy previews + locale)
+ALLOWED_ORIGINS = [
+    "https://scoreblast-app.netlify.app",          # Netlify produzione
+    "https://match-quota-analyzer.emergent.host",  # Backend produzione (self)
+    "https://match-quota-analyzer.preview.emergentagent.com",  # Preview Emergent
+    "http://localhost:3000",                       # Expo web dev
+    "http://localhost:8081",                       # Expo metro dev
+    "http://localhost:19006",                      # Expo web legacy
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8081",
+]
+
+# Regex per coprire Netlify deploy previews (es. deploy-preview-12--scoreblast-app.netlify.app)
+# e branch deploys (es. main--scoreblast-app.netlify.app)
+ALLOWED_ORIGIN_REGEX = r"^https://([a-z0-9-]+--)?scoreblast-app\.netlify\.app$"
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=ALLOWED_ORIGIN_REGEX,
     allow_methods=["*"],
     allow_headers=["*"],
 )
