@@ -7,6 +7,7 @@ import Animated, { useAnimatedStyle, interpolate } from "react-native-reanimated
 import { colors } from "@/src/theme";
 import { api } from "@/src/api";
 import { useBottomNav } from "@/src/components/BottomNavContext";
+import { selectedListCache } from "@/src/utils/cache";
 
 type IconName = React.ComponentProps<typeof Ionicons>["name"];
 
@@ -26,15 +27,21 @@ export default function BottomNav() {
   const [selCount, setSelCount] = useState(0);
 
   // Ogni cambio rotta → forza la BottomNav visibile (evita che resti nascosta
-  // dopo uno scroll giù in una schermata precedente) + aggiorna selCount
+  // dopo uno scroll giù in una schermata precedente) + aggiorna selCount via cache
   useEffect(() => {
     show();
-    let active = true;
-    api.selectedList().then(list => { if (active) setSelCount(list.length); }).catch(() => {});
-    return () => { active = false; };
+    // Mostra subito il count cached (istantaneo)
+    const cached = selectedListCache.get();
+    if (cached) setSelCount(cached.length);
+    // Refresh in background solo se stale
+    if (selectedListCache.isStale()) {
+      let active = true;
+      api.selectedList().then(list => {
+        if (active) { selectedListCache.set(list); setSelCount(list.length); }
+      }).catch(() => {});
+      return () => { active = false; };
+    }
   }, [path, show]);
-
-  // setInterval rimosso: era spam continuo. Refresh ora avviene SOLO ad ogni cambio rotta.
 
   const bottomPadding = Math.max(insets.bottom + 14, 40);
   const navHeight = bottomPadding + 56; // 56 ≈ altezza contenuto tab + paddingTop

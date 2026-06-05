@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Platform, useWindowDimensions,
 } from "react-native";
+import { useBottomNav } from "@/src/components/BottomNavContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -18,6 +19,7 @@ import { AISTUDIO_FRAMEWORK } from "@/src/book-content";
 import { openExternalUrl, confirmAction } from "@/src/utils/platform";
 
 export default function Strumenti() {
+  const bottomNav = useBottomNav();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isGrid = width >= 600; // tablet/desktop → grid 2-col
@@ -181,7 +183,7 @@ export default function Strumenti() {
         <Text style={styles.subtitle}>Gestione import, backup e analisi esterna</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.list}>
+      <ScrollView contentContainerStyle={styles.list} onScroll={(e) => bottomNav.handleScroll(e.nativeEvent.contentOffset.y)} scrollEventThrottle={16}>
         <Text style={styles.section}>IMPORT DATI</Text>
         <Tool
           testID="tool-download-pdf"

@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { useBottomNav } from "@/src/components/BottomNavContext";
+import { marketStatsCache } from "@/src/utils/cache";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -10,19 +12,28 @@ import { api } from "@/src/api";
 type Stat = { family: string; market: string; wins: number; losses: number; total: number; missed: number; family_total: number; miss_rate: number; win_rate: number };
 
 export default function Profilo() {
+  const bottomNav = useBottomNav();
   const router = useRouter();
   const [stats, setStats] = useState<Stat[] | null>(null);
   const [familyTotals, setFamilyTotals] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(useCallback(() => {
+    // Stale-while-revalidate: mostro subito dalla cache, refresh in background
+    const cached = marketStatsCache.get();
+    if (cached) {
+      setStats(cached);
+      setLoading(false);
+    }
+    if (cached && !marketStatsCache.isStale()) return;
+    if (!cached) setLoading(true);
     (async () => {
-      setLoading(true);
       try {
         const s = await api.marketStats();
+        marketStatsCache.set(s.markets || []);
         setStats(s.markets || []);
         setFamilyTotals(s.family_totals || {});
-      } catch { setStats([]); setFamilyTotals({}); }
+      } catch { if (!cached) { setStats([]); setFamilyTotals({}); } }
       finally { setLoading(false); }
     })();
   }, []));
@@ -42,7 +53,7 @@ export default function Profilo() {
         <Text style={styles.subtitle}>Statistiche & Machine Learning</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.list}>
+      <ScrollView contentContainerStyle={styles.list} onScroll={(e) => bottomNav.handleScroll(e.nativeEvent.contentOffset.y)} scrollEventThrottle={16}>
         {loading ? (
           <ActivityIndicator color={colors.primary} style={{ marginTop: 40 }} />
         ) : (

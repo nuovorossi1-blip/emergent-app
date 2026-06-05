@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert, Platform } from "react-native";
+import { useBottomNav } from "@/src/components/BottomNavContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -11,6 +12,7 @@ import { api } from "@/src/api";
 import { openExternalUrl } from "@/src/utils/platform";
 
 export default function Book() {
+  const bottomNav = useBottomNav();
   const router = useRouter();
   const [open, setOpen] = useState<Set<string>>(new Set());
 
@@ -70,7 +72,7 @@ export default function Book() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.list}>
+      <ScrollView contentContainerStyle={styles.list} onScroll={(e) => bottomNav.handleScroll(e.nativeEvent.contentOffset.y)} scrollEventThrottle={16}>
         <TouchableOpacity
           testID="open-ai-studio"
           onPress={openAIStudio}

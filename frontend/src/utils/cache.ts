@@ -61,3 +61,24 @@ export const marketStatsCache = {
     marketStatsSnapshot = { stats, ts: Date.now() };
   },
 };
+
+let mlStatsSnapshot: { data: any; ts: number } | null = null;
+let selectedListSnapshot: { list: any[]; ts: number } | null = null;
+
+export const mlStatsCache = {
+  get(): any | null { return mlStatsSnapshot ? mlStatsSnapshot.data : null; },
+  isStale(): boolean {
+    if (!mlStatsSnapshot) return true;
+    return Date.now() - mlStatsSnapshot.ts > FRESH_TTL_MS;
+  },
+  set(data: any) { mlStatsSnapshot = { data, ts: Date.now() }; },
+};
+
+export const selectedListCache = {
+  get(): any[] | null { return selectedListSnapshot ? selectedListSnapshot.list : null; },
+  isStale(): boolean {
+    if (!selectedListSnapshot) return true;
+    return Date.now() - selectedListSnapshot.ts > 30_000; // 30s (cambia frequentemente)
+  },
+  set(list: any[]) { selectedListSnapshot = { list, ts: Date.now() }; },
+};

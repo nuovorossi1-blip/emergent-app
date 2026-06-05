@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { useBottomNav } from "@/src/components/BottomNavContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -11,6 +12,7 @@ import BottomNav from "@/src/components/BottomNav";
 type Score = { market: string; wins: number; losses: number; total: number; missed_wins?: number; win_rate: number };
 
 export default function Stats() {
+  const bottomNav = useBottomNav();
   const router = useRouter();
   const [data, setData] = useState<Record<string, Score[]>>({});
   const [loading, setLoading] = useState(true);
@@ -66,7 +68,7 @@ export default function Stats() {
           <Text style={styles.emptyHint}>Inserisci risultati per attivare il sistema di auto-correzione</Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.list}>
+        <ScrollView contentContainerStyle={styles.list} onScroll={(e) => bottomNav.handleScroll(e.nativeEvent.contentOffset.y)} scrollEventThrottle={16}>
           <View style={styles.kpiRow}>
             <View style={styles.kpiBox}>
               <Text style={styles.kpiNum}>{totalGames}</Text>
