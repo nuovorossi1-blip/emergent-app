@@ -5,7 +5,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  EXPO_PUBLIC_BACKEND_URL = "https://match-quota-analyzer.preview.emergentagent.com"
+  EXPO_PUBLIC_BACKEND_URL = "https://match-quota-analyzer.emergent.host"
 
 [[redirects]]
   from = "/*"
