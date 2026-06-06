@@ -54,19 +54,35 @@ export default function BottomNav() {
 
   // ============================================================
   // Scelta TABS in base alla route corrente
-  // Se siamo dentro un flusso match (/match/, /risultato/, /quote/),
-  // mostra i 3 tab contestuali; altrimenti la nav normale.
+  // SSR-safe: gestisce path null, query params, edge cases
   // ============================================================
-  const matchCtx = path.match(MATCH_PATTERN);
-  const matchId = matchCtx ? path.split("/")[2] : null;
+  let matchId: string | null = null;
+  try {
+    if (path) {
+      const matchCtx = path.match(MATCH_PATTERN);
+      if (matchCtx) {
+        // Estrai id ignorando eventuali query params (?foo=bar) o trailing slash
+        const parts = path.split("/").filter(Boolean);
+        if (parts.length >= 2) {
+          matchId = (parts[1] || "").split("?")[0].split("#")[0] || null;
+          if (!matchId) matchId = null;
+        }
+      }
+    }
+  } catch {}
   const TABS_RENDER = matchId ? getContextualTabs(matchId) : TABS;
 
   // ============================================================
-  // Padding bottom Android: aumentato a min 30dp (system buttons clearance)
-  // anche quando insets.bottom = 0 (edge-to-edge sotto navbar)
+  // Padding bottom Android: aumentato min 24dp per system buttons
+  // SSR-safe: navigator può essere undefined durante prerendering web
   // ============================================================
-  const isAndroid = typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
-  const bottomPadding = Math.max(insets.bottom, isAndroid ? 24 : 0) + 12;
+  let isAndroidUA = false;
+  try {
+    if (typeof navigator !== "undefined" && navigator.userAgent) {
+      isAndroidUA = /android/i.test(navigator.userAgent);
+    }
+  } catch {}
+  const bottomPadding = Math.max(insets.bottom, isAndroidUA ? 24 : 0) + 12;
   const navHeight = bottomPadding + 56;
 
   // ============================================================
