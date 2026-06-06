@@ -9,6 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { api, Match, Prediction, MARKET_FAMILIES, ODD_LABELS, OddsKey, quickPredictionFamily, rankPicks, StructuralAnalysis, buildFinalVerdict, VerdictPick, getMarketOdd, filterCoherentAlternatives, violatesStructure } from "@/src/api";
+import { useScrollMemory } from "@/src/utils/scrollMemory";
 import { colors } from "@/src/theme";
 import { ScoreInput } from "@/src/components/ScoreInput";
 import { FamilyLegendModal } from "@/src/components/FamilyLegendModal";
@@ -17,6 +18,7 @@ import { predictionQueue } from "@/src/utils/predictionQueue";
 export default function MatchDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const scrollMem = useScrollMemory(`/match/${id ?? "x"}`);
   const [match, setMatch] = useState<Match | null>(null);
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [loading, setLoading] = useState(true);
@@ -166,7 +168,7 @@ export default function MatchDetail() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} {...scrollMem}>
         {/* Match hero */}
         <View style={styles.hero}>
           <Text style={styles.heroDay}>{match.day} · {match.time}</Text>
