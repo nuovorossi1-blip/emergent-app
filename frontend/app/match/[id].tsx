@@ -14,6 +14,7 @@ import { colors } from "@/src/theme";
 import { ScoreInput } from "@/src/components/ScoreInput";
 import { FamilyLegendModal } from "@/src/components/FamilyLegendModal";
 import { predictionQueue } from "@/src/utils/predictionQueue";
+import BottomNav from "@/src/components/BottomNav";
 
 export default function MatchDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -772,6 +773,7 @@ export default function MatchDetail() {
           che diventa contestuale automaticamente quando l'utente entra
           in una route /match/, /risultato/, /quote/.
        ============================================================ */}
+      <BottomNav />
     </SafeAreaView>
   );
 }
