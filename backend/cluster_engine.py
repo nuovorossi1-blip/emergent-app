@@ -195,6 +195,7 @@ def classify_family(odds: Dict) -> Dict:
     oGG = odds.get("odd_GG") or 99
     oNG = odds.get("odd_NG") or 99
     oO15 = odds.get("odd_O15") or 99
+    oU15 = odds.get("odd_U15") or 99
     oO25 = odds.get("odd_O25") or 99
     oU25 = odds.get("odd_U25") or 99
     oU35 = odds.get("odd_U35") or 99
@@ -223,51 +224,67 @@ def classify_family(odds: Dict) -> Dict:
         offensive_profile = "neutral"
 
     # ============================================================
-    # GOAL FLOOR — con guardrail U1.5 (fix bug "Kamatamare 0-0")
+    # GOAL FLOOR — con borderline step-DOWN per sicurezza
     # ============================================================
-    # Stesso problema del tetto: usare SOLO O1.5 dichiara floor=1
-    # anche su match dove il 0-0 è ancora plausibile (es. O1.5=1.33,
-    # U1.5=2.80 → 9% di P(0-0) reale, non trascurabile).
-    # Soluzione: doppia conferma O1.5 + U1.5 per floor=1.
+    # Principio: in zona borderline (incertezza tra 2 livelli),
+    # prendere il valore PIÙ BASSO per ampliare il range di sicurezza.
+    # - Floor=2 STRICT: O1.5 ≤ 1.20 AND U1.5 ≥ 4.00 (clear over 1.5)
+    # - Floor=2 NORMAL: O1.5 ≤ 1.30 AND U1.5 ≥ 3.00 (es. Slovacchia O1.5=1.30/U1.5=3.10)
+    # - Floor=1 BORDERLINE: scartato (border 2-1 → step DOWN a 0/1 a seconda dei dati)
+    # - Floor=0: tutto il resto (es. Kamatamare O1.5=1.33/U1.5=2.80)
     # ============================================================
-    if oO15 <= 1.25:
-        # Floor=2 sicuro: O1.5 molto forte (≈80% prob 2+ gol)
-        goal_floor = 2
+    if oO15 <= 1.20 and oU15 >= 4.00:
+        goal_floor = 2  # super strict
     elif oO15 <= 1.30 and oU15 >= 3.00:
-        # Floor=1: O1.5 forte E U1.5 alto (P(0-0) < 10%)
-        goal_floor = 1
+        goal_floor = 2  # strict (Slovacchia case)
     else:
-        # Floor=0: 0-0 è plausibile (zona grigia)
+        # Zona borderline o chiara → step DOWN per sicurezza
+        # P(0-0) può essere ≥ 10%, meglio considerare 0 come floor
         goal_floor = 0
 
     # ============================================================
-    # GOAL CEILING — con guardrail O3.5 (fix bug "Myanmar 7-0")
+    # GOAL CEILING — con borderline step-UP per sicurezza
     # ============================================================
-    # Il problema della logica precedente: usavamo solo U3.5 per
-    # decidere il tetto. Ma U3.5 = 1.80 sembra "abbastanza chiuso"
-    # mentre il complementare O3.5 = 1.85 grida "OVER!" (54% prob
-    # di superare 3.5 gol). I due segnali devono essere COERENTI.
+    # Principio: in zona borderline (incertezza tra 2 livelli),
+    # prendere il valore PIÙ ALTO per ampliare il range di sicurezza.
     #
-    # Soglia O3.5 ≥ 2.20 (≈45% prob ≥4 gol) per dichiarare tetto
-    # effettivamente chiuso. Se O3.5 < 2.20 il mercato vede oltre
-    # il 45% di chance ≥4 gol → tetto APERTO (no max realistico).
+    # Esempio Slovacchia-Montenegro: U3.5=1.27, O3.5=3.25
+    # → con vecchia logica ceiling=3 (U3.5 ≤ 1.35)
+    # → MA risultato 2-2 = 4 gol → ceiling=3 SBAGLIATO
+    # → Nuova logica: borderline 3-4 → ceiling=4 ✓
     #
-    # goal_ceiling_open=True → la partita può fare 5+, 6+, 7+ gol.
-    # I mercati under-based (U3.5, MG 2-4, DC+U3.5) verranno
-    # penalizzati nel ranking; gli over-based promossi.
+    # Esempio Myanmar-Guam: U3.5=1.80, O3.5=1.85
+    # → ceiling APERTO (O3.5 < 2.20)
+    #
+    # Esempio borderline 4-open: U3.5=1.70, O3.5=2.30
+    # → step UP a APERTO (massima sicurezza)
     # ============================================================
     if oU25 <= 1.40:
+        # Ceiling=2 strict
         goal_ceiling = 2
         goal_ceiling_open = False
-    elif oU35 <= 1.35:
+    elif oU35 <= 1.15:
+        # Ceiling=3 STRICT: U3.5 estremamente sicuro (no borderline)
         goal_ceiling = 3
         goal_ceiling_open = False
-    elif oU35 <= 1.85 and oO35 >= 2.20:
-        # Doppia conferma: under forte E over non troppo aggressivo
+    elif oU35 <= 1.40 and oO35 >= 3.00:
+        # BORDERLINE 3-4: U3.5 forte ma non estremo, O3.5 conferma tetto
+        # → step UP a 4 per sicurezza (Slovacchia case 1.27/3.25)
         goal_ceiling = 4
         goal_ceiling_open = False
+    elif oU35 <= 1.85 and oO35 >= 2.50:
+        # Ceiling=4 NORMAL: doppia conferma robusta
+        goal_ceiling = 4
+        goal_ceiling_open = False
+    elif oU35 <= 1.85 and oO35 >= 2.20:
+        # BORDERLINE 4-open: O3.5 in zona grigia (2.20-2.50)
+        # → step UP a APERTO per sicurezza
+        goal_ceiling = 7
+        goal_ceiling_open = True
     else:
-        # Tetto aperto: il mercato vede 4+ gol con alta probabilità.
+        # Tetto APERTO chiaro: O3.5 < 2.20 (Myanmar case)
+        goal_ceiling = 7
+        goal_ceiling_open = True
         # Usiamo 7 come valore numerico per coerenza math (MG 2-7 = open),
         # ma il flag goal_ceiling_open=True segnala "no limite".
         goal_ceiling = 7
@@ -299,7 +316,9 @@ def classify_family(odds: Dict) -> Dict:
     # (es. quota 1.24 + NG 1.75 + U3.5 1.50) → clean sheet + range controllato
     elif extreme_fav and oNG <= 1.95 and oU35 <= 1.65:
         family = "DOMINANZA_CHIUSA"
-    elif has_favorite and goal_ceiling <= 3:
+    # DOMINANZA_CON_TETTO: favorita + ceiling chiuso ≤ 4
+    # (include sia il caso "tight tetto 3" che "borderline step-up 4")
+    elif has_favorite and goal_ceiling <= 4 and not goal_ceiling_open:
         family = "DOMINANZA_CON_TETTO"
     elif has_favorite and oO25 <= 1.65:
         family = "DOMINANZA_OVER"
