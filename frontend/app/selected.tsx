@@ -15,11 +15,14 @@ import { AISTUDIO_FRAMEWORK } from "@/src/book-content";
 import { Platform } from "react-native";
 import { parseLeagueCode } from "@/src/utils/leagues";
 import { useBottomNav } from "@/src/components/BottomNavContext";
+import { useToast } from "@/src/components/Toast";
+import { selectedListCache, matchesCache } from "@/src/utils/cache";
 import BottomNav from "@/src/components/BottomNav";
 
 export default function Selected() {
   const router = useRouter();
   const bottomNav = useBottomNav();
+  const toast = useToast();
   const [items, setItems] = useState<Match[]>([]);
   const [results, setResults] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -78,7 +81,11 @@ export default function Selected() {
   };
 
   const removeFromSelection = async (id: string) => {
+    const m = items.find((x) => x.id === id);
     setItems((arr) => arr.filter((x) => x.id !== id));
+    selectedListCache.invalidate();
+    if (m?.day) matchesCache.invalidate(m.day);
+    if (m) toast.show(`Rimossa: ${m.casa} vs ${m.ospite}`, "info");
     try { await api.updateSelection([id], false); } catch {}
   };
 
@@ -91,8 +98,11 @@ export default function Selected() {
       onConfirm: async () => {
         // Optimistic UI
         setItems([]);
+        selectedListCache.invalidate();
+        matchesCache.invalidate(); // tutti i giorni
         try { await api.clearSelection(); } catch (e) { console.warn(e); }
         await load();
+        toast.show("Selezione svuotata", "info");
       },
     });
   };

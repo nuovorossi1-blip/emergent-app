@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, usePathname } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -26,14 +26,11 @@ export default function BottomNav() {
   const { visible, show } = useBottomNav();
   const [selCount, setSelCount] = useState(0);
 
-  // Ogni cambio rotta → forza la BottomNav visibile (evita che resti nascosta
-  // dopo uno scroll giù in una schermata precedente) + aggiorna selCount via cache
+  // Ogni cambio rotta → forza la BottomNav visibile + aggiorna selCount via cache
   useEffect(() => {
     show();
-    // Mostra subito il count cached (istantaneo)
     const cached = selectedListCache.get();
     if (cached) setSelCount(cached.length);
-    // Refresh in background solo se stale
     if (selectedListCache.isStale()) {
       let active = true;
       api.selectedList().then(list => {
@@ -44,33 +41,30 @@ export default function BottomNav() {
   }, [path, show]);
 
   // ============================================================
-  // Padding bottom adattivo per piattaforma:
-  // - Android edge-to-edge: insets.bottom è SPESSO 0 perché i system buttons
-  //   sono disegnati sopra l'app. Forziamo minimo 56dp (≈ altezza nav 3-button)
-  //   + 18dp di respiro → 74dp totali sotto le label
-  // - iOS: insets.bottom gestisce la home-indicator
-  // - Web: padding minimo
+  // Padding bottom: usa SOLO insets reali (la Android nav bar è
+  // ora SEMPRE visibile via _layout.tsx con behavior="inset-swipe").
+  // Quindi insets.bottom restituisce il valore corretto su tutte
+  // le piattaforme:
+  //  - Android 3-button: ~48dp
+  //  - Android gesture: ~24dp
+  //  - iOS home-indicator: ~34dp
+  //  - iOS no notch: 0dp
+  //  - Web: 0dp
+  // Aggiungiamo 12dp di respiro interno fisso.
   // ============================================================
-  const isAndroid = Platform.OS === "android";
-  const isIOS = Platform.OS === "ios";
-  const ANDROID_SYS_NAV_MIN = 56; // altezza tipica nav 3-button Android
-  const safeBottom = isAndroid
-    ? Math.max(insets.bottom, ANDROID_SYS_NAV_MIN) + 18  // SEMPRE sopra i system buttons
-    : isIOS
-    ? insets.bottom + 14
-    : 14;
-  const bottomPadding = Math.max(safeBottom, isAndroid ? 74 : 40);
+  const bottomPadding = insets.bottom + 12;
   const navHeight = bottomPadding + 56; // 56 ≈ altezza contenuto tab + paddingTop
 
   // ============================================================
-  // BottomNav SEMPRE VISIBILE (no auto-hide su scroll)
-  // L'utente preferisce la nav fissa per evitare accavallamenti
-  // con i tasti di sistema Android. Il contenuto delle pagine
-  // ha padding-bottom dedicato per non sovrapporsi.
+  // Auto-hide: si nasconde quando l'utente scorre verso il basso
+  // attraverso il contenuto (scroll-down attivo). Riappare allo
+  // scroll-up. Animazione translateY 0 → navHeight.
+  // I tasti di sistema Android restano comunque sempre visibili
+  // (sono fuori dal nostro spazio app).
   // ============================================================
   const animStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: 0 }],
-    opacity: 1,
+    transform: [{ translateY: interpolate(visible.value, [0, 1], [navHeight, 0]) }],
+    opacity: interpolate(visible.value, [0, 1], [0, 1]),
   }));
 
   return (

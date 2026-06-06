@@ -12,7 +12,8 @@ import { api, Match, quickPrediction, quickPredictionFamily, rankPicks, pickFina
 import { colors } from "@/src/theme";
 import BottomNav from "@/src/components/BottomNav";
 import { useBottomNav } from "@/src/components/BottomNavContext";
-import { matchesCache, daysCache, marketStatsCache } from "@/src/utils/cache";
+import { useToast } from "@/src/components/Toast";
+import { matchesCache, daysCache, marketStatsCache, selectedListCache } from "@/src/utils/cache";
 import { confirmAction } from "@/src/utils/platform";
 import { parseLeagueCode } from "@/src/utils/leagues";
 import { predictionQueue } from "@/src/utils/predictionQueue";
@@ -108,6 +109,7 @@ export default function Home() {
   const isDesktop = Platform.OS === "web" && width >= 900;
   const numCols = 1; // forced single-column list also on desktop (user request)
   const bottomNav = useBottomNav();
+  const toast = useToast();
 
   const [matches, setMatches] = useState<Match[]>([]);
   const [days, setDays] = useState<string[]>([]);
@@ -279,15 +281,30 @@ export default function Home() {
   const selectedCount = matches.filter((m) => m.selected).length;
   const toggleSelect = async (m: Match) => {
     const next = !m.selected;
+    // 1) UI ottimistica: update locale
     setMatches((arr) => arr.map((x) => x.id === m.id ? { ...x, selected: next } : x));
+    // 2) Invalida cache (BottomNav badge + Schedina list)
+    selectedListCache.invalidate();
+    matchesCache.invalidate(m.day);
+    // 3) Toast feedback
+    const teams = `${m.casa} vs ${m.ospite}`;
+    toast.show(next ? `✓ Aggiunta: ${teams}` : `Rimossa: ${teams}`, next ? "success" : "info");
+    // 4) Sync con backend
     try { await api.updateSelection([m.id], next); } catch {}
   };
   const clearAllSelection = () => confirmAction({
     title: "Svuotare selezione?", confirmText: "Svuota", destructive: true,
     onConfirm: async () => {
+      // 1) UI ottimistica
       setMatches((arr) => arr.map((x) => ({ ...x, selected: false })));
+      // 2) Invalida TUTTE le cache (matches per ogni giorno + selected list)
+      selectedListCache.invalidate();
+      matchesCache.invalidate(); // clear all days
+      // 3) Sync con backend
       try { await api.clearSelection(); } catch {}
-      await load(selectedDay);
+      // 4) Force re-fetch del giorno corrente (UI fresca)
+      await load(selectedDay, true);
+      toast.show("Selezione svuotata", "info");
     },
   });
   const goToToday = () => { const d = nearestDay(days); setSelectedDay(d); setCountryFilter(null); setAreaFilter(null); setQuery(""); setTierFilter(null); };

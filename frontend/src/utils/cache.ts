@@ -81,4 +81,5 @@ export const selectedListCache = {
     return Date.now() - selectedListSnapshot.ts > 30_000; // 30s (cambia frequentemente)
   },
   set(list: any[]) { selectedListSnapshot = { list, ts: Date.now() }; },
+  invalidate() { selectedListSnapshot = null; },
 };
