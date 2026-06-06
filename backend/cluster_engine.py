@@ -230,15 +230,38 @@ def classify_family(odds: Dict) -> Dict:
     else:
         goal_floor = 0
 
-    # Goal ceiling
+    # ============================================================
+    # GOAL CEILING — con guardrail O3.5 (fix bug "Myanmar 7-0")
+    # ============================================================
+    # Il problema della logica precedente: usavamo solo U3.5 per
+    # decidere il tetto. Ma U3.5 = 1.80 sembra "abbastanza chiuso"
+    # mentre il complementare O3.5 = 1.85 grida "OVER!" (54% prob
+    # di superare 3.5 gol). I due segnali devono essere COERENTI.
+    #
+    # Soglia O3.5 ≥ 2.20 (≈45% prob ≥4 gol) per dichiarare tetto
+    # effettivamente chiuso. Se O3.5 < 2.20 il mercato vede oltre
+    # il 45% di chance ≥4 gol → tetto APERTO (no max realistico).
+    #
+    # goal_ceiling_open=True → la partita può fare 5+, 6+, 7+ gol.
+    # I mercati under-based (U3.5, MG 2-4, DC+U3.5) verranno
+    # penalizzati nel ranking; gli over-based promossi.
+    # ============================================================
     if oU25 <= 1.40:
         goal_ceiling = 2
+        goal_ceiling_open = False
     elif oU35 <= 1.35:
         goal_ceiling = 3
-    elif oU35 <= 1.85:
+        goal_ceiling_open = False
+    elif oU35 <= 1.85 and oO35 >= 2.20:
+        # Doppia conferma: under forte E over non troppo aggressivo
         goal_ceiling = 4
+        goal_ceiling_open = False
     else:
-        goal_ceiling = 5
+        # Tetto aperto: il mercato vede 4+ gol con alta probabilità.
+        # Usiamo 7 come valore numerico per coerenza math (MG 2-7 = open),
+        # ma il flag goal_ceiling_open=True segnala "no limite".
+        goal_ceiling = 7
+        goal_ceiling_open = True
 
     goal_compression = "high" if (oU35 <= 1.40 and oO35 >= 2.80) else (
         "medium" if oU35 <= 1.70 else "low"
@@ -251,7 +274,14 @@ def classify_family(odds: Dict) -> Dict:
     is_offensive = (oO25 <= 1.85 or oGG <= 1.85)
     is_closed = (oU25 <= 1.70 or oNG <= 1.70)
 
-    if not has_favorite and is_offensive and goal_ceiling <= 4:
+    # PRIORITÀ: tetto aperto + favorita → DOMINANZA_OVER (no compromessi)
+    # Questo previene il caso Myanmar (favorita estrema + tetto aperto
+    # classificato erroneamente come DOMINANZA_CHIUSA).
+    if goal_ceiling_open and has_favorite:
+        family = "DOMINANZA_OVER"
+    elif goal_ceiling_open and is_offensive:
+        family = "EQUILIBRATA_OFFENSIVA"
+    elif not has_favorite and is_offensive and goal_ceiling <= 4:
         family = "EQUILIBRATA_OFFENSIVA"
     elif not has_favorite and is_closed:
         family = "EQUILIBRATA_CHIUSA"
@@ -275,7 +305,8 @@ def classify_family(odds: Dict) -> Dict:
         "goal_compression": goal_compression,
         "goal_floor": goal_floor,
         "goal_ceiling": goal_ceiling,
-        "goal_range": f"{goal_floor}-{goal_ceiling}",
+        "goal_ceiling_open": goal_ceiling_open,
+        "goal_range": f"{goal_floor}-{'∞' if goal_ceiling_open else goal_ceiling}",
         "lambda_home": derive_lambdas(odds)[0],
         "lambda_away": derive_lambdas(odds)[1],
     }
@@ -546,6 +577,45 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40, ml_scores: Optional[D
                 score *= 0.50
             if "MG 2-4 OSPITE" in mu and lam_a < 1.0:
                 score *= 0.50
+
+        # ============================================================
+        # TETTO APERTO (fix bug Myanmar 7-0): O3.5 < 2.20 → 4+ gol probabili
+        # ============================================================
+        # Quando il tetto è "aperto" (goal_ceiling_open=True) il mercato
+        # vede ≥45% di chance ≥4 gol → penalty Under-based, boost Over-based.
+        if structure.get("goal_ceiling_open"):
+            mu_open = m.upper()
+            # Penalty Under-based puri (forte: -45%)
+            if mu_open in ("U3.5", "U2.5"):
+                score *= 0.55
+            # Penalty MG totali con upper bound ≤ 4 (rotti da 5-0/6-0)
+            if "MG" in mu_open and "TOTALI" in mu_open:
+                rng_o = _re.search(r"(\d+)\s*-\s*(\d+)", m)
+                if rng_o:
+                    hi_o = int(rng_o.group(2))
+                    if hi_o <= 4:
+                        score *= 0.65
+                    elif hi_o == 5:
+                        score *= 0.85
+            # Penalty MG 2-3 / 1-3 casa/ospite (rotti dal team forte)
+            if "MG 2-3" in mu_open or "MG 1-3" in mu_open:
+                score *= 0.70
+            # Penalty combo DC + Under
+            if "+ U3.5" in m or "+ U2.5" in m:
+                score *= 0.65
+            # BOOST Over puri + GG (+30%)
+            if mu_open in ("O2.5", "O3.5", "GG"):
+                score *= 1.30
+            # BOOST combo Over (+25%)
+            if "+ O2.5" in m or "+ O1.5" in m:
+                score *= 1.25
+            # BOOST MG totali con upper bound 6+ (range aperti)
+            if "MG" in mu_open and "TOTALI" in mu_open:
+                rng_o2 = _re.search(r"(\d+)\s*-\s*(\d+)", m)
+                if rng_o2:
+                    hi_o2 = int(rng_o2.group(2))
+                    if hi_o2 >= 6:
+                        score *= 1.20
 
         ranked.append({
             "market": m,

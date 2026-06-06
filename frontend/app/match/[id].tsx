@@ -366,8 +366,12 @@ export default function MatchDetail() {
               </View>
               <View style={styles.structCell}>
                 <Text style={styles.structLbl}>TETTO</Text>
-                <Text style={styles.structValBig}>{structural.structure.goal_ceiling}</Text>
-                <Text style={styles.structSub}>gol max attesi</Text>
+                <Text style={[styles.structValBig, structural.structure.goal_ceiling_open && { color: colors.danger, fontSize: 18 }]}>
+                  {structural.structure.goal_ceiling_open ? "APERTO" : structural.structure.goal_ceiling}
+                </Text>
+                <Text style={styles.structSub}>
+                  {structural.structure.goal_ceiling_open ? "no max gol" : "gol max attesi"}
+                </Text>
               </View>
             </View>
             <View style={styles.structLambdaRow}>

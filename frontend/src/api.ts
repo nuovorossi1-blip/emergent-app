@@ -70,6 +70,7 @@ export type StructuralStructure = {
   goal_compression: "high" | "medium" | "low";
   goal_floor: number;
   goal_ceiling: number;
+  goal_ceiling_open?: boolean;
   goal_range: string;
   lambda_home: number;
   lambda_away: number;
