@@ -23,9 +23,16 @@ const TABS: { route: string; label: string; icon: IconName; testID: string }[] =
 // Tabs contestuali quando l'utente è dentro una partita (sostituiscono i tab normali)
 // Le 3 azioni AI / Risultato / Quote diventano la nav principale del flusso match.
 const MATCH_PATTERN = /^\/(match|risultato|quote)\//;
-function getContextualTabs(matchId: string): { route: string; label: string; icon: IconName; testID: string }[] {
+function getContextualTabs(matchId: string, currentPath: string): { route: string; label: string; icon: IconName; testID: string }[] {
+  // Quando l'utente è GIÀ sulla pagina /match e clicca "PRONOSTICO AI",
+  // aggiungiamo un query param per forzare la generazione (gen=timestamp).
+  // La pagina match ascolta il param e fa partire runPrediction() automaticamente.
+  const isOnMatch = currentPath.startsWith("/match/");
+  const aiRoute = isOnMatch
+    ? `/match/${matchId}?gen=${Date.now()}`
+    : `/match/${matchId}`;
   return [
-    { route: `/match/${matchId}`, label: "Pronostico AI", icon: "sparkles", testID: "tab-ai" },
+    { route: aiRoute, label: "Pronostico AI", icon: "sparkles", testID: "tab-ai" },
     { route: `/risultato/${matchId}`, label: "Risultato", icon: "checkmark-done-circle-outline", testID: "tab-risultato" },
     { route: `/quote/${matchId}`, label: "Quote", icon: "pricetags-outline", testID: "tab-quote" },
   ];
@@ -70,7 +77,7 @@ export default function BottomNav() {
       }
     }
   } catch {}
-  const TABS_RENDER = matchId ? getContextualTabs(matchId) : TABS;
+  const TABS_RENDER = matchId ? getContextualTabs(matchId, path || "") : TABS;
 
   // ============================================================
   // Padding bottom Android: aumentato min 24dp per system buttons

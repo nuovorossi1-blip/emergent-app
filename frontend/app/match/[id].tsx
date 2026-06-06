@@ -17,7 +17,7 @@ import { predictionQueue } from "@/src/utils/predictionQueue";
 import BottomNav from "@/src/components/BottomNav";
 
 export default function MatchDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, gen } = useLocalSearchParams<{ id: string; gen?: string }>();
   const router = useRouter();
   const scrollMem = useScrollMemory(`/match/${id ?? "x"}`);
   const insets = useSafeAreaInsets();
@@ -102,6 +102,18 @@ export default function MatchDetail() {
       }
     });
   };
+
+  // ============================================================
+  // AUTO-GENERA quando l'utente tap "Pronostico AI" nel BottomNav
+  // ============================================================
+  // BottomNav passa ?gen=<timestamp> ogni click sul tab Pronostico AI
+  // quando l'utente è già su questa pagina. Reagiamo lanciando la
+  // generazione (force=true se esiste già una predizione = rigenera).
+  useEffect(() => {
+    if (!gen || !id || aiPending) return;
+    runPrediction(!!prediction);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gen, id]);
 
   const saveResult = async () => {
     if (!id || !result.trim()) return;
@@ -755,12 +767,30 @@ export default function MatchDetail() {
               </TouchableOpacity>
             </>
           ) : (
-            // Quando non c'è ancora pronostico: mostra solo placeholder, il bottone
-            // "Genera Pronostico AI" sta nella BARRA FISSA in basso (vedi sotto).
-            <View style={styles.aiPlaceholder}>
-              <Ionicons name="sparkles-outline" size={28} color={colors.textDim} />
-              <Text style={styles.aiPlaceholderTxt}>Tocca "Pronostico AI" in basso per generarlo</Text>
-            </View>
+            // Quando non c'è ancora pronostico: placeholder GRANDE e CLICCABILE
+            // che fa partire la generazione AI direttamente.
+            <TouchableOpacity
+              testID="gen-ai-card"
+              onPress={() => runPrediction(false)}
+              disabled={aiPending}
+              style={[styles.aiPlaceholder, aiPending && { opacity: 0.6 }]}
+              activeOpacity={0.7}
+            >
+              {aiPending ? (
+                <>
+                  <ActivityIndicator color={colors.primary} size="large" />
+                  <Text style={styles.aiPlaceholderTxt}>Generazione AI in corso…</Text>
+                </>
+              ) : (
+                <>
+                  <View style={styles.aiPlaceholderBtn}>
+                    <Ionicons name="sparkles" size={20} color="#000" />
+                    <Text style={styles.aiPlaceholderBtnTxt}>Genera Pronostico AI</Text>
+                  </View>
+                  <Text style={styles.aiPlaceholderTxt}>Tocca per generare il pronostico tramite DeepSeek</Text>
+                </>
+              )}
+            </TouchableOpacity>
           )}
         </View>
 
