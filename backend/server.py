@@ -863,6 +863,54 @@ async def run_ai_prediction(match: dict) -> dict:
     if feedback:
         prompt = feedback + "\n\nUSA QUESTO STORICO per aggiustare il ranking: dai priorità a mercati che hanno vinto più volte nella stessa famiglia, e considera anche i mercati con tanti 'persi opportunità' (avrebbero vinto ma non li avevi previsti).\n\n" + prompt
 
+    # ============================================================
+    # PIN STRUTTURALE: forza l'AI a usare il NOSTRO floor/ceiling
+    # ============================================================
+    # DeepSeek calcola floor/ceiling con regole proprie incoerenti.
+    # Il nostro motore Poisson + borderline buffer è MATEMATICAMENTE
+    # superiore (vedi caso Slovacchia 2-2 dove AI diceva ceiling=3
+    # ma il nostro sistema correttamente diceva 4).
+    #
+    # Iniettiamo i valori autoritari del cluster_engine così che
+    # l'AI li usi come INPUT FISSO invece di calcolarli male.
+    # ============================================================
+    try:
+        from cluster_engine import structural_analysis
+        odds = match.get("odds") or {}
+        if odds:
+            sa = structural_analysis(odds)
+            s = sa.get("structure", {})
+            sfloor = s.get("goal_floor", 0)
+            sceiling = s.get("goal_ceiling", 7)
+            sopen = s.get("goal_ceiling_open", False)
+            sfam = s.get("family", "?")
+            ceiling_str = "APERTO (no max)" if sopen else str(sceiling)
+            range_str = s.get("goal_range", f"{sfloor}-{ceiling_str}")
+            pin = f"""\n\n============================================================
+🔒 PIN STRUTTURALE (calcolato dal Motore Poisson — usa QUESTI valori, NON ricalcolarli):
+============================================================
+- PAVIMENTO: {sfloor} gol minimi attesi
+- TETTO: {ceiling_str} gol massimi attesi
+- RANGE: {range_str}
+- FAMIGLIA STRUTTURALE: {sfam}
+- λ Poisson Casa: {s.get('lambda_home', 0):.2f}
+- λ Poisson Ospite: {s.get('lambda_away', 0):.2f}
+
+REGOLE OBBLIGATORIE basate sul PIN:
+1. Il "PAVIMENTO" e "TETTO" sopra sono CALCOLATI MATEMATICAMENTE con
+   "borderline buffer" (zona incerta → step verso sicurezza). USALI ESATTAMENTE.
+2. NON proporre mercati incoerenti col PIN:
+   - Se PAVIMENTO=0 → NON proporre MG che inizia da 2+ (es. "MG 2-4 totali" VIETATO)
+   - Se TETTO=APERTO → NON proporre U2.5 / U3.5 / "MG 2-4" (range chiuso VIETATO)
+   - Se TETTO=4 e PAVIMENTO=2 → NON proporre "MG 1-3" (lo=1≠2 VIETATO)
+   - MG range valido: lo ≤ pavimento+1 AND (aperto: hi≥6 ; chiuso: hi≥tetto)
+3. Nel campo "analysis" devi SCRIVERE LETTERALMENTE: "PAVIMENTO: {sfloor} gol | TETTO: {ceiling_str} gol | RANGE: {range_str}"
+4. Nei "playable_markets" PROPONI SOLO mercati coerenti con questo PIN.
+============================================================\n"""
+            prompt = prompt + pin
+    except Exception as e:
+        print(f"[PIN structural injection failed]: {e}")
+
     if llm["provider"] == "deepseek":
         # Direct LiteLLM call bypassing Emergent proxy
         if not DEEPSEEK_API_KEY:

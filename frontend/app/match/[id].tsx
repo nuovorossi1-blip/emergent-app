@@ -428,6 +428,31 @@ export default function MatchDetail() {
           </View>
         )}
 
+        {/* ============ QUICK ACTIONS (Genera/Ranking/Risultato) ============ */}
+        {structural?.structure && (
+          <View style={styles.quickActions}>
+            {!prediction && (
+              <TouchableOpacity
+                onPress={() => runPrediction(false)}
+                disabled={aiPending}
+                style={[styles.qaBtnPrimary, aiPending && { opacity: 0.5 }]}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="sparkles" size={16} color="#000" />
+                <Text style={styles.qaBtnPrimaryTxt}>{aiPending ? "..." : "Genera Pronostico"}</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              onPress={() => router.push(`/risultato/${id}`)}
+              style={styles.qaBtnSecondary}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="checkmark-done-circle" size={16} color={colors.primary} />
+              <Text style={styles.qaBtnSecondaryTxt}>Risultato + Quote</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* ============ CLUSTER RISULTATI (Top probabili) ============ */}
         {structural?.cluster && structural.cluster.length > 0 && (() => {
           const list = showClusterAll ? structural.cluster : structural.cluster.slice(0, 8);
@@ -932,6 +957,37 @@ const styles = StyleSheet.create({
   structValBig: { color: colors.aiText, fontSize: 22, fontWeight: "900", marginTop: 2 },
   structSub: { color: colors.textDim, fontSize: 9, fontWeight: "600", marginTop: 2 },
   structLambdaRow: { alignItems: "center", paddingTop: 4, borderTopWidth: 1, borderTopColor: colors.border },
+
+  // ===== QUICK ACTIONS (Genera Pronostico / Risultato + Quote) =====
+  quickActions: {
+    flexDirection: "row",
+    gap: 10,
+    marginVertical: 4,
+  },
+  qaBtnPrimary: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 12,
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+  },
+  qaBtnPrimaryTxt: { color: "#000", fontWeight: "900", fontSize: 14 },
+  qaBtnSecondary: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 12,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: 12,
+  },
+  qaBtnSecondaryTxt: { color: colors.primary, fontWeight: "800", fontSize: 13 },
   structLambda: { color: colors.aiText, fontWeight: "900" },
 
   // ===== CLUSTER RISULTATI =====
