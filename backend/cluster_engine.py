@@ -222,12 +222,22 @@ def classify_family(odds: Dict) -> Dict:
     else:
         offensive_profile = "neutral"
 
-    # Goal floor
-    if oO15 <= 1.30:
+    # ============================================================
+    # GOAL FLOOR — con guardrail U1.5 (fix bug "Kamatamare 0-0")
+    # ============================================================
+    # Stesso problema del tetto: usare SOLO O1.5 dichiara floor=1
+    # anche su match dove il 0-0 è ancora plausibile (es. O1.5=1.33,
+    # U1.5=2.80 → 9% di P(0-0) reale, non trascurabile).
+    # Soluzione: doppia conferma O1.5 + U1.5 per floor=1.
+    # ============================================================
+    if oO15 <= 1.25:
+        # Floor=2 sicuro: O1.5 molto forte (≈80% prob 2+ gol)
         goal_floor = 2
-    elif oO15 <= 1.50:
+    elif oO15 <= 1.30 and oU15 >= 3.00:
+        # Floor=1: O1.5 forte E U1.5 alto (P(0-0) < 10%)
         goal_floor = 1
     else:
+        # Floor=0: 0-0 è plausibile (zona grigia)
         goal_floor = 0
 
     # ============================================================
