@@ -11,6 +11,7 @@ import { selectedListCache } from "@/src/utils/cache";
 
 type IconName = React.ComponentProps<typeof Ionicons>["name"];
 
+// Tabs normali (hub pages)
 const TABS: { route: string; label: string; icon: IconName; testID: string }[] = [
   { route: "/profilo", label: "Profilo", icon: "person-circle-outline", testID: "tab-profile" },
   { route: "/strumenti", label: "Strumenti", icon: "construct-outline", testID: "tab-tools" },
@@ -18,6 +19,17 @@ const TABS: { route: string; label: string; icon: IconName; testID: string }[] =
   { route: "/selected", label: "Schedina", icon: "ticket-outline", testID: "tab-schedina" },
   { route: "/book", label: "Book", icon: "book-outline", testID: "tab-book" },
 ];
+
+// Tabs contestuali quando l'utente è dentro una partita (sostituiscono i tab normali)
+// Le 3 azioni AI / Risultato / Quote diventano la nav principale del flusso match.
+const MATCH_PATTERN = /^\/(match|risultato|quote)\//;
+function getContextualTabs(matchId: string): { route: string; label: string; icon: IconName; testID: string }[] {
+  return [
+    { route: `/match/${matchId}`, label: "Pronostico AI", icon: "sparkles", testID: "tab-ai" },
+    { route: `/risultato/${matchId}`, label: "Risultato", icon: "checkmark-done-circle-outline", testID: "tab-risultato" },
+    { route: `/quote/${matchId}`, label: "Quote", icon: "pricetags-outline", testID: "tab-quote" },
+  ];
+}
 
 export default function BottomNav() {
   const router = useRouter();
@@ -41,19 +53,21 @@ export default function BottomNav() {
   }, [path, show]);
 
   // ============================================================
-  // Padding bottom: usa SOLO insets reali (la Android nav bar è
-  // ora SEMPRE visibile via _layout.tsx con behavior="inset-swipe").
-  // Quindi insets.bottom restituisce il valore corretto su tutte
-  // le piattaforme:
-  //  - Android 3-button: ~48dp
-  //  - Android gesture: ~24dp
-  //  - iOS home-indicator: ~34dp
-  //  - iOS no notch: 0dp
-  //  - Web: 0dp
-  // Aggiungiamo 12dp di respiro interno fisso.
+  // Scelta TABS in base alla route corrente
+  // Se siamo dentro un flusso match (/match/, /risultato/, /quote/),
+  // mostra i 3 tab contestuali; altrimenti la nav normale.
   // ============================================================
-  const bottomPadding = insets.bottom + 12;
-  const navHeight = bottomPadding + 56; // 56 ≈ altezza contenuto tab + paddingTop
+  const matchCtx = path.match(MATCH_PATTERN);
+  const matchId = matchCtx ? path.split("/")[2] : null;
+  const TABS_RENDER = matchId ? getContextualTabs(matchId) : TABS;
+
+  // ============================================================
+  // Padding bottom Android: aumentato a min 30dp (system buttons clearance)
+  // anche quando insets.bottom = 0 (edge-to-edge sotto navbar)
+  // ============================================================
+  const isAndroid = typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
+  const bottomPadding = Math.max(insets.bottom, isAndroid ? 24 : 0) + 12;
+  const navHeight = bottomPadding + 56;
 
   // ============================================================
   // Auto-hide: si nasconde quando l'utente scorre verso il basso
@@ -69,7 +83,7 @@ export default function BottomNav() {
 
   return (
     <Animated.View style={[styles.wrap, { paddingBottom: bottomPadding }, animStyle]}>
-      {TABS.map((t) => {
+      {TABS_RENDER.map((t) => {
         const active = (t.route === "/" && path === "/") || (t.route !== "/" && path?.startsWith(t.route));
         const isSchedina = t.route === "/selected";
         return (

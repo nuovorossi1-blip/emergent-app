@@ -201,31 +201,7 @@ export default function RisultatoPage() {
           </View>
         )}
 
-        {/* QUOTE per famiglia di mercato (spostate da match detail) */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>QUOTE PER FAMIGLIA</Text>
-          {families.map((fam) => fam.items.length > 0 && (
-            <View key={fam.name} style={styles.famBlock}>
-              <Text style={styles.famName}>{fam.name}</Text>
-              <View style={styles.famGrid}>
-                {fam.items.map((it, idx) => {
-                  const isTop = idx === fam.topIdx;
-                  return (
-                    <View key={it.key} style={[styles.famCard, isTop && styles.famCardTop]}>
-                      <Text style={[styles.famLbl, isTop && { color: "#FFE4D9" }]}>{it.label}</Text>
-                      <Text style={[styles.famVal, isTop && { color: "#FFF" }]}>{it.value!.toFixed(2)}</Text>
-                      {isTop && (
-                        <View style={styles.topMark}>
-                          <Ionicons name="star" size={8} color="#FFF" />
-                        </View>
-                      )}
-                    </View>
-                  );
-                })}
-              </View>
-            </View>
-          ))}
-        </View>
+        {/* QUOTE RIMOSSE: ora in pagina dedicata /quote/[id] */}
       </ScrollView>
 
       {/* ACTION BAR FISSA SOPRA BOTTOMNAV */}

@@ -767,36 +767,11 @@ export default function MatchDetail() {
       </ScrollView>
 
       {/* ============================================================
-          BARRA FISSA CONTESTUALE (sopra la BottomNav)
-          - Sempre visibile mentre si è in /match/[id]
-          - 2 azioni: "Pronostico AI" + "Risultato + Quote"
-          - I tasti NON si nascondono mai (no auto-hide)
+          BARRA FISSA CONTESTUALE — RIMOSSA
+          I 3 tasti AI/Risultato/Quote sono ora nella BottomNav stessa,
+          che diventa contestuale automaticamente quando l'utente entra
+          in una route /match/, /risultato/, /quote/.
        ============================================================ */}
-      <View style={[styles.fixedActionBar, { bottom: navHeight }]}>
-        <TouchableOpacity
-          onPress={() => runPrediction(prediction ? true : false)}
-          disabled={aiPending}
-          style={[styles.fabAction, styles.fabActionPrimary, aiPending && { opacity: 0.5 }]}
-          activeOpacity={0.8}
-        >
-          {aiPending ? (
-            <ActivityIndicator color="#000" size="small" />
-          ) : (
-            <Ionicons name="sparkles" size={16} color="#000" />
-          )}
-          <Text style={styles.fabActionTxt}>
-            {aiPending ? "..." : prediction ? "Rigenera AI" : "Pronostico AI"}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => router.push(`/risultato/${id}`)}
-          style={[styles.fabAction, styles.fabActionSecondary]}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="checkmark-done-circle" size={16} color={colors.primary} />
-          <Text style={[styles.fabActionTxt, { color: colors.primary }]}>Risultato + Quote</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 }
