@@ -80,9 +80,10 @@ memory/test_credentials.md
 
 # Mobile development
 android-sdk/
-.env
-.env.*
-*.env
+# .env files are TRACKED for Emergent deployment (backend/.env, frontend/.env)
+# .env
+# .env.*
+# *.env
 credentials.json
 *.key
 .credentials

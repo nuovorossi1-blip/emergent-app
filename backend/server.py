@@ -1869,27 +1869,35 @@ async def aistudio_prompt():
 app.include_router(api_router)
 
 # ============================================================
-# CORS — Whitelist esplicita per produzione + dev locale
+# CORS — Whitelist esplicita + env var override
 # ============================================================
-# Origini autorizzate esplicitamente (produzione + Netlify deploy previews + locale)
-ALLOWED_ORIGINS = [
-    "https://scoreblast-app.netlify.app",          # Netlify produzione
-    "https://match-quota-analyzer.emergent.host",  # Backend produzione (self)
-    "https://match-quota-analyzer.preview.emergentagent.com",  # Preview Emergent
-    "http://localhost:3000",                       # Expo web dev
-    "http://localhost:8081",                       # Expo metro dev
-    "http://localhost:19006",                      # Expo web legacy
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:8081",
-]
-
-# Regex per coprire Netlify deploy previews (es. deploy-preview-12--scoreblast-app.netlify.app)
-# e branch deploys (es. main--scoreblast-app.netlify.app)
-ALLOWED_ORIGIN_REGEX = r"^https://([a-z0-9-]+--)?scoreblast-app\.netlify\.app$"
+# Per la produzione Emergent (deployment) usiamo CORS_ORIGINS env var
+# se disponibile (es. "*" o lista CSV). Altrimenti fallback alla
+# whitelist hardcoded.
+_cors_env = os.environ.get("CORS_ORIGINS", "").strip()
+if _cors_env == "*":
+    ALLOWED_ORIGINS = ["*"]
+    ALLOWED_ORIGIN_REGEX = None
+elif _cors_env:
+    ALLOWED_ORIGINS = [o.strip() for o in _cors_env.split(",") if o.strip()]
+    ALLOWED_ORIGIN_REGEX = None
+else:
+    # Fallback whitelist (per ambienti dove CORS_ORIGINS non è settata)
+    ALLOWED_ORIGINS = [
+        "https://scoreblast-app.netlify.app",
+        "https://match-quota-analyzer.emergent.host",
+        "https://match-quota-analyzer.preview.emergentagent.com",
+        "http://localhost:3000",
+        "http://localhost:8081",
+        "http://localhost:19006",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8081",
+    ]
+    ALLOWED_ORIGIN_REGEX = r"^https://([a-z0-9-]+--)?scoreblast-app\.netlify\.app$"
 
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
+    allow_credentials=True if ALLOWED_ORIGINS != ["*"] else False,
     allow_origins=ALLOWED_ORIGINS,
     allow_origin_regex=ALLOWED_ORIGIN_REGEX,
     allow_methods=["*"],
