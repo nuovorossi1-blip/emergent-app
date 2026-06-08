@@ -481,59 +481,67 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40, ml_scores: Optional[D
     ceiling = structure["goal_ceiling"]
     ceiling_open = structure.get("goal_ceiling_open", False)
 
-    # === FILTRO STRUTTURALE FLOOR/CEILING (richiesto dall'utente) ===
-    # Escludi a priori i mercati strutturalmente IMPOSSIBILI o IMPROBABILI
-    # rispetto a floor/ceiling del match. NON sprecare slot nel ranking.
+    # === FILTRO STRUTTURALE FLOOR/CEILING (regola severa utente) ===
+    # Esclude a priori mercati incoerenti con la "banda" floor..ceiling.
+    # FLOOR ≥ N → escludi Under con soglia ≤ N+1 (banda troppo stretta o impossibile)
+    # CEILING chiuso ≤ N → escludi Over con soglia ≥ N-0.5 (banda troppo stretta o impossibile)
     import re as _re_pre
     _vm_filtered = []
     for m in valid_markets:
         mu = m.upper().strip()
 
-        # FLOOR ≥ 2: il match avrà ALMENO 2 gol totali
-        if floor >= 2:
-            # 1) Under con soglia ≤ floor → IMPOSSIBILE (es. floor=2 → U1.5/U2.5 esclusi)
-            #    Nota: U2.5 = max 2 gol, con floor=2 può materializzarsi solo a esattamente 2 gol → comunque escluso per coerenza utente.
-            if mu in ("U0.5", "U1.5"):
-                continue
-            if floor >= 3 and mu == "U2.5":
-                continue
-            if floor >= 4 and mu == "U3.5":
-                continue
-            # 2) MG totali che iniziano sotto floor → ridondante (il '1' non si avvera)
-            if "MG" in mu and "TOTALI" in mu:
-                rng = _re_pre.search(r"(\d+)\s*-\s*(\d+)", m)
-                if rng:
-                    lo = int(rng.group(1))
-                    if lo < floor:
-                        continue
+        # ---- FLOOR exclusions ----
+        # U0.5 / U1.5 / U2.5 / U3.5 esclusi se la banda di copertura è troppo stretta
+        if mu == "U0.5":
+            continue  # quasi mai utile
+        if mu == "U1.5" and floor >= 1:
+            continue
+        if mu == "U2.5" and floor >= 2:
+            continue
+        if mu == "U3.5" and floor >= 2:
+            continue  # nuova regola severa utente
+        # MG totali che iniziano sotto floor → ridondanti
+        if "MG" in mu and "TOTALI" in mu:
+            rng = _re_pre.search(r"(\d+)\s*-\s*(\d+)", m)
+            if rng:
+                lo = int(rng.group(1))
+                if lo < floor:
+                    continue
+        # Combo "DC X + Under N" escluse con floor incompatibile
+        if "+ U1.5" in mu and floor >= 1:
+            continue
+        if "+ U2.5" in mu and floor >= 2:
+            continue
+        if "+ U3.5" in mu and floor >= 2:
+            continue
+        # Combo "1 + O1.5" / "2 + O1.5" se floor è già alto sono ridondanti
+        # (sono coperti meglio dal segno singolo). Tengo per ora, non escludo.
 
-        # CEILING chiuso e ≤ N: il match avrà AL MASSIMO N gol totali
+        # ---- CEILING exclusions ----
         if not ceiling_open:
-            # 1) Over con soglia ≥ ceiling → IMPOSSIBILE (es. ceiling=3 → O3.5 escluso)
-            if ceiling <= 2 and mu == "O2.5":
+            if mu == "O3.5" and ceiling <= 3:
                 continue
-            if ceiling <= 3 and mu == "O3.5":
+            if mu == "O2.5" and ceiling <= 3:
+                continue  # nuova regola severa utente
+            if mu == "O1.5" and ceiling <= 2:
                 continue
-            if ceiling <= 1 and mu == "O1.5":
-                continue
-            # 2) MG totali che finiscono sopra ceiling → ridondante (range eccede il tetto)
+            # MG totali che finiscono sopra ceiling → ridondanti
             if "MG" in mu and "TOTALI" in mu:
                 rng = _re_pre.search(r"(\d+)\s*-\s*(\d+)", m)
                 if rng:
                     hi = int(rng.group(2))
                     if hi > ceiling:
                         continue
-            # 3) Combo "X + O2.5" / "X + O3.5" se Over è impossibile
-            if ceiling <= 2 and ("+ O2.5" in mu or "+ O3.5" in mu):
+            # Combo "DC X + Over N" escluse con ceiling incompatibile
+            if "+ O3.5" in mu and ceiling <= 3:
                 continue
-            if ceiling <= 3 and "+ O3.5" in mu:
+            if "+ O2.5" in mu and ceiling <= 3:
                 continue
-
-        # FLOOR alto → combo "X + U1.5"/"X + U2.5" diventano impossibili
-        if floor >= 2 and "+ U1.5" in mu:
-            continue
-        if floor >= 3 and "+ U2.5" in mu:
-            continue
+            if "+ O1.5" in mu and ceiling <= 2:
+                continue
+            # "1 + O1.5" / "2 + O1.5" escluse se Over fuori ceiling
+            if mu in ("1 + O1.5", "2 + O1.5") and ceiling <= 2:
+                continue
 
         _vm_filtered.append(m)
     valid_markets = _vm_filtered
