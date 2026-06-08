@@ -479,6 +479,64 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40, ml_scores: Optional[D
     ranked = []
     floor = structure["goal_floor"]
     ceiling = structure["goal_ceiling"]
+    ceiling_open = structure.get("goal_ceiling_open", False)
+
+    # === FILTRO STRUTTURALE FLOOR/CEILING (richiesto dall'utente) ===
+    # Escludi a priori i mercati strutturalmente IMPOSSIBILI o IMPROBABILI
+    # rispetto a floor/ceiling del match. NON sprecare slot nel ranking.
+    import re as _re_pre
+    _vm_filtered = []
+    for m in valid_markets:
+        mu = m.upper().strip()
+
+        # FLOOR ≥ 2: il match avrà ALMENO 2 gol totali
+        if floor >= 2:
+            # 1) Under con soglia ≤ floor → IMPOSSIBILE (es. floor=2 → U1.5/U2.5 esclusi)
+            #    Nota: U2.5 = max 2 gol, con floor=2 può materializzarsi solo a esattamente 2 gol → comunque escluso per coerenza utente.
+            if mu in ("U0.5", "U1.5"):
+                continue
+            if floor >= 3 and mu == "U2.5":
+                continue
+            if floor >= 4 and mu == "U3.5":
+                continue
+            # 2) MG totali che iniziano sotto floor → ridondante (il '1' non si avvera)
+            if "MG" in mu and "TOTALI" in mu:
+                rng = _re_pre.search(r"(\d+)\s*-\s*(\d+)", m)
+                if rng:
+                    lo = int(rng.group(1))
+                    if lo < floor:
+                        continue
+
+        # CEILING chiuso e ≤ N: il match avrà AL MASSIMO N gol totali
+        if not ceiling_open:
+            # 1) Over con soglia ≥ ceiling → IMPOSSIBILE (es. ceiling=3 → O3.5 escluso)
+            if ceiling <= 2 and mu == "O2.5":
+                continue
+            if ceiling <= 3 and mu == "O3.5":
+                continue
+            if ceiling <= 1 and mu == "O1.5":
+                continue
+            # 2) MG totali che finiscono sopra ceiling → ridondante (range eccede il tetto)
+            if "MG" in mu and "TOTALI" in mu:
+                rng = _re_pre.search(r"(\d+)\s*-\s*(\d+)", m)
+                if rng:
+                    hi = int(rng.group(2))
+                    if hi > ceiling:
+                        continue
+            # 3) Combo "X + O2.5" / "X + O3.5" se Over è impossibile
+            if ceiling <= 2 and ("+ O2.5" in mu or "+ O3.5" in mu):
+                continue
+            if ceiling <= 3 and "+ O3.5" in mu:
+                continue
+
+        # FLOOR alto → combo "X + U1.5"/"X + U2.5" diventano impossibili
+        if floor >= 2 and "+ U1.5" in mu:
+            continue
+        if floor >= 3 and "+ U2.5" in mu:
+            continue
+
+        _vm_filtered.append(m)
+    valid_markets = _vm_filtered
 
     for m in valid_markets:
         cov, covered, broken = coverage_for_market(m, central)
