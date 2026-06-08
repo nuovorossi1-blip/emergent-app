@@ -1,0 +1,43 @@
+{
+  "summary": "Backend testing of the Excel upload diagnostic refactor complete. ALL 34 pytest tests PASSED (100%). Verified: (1) REQUIRED_ODDS is exactly the 11 mandatory quotes [odd_1, odd_X, odd_2, odd_U15, odd_O15, odd_U25, odd_O25, odd_U35, odd_O35, odd_GG, odd_NG]; (2) parse_excel_bytes returns {matches, skipped, rows_seen}; (3) POST /api/upload-excel returns {inserted, updated, unchanged, skipped, total_parsed, rows_seen} and persists diagnostic to MongoDB upload_skipped doc _id='latest'; (4) GET /api/upload/skipped returns empty defaults (filename:null, uploaded_at:null, skipped_count:0, skipped:[]) when no upload has happened, and full diagnostic after upload; (5) rows missing required odds appear in diagnostic with reason citing missing fields, missing list, and odds_read populated with the quotes actually read; (6) rows with empty squadra1/squadra2 are skipped with reason 'Squadre mancanti'; (7) a match with only doubles chance (1X/X2/12) missing is VALID and those three odds are auto-estimated; (8) regression endpoints /api/matches/days, /api/matches?day=..., /api/matches/selected/list, /api/ml/stats all OK.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_upload_skipped_diagnostic.py (NEW - 10 tests covering all diagnostic scenarios)",
+    "/app/backend/tests/test_scoreblast_api.py (UPDATED - 3 pre-existing tests adapted to new response semantics)",
+    "/app/backend/tests/conftest.py (UPDATED - excel_partial fixture adjusted to new REQUIRED_ODDS)",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "REQUIRED_ODDS = 11 quotes is consistent with `estimate_missing()` which derives 1X/X2/12 from 1/X/2 — solid design choice, no orphan estimation paths.",
+    "parse_excel_bytes now returns a structured dict (matches/skipped/rows_seen); the diagnostic shape (row, time, sq1, sq2, manif, reason, odds_read, missing) is complete and user-friendly.",
+    "POST /api/upload-excel correctly uses `replace_one({_id:'latest'}, ..., upsert=True)` so the diagnostic always reflects the LAST upload only — clean.",
+    "GET /api/upload/skipped uses projection {'_id': 0} → no ObjectId serialization risk. When no doc exists, returns a well-shaped empty default rather than 404 (good UX).",
+    "Backend file is ~1180+ lines — exceeds the 700-line soft cap. Consider extracting (a) Excel parser, (b) SofaScore/Fotmob helpers, (c) cluster_engine wiring, into separate modules in a future refactor.",
+    "Minor: parse_excel_bytes counts a row in `rows_seen` only AFTER parsing a valid time; rows that have content but no time silently fall through. This is acceptable but worth noting in docs (rows_seen = 'candidate match rows', not 'all non-empty rows').",
+    "Minor (pre-existing): when the Excel has an explicit Italian-date header in row 1 col A (e.g. 'matches, 12 maggio'), `explicit_day_set=True` disables time-based day rollover for the entire file. If a real file spans multiple days, only the first explicit header is honored. Not changed in this PR; flagged for awareness."
+  ],
+  "updated_files": [
+    "/app/backend/tests/conftest.py (excel_partial fixture aligned with new REQUIRED_ODDS)",
+    "/app/backend/tests/test_scoreblast_api.py (test_upload_reupload_skipped, test_day_rollover, test_estimated_odds, test_prompt_csv adapted)",
+    "/app/backend/tests/test_upload_skipped_diagnostic.py (new file with 10 tests)"
+  ],
+  "success_rate": {
+    "backend": "100% (34/34)",
+    "frontend": "not tested (backend-only scope per request)"
+  },
+  "seed_data_creation": "All Excel content is generated in-memory by openpyxl per-test. Each test class autouse fixture wipes db.matches via DELETE /api/matches/all before/after. The empty-state test additionally drops the upload_skipped collection directly via PyMongo so the assertion against the empty default dict is deterministic.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend Excel diagnostic refactor fully validated. /app/backend/tests/test_upload_skipped_diagnostic.py is the canonical regression suite for this feature and is reusable. The test_scoreblast_api.py suite was updated to match the new response semantics (`skipped` now means parser-skipped rows, NOT unchanged re-uploads — those go to `unchanged`). REQUIRED_ODDS is exactly 11 entries; only 1X/X2/12 are estimated. Diagnostic persists in MongoDB collection `upload_skipped` with fixed _id='latest'.",
+  "rca_of_issue": "N/A — no bugs found. The refactor is fully working end-to-end."
+}

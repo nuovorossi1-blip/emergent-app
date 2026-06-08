@@ -69,7 +69,16 @@ COL_O35 = 23     # X
 COL_GG = 24      # Y
 COL_NG = 25      # Z
 
-REQUIRED_ODDS = ['odd_1', 'odd_X', 'odd_2', 'odd_U25', 'odd_O25', 'odd_GG', 'odd_NG']
+# Quote OBBLIGATORIE per considerare valida la partita.
+# Se MANCA anche solo UNA di queste, la partita viene scartata.
+# 1X, X2, 12 NON sono obbligatorie: vengono stimate da estimate_missing().
+REQUIRED_ODDS = [
+    'odd_1', 'odd_X', 'odd_2',
+    'odd_U15', 'odd_O15',
+    'odd_U25', 'odd_O25',
+    'odd_U35', 'odd_O35',
+    'odd_GG', 'odd_NG',
+]
 
 
 # ============================================================
@@ -309,7 +318,7 @@ def parse_excel_bytes(content: bytes, filename: str) -> dict:
         sq1 = str(row.iat[COL_SQ1]).strip() if COL_SQ1 < len(row) and pd.notna(row.iat[COL_SQ1]) else ''
         sq2 = str(row.iat[COL_SQ2]).strip() if COL_SQ2 < len(row) and pd.notna(row.iat[COL_SQ2]) else ''
         if not sq1 or not sq2:
-            skipped.append({"row": idx + 1, "time": time_str, "sq1": sq1, "sq2": sq2, "reason": "Squadre mancanti"})
+            skipped.append({"row": idx + 1, "time": time_str, "sq1": sq1, "sq2": sq2, "manif": "N/D", "reason": "Squadre mancanti", "odds_read": {}, "missing": []})
             continue
 
         manif = str(row.iat[COL_MANIF]).strip() if COL_MANIF < len(row) and pd.notna(row.iat[COL_MANIF]) else 'N/D'
@@ -346,6 +355,8 @@ def parse_excel_bytes(content: bytes, filename: str) -> dict:
                 "row": idx + 1, "time": time_str,
                 "sq1": sq1, "sq2": sq2, "manif": manif,
                 "reason": f"Quote mancanti: {', '.join(missing)}",
+                "odds_read": {k: v for k, v in odds.items() if v is not None},
+                "missing": missing,
             })
             continue
 
@@ -360,7 +371,11 @@ def parse_excel_bytes(content: bytes, filename: str) -> dict:
             'odds': {**odds, 'estimated': estimated},
         })
 
-    return matches
+    return {
+        "matches": matches,
+        "skipped": skipped,
+        "rows_seen": rows_seen,
+    }
 
 
 # ============================================================
@@ -1066,8 +1081,12 @@ async def upload_excel(file: UploadFile = File(...)):
         logger.exception("excel parse error")
         raise HTTPException(400, f"Errore parsing Excel: {e}")
 
-    inserted, updated, skipped = 0, 0, 0
-    for m in parsed:
+    valid_matches = parsed.get("matches", [])
+    skipped_rows = parsed.get("skipped", [])
+    rows_seen = parsed.get("rows_seen", 0)
+
+    inserted, updated, unchanged = 0, 0, 0
+    for m in valid_matches:
         key = {
             'squadra1': m['squadra1'],
             'squadra2': m['squadra2'],
@@ -1080,7 +1099,7 @@ async def upload_excel(file: UploadFile = File(...)):
             old_odds = {k: v for k, v in existing.get('odds', {}).items() if k != 'estimated'}
             new_compare = {k: v for k, v in new_odds.items() if k != 'estimated'}
             if old_odds == new_compare:
-                skipped += 1
+                unchanged += 1
                 continue
             await db.matches.update_one(
                 key,
@@ -1104,12 +1123,51 @@ async def upload_excel(file: UploadFile = File(...)):
             await db.matches.insert_one(doc)
             inserted += 1
 
+    # Persist the LAST upload diagnostic so the user can inspect skipped rows
+    await db.upload_skipped.replace_one(
+        {"_id": "latest"},
+        {
+            "_id": "latest",
+            "filename": file.filename or "upload.xlsx",
+            "uploaded_at": datetime.now(timezone.utc).isoformat(),
+            "rows_seen": rows_seen,
+            "valid_matches": len(valid_matches),
+            "inserted": inserted,
+            "updated": updated,
+            "unchanged": unchanged,
+            "skipped_count": len(skipped_rows),
+            "skipped": skipped_rows,
+        },
+        upsert=True,
+    )
+
     return {
         "inserted": inserted,
         "updated": updated,
-        "skipped": skipped,
-        "total_parsed": len(parsed),
+        "unchanged": unchanged,
+        "skipped": len(skipped_rows),
+        "total_parsed": len(valid_matches),
+        "rows_seen": rows_seen,
     }
+
+
+@api_router.get("/upload/skipped")
+async def get_upload_skipped():
+    """Return diagnostic info about rows skipped in the last upload."""
+    doc = await db.upload_skipped.find_one({"_id": "latest"}, {"_id": 0})
+    if not doc:
+        return {
+            "filename": None,
+            "uploaded_at": None,
+            "rows_seen": 0,
+            "valid_matches": 0,
+            "inserted": 0,
+            "updated": 0,
+            "unchanged": 0,
+            "skipped_count": 0,
+            "skipped": [],
+        }
+    return doc
 
 
 @api_router.get("/matches")

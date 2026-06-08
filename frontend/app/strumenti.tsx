@@ -39,10 +39,34 @@ export default function Strumenti() {
     setBusy("upload");
     try {
       const out = await api.uploadExcel(file.uri, file.name, file.mimeType);
-      Alert.alert(
-        "Import completato",
-        `Nuove: ${out.inserted}\nAggiornate (quote cambiate): ${out.updated}\nGià presenti: ${out.skipped}\nTotale lette: ${out.total_parsed}`,
-      );
+      const skippedCount = out.skipped || 0;
+      const lines = [
+        `Nuove: ${out.inserted}`,
+        `Aggiornate: ${out.updated}`,
+        `Già presenti: ${out.unchanged ?? 0}`,
+        `Valide totali: ${out.total_parsed}`,
+        `Righe scartate: ${skippedCount}`,
+      ];
+      if (skippedCount > 0) {
+        if (Platform.OS === "web") {
+          // window.confirm fallback
+          const go = (typeof window !== "undefined" && window.confirm)
+            ? window.confirm(`Import completato\n\n${lines.join("\n")}\n\nVuoi vedere i dettagli degli scarti?`)
+            : false;
+          if (go) router.push("/scartati");
+        } else {
+          Alert.alert(
+            "Import completato",
+            lines.join("\n"),
+            [
+              { text: "Chiudi", style: "cancel" },
+              { text: "Vedi Scarti", onPress: () => router.push("/scartati") },
+            ],
+          );
+        }
+      } else {
+        Alert.alert("Import completato", lines.join("\n"));
+      }
     } catch (e: any) {
       Alert.alert("Errore Import", e?.message || "Errore parser");
     } finally {
@@ -205,6 +229,13 @@ export default function Strumenti() {
           title="Carica File Excel"
           desc="Importa partite e quote (.xls / .xlsx). Le esistenti vengono aggiornate solo se le quote cambiano."
           onPress={uploadExcel}
+        />
+        <Tool
+          testID="tool-skipped"
+          icon="warning-outline"
+          title="Diagnostica Scarti"
+          desc="Vedi le righe scartate nell'ultimo import e il motivo (quote mancanti, squadre, ecc.)."
+          onPress={() => router.push("/scartati")}
         />
         <Tool
           testID="tool-import-backup"

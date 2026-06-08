@@ -163,8 +163,32 @@ export const api = {
     }
     const res = await fetch(`${BASE}/api/upload-excel`, { method: "POST", body: form });
     if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
-    return res.json() as Promise<{ inserted: number; updated: number; skipped: number; total_parsed: number }>;
+    return res.json() as Promise<{ inserted: number; updated: number; unchanged?: number; skipped: number; total_parsed: number; rows_seen?: number }>;
   },
+  uploadSkipped: () => req<UploadSkippedReport>(`/upload/skipped`),
+};
+
+export type SkippedRow = {
+  row: number;
+  time?: string;
+  sq1?: string;
+  sq2?: string;
+  manif?: string;
+  reason: string;
+  odds_read?: Partial<Record<OddsKey, number>>;
+  missing?: OddsKey[];
+};
+
+export type UploadSkippedReport = {
+  filename: string | null;
+  uploaded_at: string | null;
+  rows_seen: number;
+  valid_matches: number;
+  inserted: number;
+  updated: number;
+  unchanged: number;
+  skipped_count: number;
+  skipped: SkippedRow[];
 };
 
 export const ODD_LABELS: Record<OddsKey, string> = {

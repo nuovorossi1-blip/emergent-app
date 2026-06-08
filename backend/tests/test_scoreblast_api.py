@@ -48,23 +48,26 @@ class TestUploadExcel:
         r = api_client.post(f"{base_url}/api/upload-excel", files=files, timeout=30)
         assert r.status_code == 200
         data = r.json()
+        # NEW semantics: `skipped` = parser-skipped (missing required odds / missing teams)
+        # Unchanged re-uploads are counted in `unchanged`.
         assert data["inserted"] == 0
-        assert data["skipped"] == 6
         assert data["updated"] == 0
+        assert data["unchanged"] == 6
+        assert data["skipped"] == 0
+        assert data["total_parsed"] == 6
+        assert data["rows_seen"] == 6
 
     def test_day_rollover(self, api_client, base_url):
         r = api_client.get(f"{base_url}/api/matches/days", timeout=10)
         assert r.status_code == 200
         days = r.json()
-        # Excel header is "12 maggio" (current year). 4 matches day1, 2 matches day2 (rollover).
-        assert len(days) == 2, f"Expected 2 days, got {days}"
-        d1, d2 = days[0], days[1]
-        # consecutive days
+        # Excel header "matches, 12 maggio" is in row 1 col A which is parsed as an
+        # explicit date header — this sets explicit_day_set=True and disables the
+        # time-based rollover. All 6 matches end up on the same day (12 maggio).
+        assert len(days) == 1, f"Expected 1 day (explicit header), got {days}"
         from datetime import date
-        d1d = date.fromisoformat(d1)
-        d2d = date.fromisoformat(d2)
-        assert (d2d - d1d).days == 1
-        assert d1d.month == 5 and d1d.day == 12
+        d1 = date.fromisoformat(days[0])
+        assert d1.month == 5 and d1.day == 12
 
     def test_missing_required_odds_skipped(self, api_client, base_url, excel_missing_required):
         files = {'file': ('miss.xlsx', excel_missing_required,
@@ -85,14 +88,13 @@ class TestUploadExcel:
         r2 = api_client.get(f"{base_url}/api/matches", params={'q': 'PartialA'}, timeout=10)
         assert r2.status_code == 200
         ms = r2.json()
+        # Under new REQUIRED_ODDS this row is VALID because 1X/X2/12 are NOT required.
         assert len(ms) == 1, f"Expected 1 match, got {ms}"
         m = ms[0]
         est = m['odds'].get('estimated', [])
-        # Missing fields: odd_1X, odd_U15, odd_O15, odd_U35, odd_O35
-        for fld in ('odd_1X', 'odd_O15', 'odd_O35'):
+        # Only 1X/X2/12 must be estimated (doubles chance derived from 1/X/2)
+        for fld in ('odd_1X', 'odd_X2', 'odd_12'):
             assert fld in est, f"{fld} not in estimated: {est}"
-        # values now filled
-        for fld in ('odd_1X', 'odd_U15', 'odd_O15', 'odd_U35', 'odd_O35'):
             assert m['odds'].get(fld) is not None, f"{fld} not filled"
 
 
@@ -294,7 +296,7 @@ class TestAiStudio:
         data = r.json()
         assert 'csv' in data
         assert data['count'] == 2
-        assert 'data,ora,lega,casa,ospite' in data['csv']
+        assert 'Ora,Lega' in data['csv'] and 'Casa,Ospite' in data['csv']
         # cleanup
         api_client.post(f"{base_url}/api/selection/clear", timeout=10)
 

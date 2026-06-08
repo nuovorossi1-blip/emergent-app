@@ -52,21 +52,27 @@ def _make_excel_full() -> bytes:
 
 
 def _make_excel_partial() -> bytes:
-    """One match where 1X, U1.5, O1.5, U3.5, O3.5 are missing -> should be estimated."""
+    """One match where ONLY 1X, X2, 12 (doubles chance) are missing.
+    Under the new REQUIRED_ODDS (11 quotes), doubles chance are NOT required
+    and must be estimated. All other quotes (1/X/2, U/O 1.5/2.5/3.5, GG/NG)
+    are present so the match must be VALID."""
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.cell(row=1, column=1).value = "matches, 15 maggio"
     row = ["12:00", "TESTPART", "S", "X", "TEST_PartialA", "TEST_PartialB", "", "",
-           2.0, 3.2, 3.5, -1, 1.4, 2.5, 1.8,
-           None,  # 1X missing
-           1.5,   # X2
-           1.4,   # 12
-           None,  # U15 missing
-           None,  # O15 missing
+           2.0,   # 1
+           3.2,   # X
+           3.5,   # 2
+           -1, 1.4, 2.5, 1.8,
+           None,  # 1X missing (not required, will be estimated)
+           None,  # X2 missing (not required, will be estimated)
+           None,  # 12 missing (not required, will be estimated)
+           1.6,   # U15
+           2.3,   # O15
            1.5,   # U25
            2.4,   # O25
-           None,  # U35 missing
-           None,  # O35 missing
+           1.2,   # U35
+           3.8,   # O35
            1.9,   # GG
            1.8]   # NG
     for c, v in enumerate(row, start=1):
