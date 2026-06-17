@@ -395,10 +395,10 @@ CANDIDATE_MARKETS = [
     "MG 1-2 ospite", "MG 1-3 ospite", "MG 2-3 ospite", "MG 2-4 ospite",
     # Direct-result + Over combos (offensiva pulita con dominante)
     "1 + O1.5", "2 + O1.5", "1 + O2.5", "2 + O2.5",
-    # Direct-result + Under combos (dominanza casa/ospite SENZA goleada)
-    # Es. "1 + U4.5" = "Casa vince e max 4 gol nel match" → mercato leggibile
+    # Direct-result + Under combo: scorciatoia per casi specifici di dominanza
+    # con tetto controllato, ammessa SOLO se ceiling ≤ 4 chiuso e segno puro <1.40
+    # (es. Austria @ 1.36 con tetto 4 → 1 + U4.5 massimizza profitto)
     "1 + U4.5", "2 + U4.5",
-    "1 + U3.5", "2 + U3.5",
     # GG + Over combos (entrambe segnano + over)
     "GG + O2.5",
     # Double-chance + Over/Under combos
@@ -572,20 +572,32 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40, ml_scores: Optional[D
                 lo = int(rng.group(1))
                 if lo < floor:
                     continue
-        # Combo "DC X + Under N" escluse con floor incompatibile (ridondanti
-        # perché DC X copre già il pareggio + casa/ospite; banda Under stretta).
-        # Le combo "1+UN" e "2+UN" invece NON sono ridondanti: aggiungono
-        # il vincolo tetto al segno → mercato distinto.
+        # Combo "DC X + Under N" RIABILITATE: sono mercati standard book.
+        # Restano esclusi solo i casi banali di ridondanza puramente tautologica.
+        # Es. "DC 1X + U1.5" con floor=1 → Under 1.5 impossibile → escludi.
         if mu.startswith("DC ") and "+ U1.5" in mu and floor >= 1:
             continue
         if mu.startswith("DC ") and "+ U2.5" in mu and floor >= 2:
             continue
-        if mu.startswith("DC ") and "+ U3.5" in mu and floor >= 2:
-            continue
-        # Per le combo direct "1+UN.5" e "2+UN.5": NON sono ridondanti col
-        # segno puro. Aggiungono il vincolo tetto → quota più alta, mercato
-        # distinto e leggibile (es. "casa vince senza goleada").
-        # Le escludo SOLO se Under è davvero tautologica (ceiling molto stretto)
+        # DC + U3.5 ammessa anche con floor=2 (mercato standard, banda 2-3 stretta ma valida)
+
+        # === Combo "1 + UN.5" / "2 + UN.5" — SCORCIATOIE PER DOMINANZA + TETTO ===
+        # Regola utente: usate SOLO per massimizzare profitto quando il segno
+        # puro è sotto soglia 1.40 (es. Austria 1@1.36 + U4.5 → quota 1.55+).
+        # Ammesse SOLO se il ceiling è coerente (chiuso e adeguato).
+        odd_1 = odds.get("odd_1") or 99.0
+        odd_2 = odds.get("odd_2") or 99.0
+        if mu == "1 + U4.5":
+            # Solo se ceiling chiuso ≤ 4 (tetto entro 4 gol) E quota 1 < 1.40
+            if ceiling_open or ceiling > 4:
+                continue
+            if odd_1 >= 1.40:
+                continue
+        elif mu == "2 + U4.5":
+            if ceiling_open or ceiling > 4:
+                continue
+            if odd_2 >= 1.40:
+                continue
 
         # ---- CEILING exclusions ----
         if not ceiling_open:
@@ -698,21 +710,17 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40, ml_scores: Optional[D
                     elif span >= 3 and cov >= 0.90:
                         score *= 0.70
 
-        # === Boost combo "DOMINANZA + TETTO" (1+U4.5 / 2+U4.5 / 1+U3.5 / 2+U3.5) ===
-        # Caso Austria-Giordania: casa dominante (λ_h=2.2) e tetto chiuso/moderato.
-        # "1 + U4.5" = "Casa vince con max 4 gol nel match" → leggibile e calibrato.
-        if mu == "1 + U4.5" and lam_h >= lam_a + 0.8:  # casa nettamente favorita
+        # === Boost combo "DOMINANZA + TETTO" (1+U4.5 / 2+U4.5) ===
+        # Caso Austria-Giordania: casa dominante e tetto chiuso ≤ 4.
+        # Combo ammessa solo quando segno puro < 1.40 (filtro pre-ranking)
+        if mu == "1 + U4.5" and lam_h >= lam_a + 0.8:
             score *= 1.35
-        elif mu == "2 + U4.5" and lam_a >= lam_h + 0.8:  # ospite nettamente favorito
+        elif mu == "2 + U4.5" and lam_a >= lam_h + 0.8:
             score *= 1.35
-        elif mu == "1 + U3.5" and lam_h >= lam_a + 0.8 and lam_h + lam_a <= 3.0:
-            score *= 1.25  # casa domina e tetto basso → tetto 3 ok
-        elif mu == "2 + U3.5" and lam_a >= lam_h + 0.8 and lam_h + lam_a <= 3.0:
-            score *= 1.25
         # Penalty se la dominanza NON c'è: combo direct+Under non ha senso
-        elif mu in ("1 + U4.5", "1 + U3.5") and lam_h - lam_a < 0.30:
+        elif mu == "1 + U4.5" and lam_h - lam_a < 0.30:
             score *= 0.55
-        elif mu in ("2 + U4.5", "2 + U3.5") and lam_a - lam_h < 0.30:
+        elif mu == "2 + U4.5" and lam_a - lam_h < 0.30:
             score *= 0.55
 
         # === MERCATI SECCHI: boost quando coerenti con la struttura ===
@@ -786,9 +794,9 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40, ml_scores: Optional[D
                 score *= 1.20
             # Boost: combo dominanza + tetto controllato (alternativa elegante a NG)
             # "1 + U4.5" = "Casa domina, max 4 gol totali" → mercato leggibile
-            if (lam_h >= lam_a and mu in ("1 + U4.5", "1 + U3.5")):
+            if (lam_h >= lam_a and mu == "1 + U4.5"):
                 score *= 1.30
-            if (lam_a >= lam_h and mu in ("2 + U4.5", "2 + U3.5")):
+            if (lam_a >= lam_h and mu == "2 + U4.5"):
                 score *= 1.30
             # Malus: U3.5 puri (rotti facilmente da 0-4 / 1-3)
             if mu == "U3.5":
