@@ -122,7 +122,7 @@ def evaluate_market_strict(market: str, home: int, away: int) -> Optional[bool]:
         return home > 0 and away > 0
     if m == "NG":
         return home == 0 or away == 0
-    for o in ["1.5", "2.5", "3.5"]:
+    for o in ["0.5", "1.5", "2.5", "3.5", "4.5", "5.5"]:
         if m == f"O{o}":
             return total > float(o)
         if m == f"U{o}":
@@ -395,6 +395,10 @@ CANDIDATE_MARKETS = [
     "MG 1-2 ospite", "MG 1-3 ospite", "MG 2-3 ospite", "MG 2-4 ospite",
     # Direct-result + Over combos (offensiva pulita con dominante)
     "1 + O1.5", "2 + O1.5", "1 + O2.5", "2 + O2.5",
+    # Direct-result + Under combos (dominanza casa/ospite SENZA goleada)
+    # Es. "1 + U4.5" = "Casa vince e max 4 gol nel match" → mercato leggibile
+    "1 + U4.5", "2 + U4.5",
+    "1 + U3.5", "2 + U3.5",
     # GG + Over combos (entrambe segnano + over)
     "GG + O2.5",
     # Double-chance + Over/Under combos
@@ -406,8 +410,47 @@ CANDIDATE_MARKETS = [
 ]
 
 
+def _estimate_combo_odd_from_cluster(market: str, odds: Dict) -> Optional[float]:
+    """Stima la quota di una combo direct+Under usando il cluster Poisson.
+    
+    Calcola P(combo) sul cluster completo, poi applica l'overround del book
+    (1X2 medio) per dare una quota stimata realistica anziché "fair".
+    """
+    try:
+        # Cluster completo Poisson (no top_k cut, prende l'intera griglia)
+        lam_h, lam_a = derive_lambdas(odds)
+        max_goals = 8
+        total_p = 0.0
+        match_p = 0.0
+        for h in range(max_goals + 1):
+            for a in range(max_goals + 1):
+                p = _poisson(h, lam_h) * _poisson(a, lam_a)
+                total_p += p
+                outcome = evaluate_market_strict(market, h, a)
+                if outcome is True:
+                    match_p += p
+        if total_p <= 0 or match_p <= 0:
+            return None
+        prob = match_p / total_p
+        # Overround del book (1X2): tipicamente ~1.05-1.08
+        p1 = _implied_prob(odds.get("odd_1") or 0)
+        px = _implied_prob(odds.get("odd_X") or 0)
+        p2 = _implied_prob(odds.get("odd_2") or 0)
+        overround = (p1 + px + p2) if (p1 and px and p2) else 1.06
+        # Quota stimata con overround applicato
+        if overround <= 0:
+            overround = 1.06
+        fair_odd = 1.0 / prob
+        # Bookmaker margin: scale down by overround share
+        est = fair_odd / overround
+        return round(est, 2) if est >= 1.01 else None
+    except Exception:
+        return None
+
+
 def _combo_odd(market: str, odds: Dict) -> Optional[float]:
-    """Compute combo odd as product of components (for filtering only)."""
+    """Compute combo odd. Per le combo con Under N.5 dove odd_UN5 non è
+    disponibile come quota standard, stima dal cluster Poisson."""
     MAP = {
         "1": "odd_1", "X": "odd_X", "2": "odd_2",
         "1X": "odd_1X", "X2": "odd_X2", "12": "odd_12",
@@ -421,9 +464,14 @@ def _combo_odd(market: str, odds: Dict) -> Optional[float]:
         return odds.get(MAP[m])
     if "+" in m:
         parts = [p.strip() for p in m.split("+")]
+        # Se TUTTI i componenti hanno quota nel MAP → moltiplico
         vals = [odds.get(MAP.get(p, "")) for p in parts]
         if all(v and v > 0 for v in vals):
             return round(vals[0] * vals[1], 3)
+        # Altrimenti stima dal cluster Poisson (es. "1 + U4.5")
+        est = _estimate_combo_odd_from_cluster(market, odds)
+        if est:
+            return est
     return None
 
 
@@ -524,13 +572,20 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40, ml_scores: Optional[D
                 lo = int(rng.group(1))
                 if lo < floor:
                     continue
-        # Combo "DC X + Under N" escluse con floor incompatibile
-        if "+ U1.5" in mu and floor >= 1:
+        # Combo "DC X + Under N" escluse con floor incompatibile (ridondanti
+        # perché DC X copre già il pareggio + casa/ospite; banda Under stretta).
+        # Le combo "1+UN" e "2+UN" invece NON sono ridondanti: aggiungono
+        # il vincolo tetto al segno → mercato distinto.
+        if mu.startswith("DC ") and "+ U1.5" in mu and floor >= 1:
             continue
-        if "+ U2.5" in mu and floor >= 2:
+        if mu.startswith("DC ") and "+ U2.5" in mu and floor >= 2:
             continue
-        if "+ U3.5" in mu and floor >= 2:
+        if mu.startswith("DC ") and "+ U3.5" in mu and floor >= 2:
             continue
+        # Per le combo direct "1+UN.5" e "2+UN.5": NON sono ridondanti col
+        # segno puro. Aggiungono il vincolo tetto → quota più alta, mercato
+        # distinto e leggibile (es. "casa vince senza goleada").
+        # Le escludo SOLO se Under è davvero tautologica (ceiling molto stretto)
 
         # ---- CEILING exclusions ----
         if not ceiling_open:
@@ -643,6 +698,23 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40, ml_scores: Optional[D
                     elif span >= 3 and cov >= 0.90:
                         score *= 0.70
 
+        # === Boost combo "DOMINANZA + TETTO" (1+U4.5 / 2+U4.5 / 1+U3.5 / 2+U3.5) ===
+        # Caso Austria-Giordania: casa dominante (λ_h=2.2) e tetto chiuso/moderato.
+        # "1 + U4.5" = "Casa vince con max 4 gol nel match" → leggibile e calibrato.
+        if mu == "1 + U4.5" and lam_h >= lam_a + 0.8:  # casa nettamente favorita
+            score *= 1.35
+        elif mu == "2 + U4.5" and lam_a >= lam_h + 0.8:  # ospite nettamente favorito
+            score *= 1.35
+        elif mu == "1 + U3.5" and lam_h >= lam_a + 0.8 and lam_h + lam_a <= 3.0:
+            score *= 1.25  # casa domina e tetto basso → tetto 3 ok
+        elif mu == "2 + U3.5" and lam_a >= lam_h + 0.8 and lam_h + lam_a <= 3.0:
+            score *= 1.25
+        # Penalty se la dominanza NON c'è: combo direct+Under non ha senso
+        elif mu in ("1 + U4.5", "1 + U3.5") and lam_h - lam_a < 0.30:
+            score *= 0.55
+        elif mu in ("2 + U4.5", "2 + U3.5") and lam_a - lam_h < 0.30:
+            score *= 0.55
+
         # === MERCATI SECCHI: boost quando coerenti con la struttura ===
         # Questi sono i pronostici più importanti per il bettor: O2.5 secco,
         # GG secco, 1X/X2 secco. Vanno premiati quando combaciano con λ Poisson.
@@ -657,9 +729,10 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40, ml_scores: Optional[D
         # GG secco: boost se entrambi i team hanno λ >= 1.2
         elif mu == "GG" and lam_h >= 1.2 and lam_a >= 1.2:
             score *= 1.25
-        # NG secco: boost se almeno uno dei due ha λ <= 0.75 (clean sheet vivo)
+        # NG secco: boost ridotto. NG è poco "giocabile" come pick principale
+        # secondo feedback utente (preferisce combo 1+U4.5 / 2+U4.5 leggibili).
         elif mu == "NG" and min(lam_h, lam_a) <= 0.75:
-            score *= 1.25
+            score *= 1.05
         # === DOPPIE CHANCE: solo se DIREZIONE CHIARA ===
         # In equilibrio (gap λ < 0.30) NON scegliere 1X/X2/12: non c'è direzione,
         # il match va giocato su mercati neutri (X secco, GG, O/U, MG totali).
@@ -694,9 +767,9 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40, ml_scores: Optional[D
         is_extreme = (lam_min <= 0.7 and lam_max >= 2.2)
         if is_extreme:
             mu = m.upper().replace("  ", " ")
-            # Boost: NG (clean sheet probabile)
+            # Boost ridotto: NG (clean sheet probabile, ma poco giocabile)
             if mu == "NG":
-                score *= 1.20
+                score *= 1.05
             # Boost: combo "X + O1.5" del dominatore
             if (lam_a >= lam_h and mu in ("2 + O1.5", "DC X2 + O1.5")):
                 score *= 1.25
@@ -711,6 +784,12 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40, ml_scores: Optional[D
             lam_tot = lam_h + lam_a
             if mu == "O2.5" and lam_tot >= 2.8:
                 score *= 1.20
+            # Boost: combo dominanza + tetto controllato (alternativa elegante a NG)
+            # "1 + U4.5" = "Casa domina, max 4 gol totali" → mercato leggibile
+            if (lam_h >= lam_a and mu in ("1 + U4.5", "1 + U3.5")):
+                score *= 1.30
+            if (lam_a >= lam_h and mu in ("2 + U4.5", "2 + U3.5")):
+                score *= 1.30
             # Malus: U3.5 puri (rotti facilmente da 0-4 / 1-3)
             if mu == "U3.5":
                 score *= 0.80
@@ -767,6 +846,7 @@ def structural_analysis(odds: Dict, min_odd: float = 1.40, ml_scores: Optional[D
             "covered_scores": covered[:6],
             "broken_by": broken[:5],
             "score": round(score, 4),
+            "odd": _combo_odd(m, odds),
         })
 
     # ============================================================
