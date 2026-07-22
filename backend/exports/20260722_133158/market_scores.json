@@ -1,0 +1,4946 @@
+[
+  {
+    "market": "O2.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 65,
+    "wins": 24,
+    "losses": 41,
+    "missed_wins": 1
+  },
+  {
+    "market": "GG",
+    "family": "OFFENSIVA_PULITA",
+    "total": 64,
+    "wins": 18,
+    "losses": 46
+  },
+  {
+    "market": "O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 58,
+    "wins": 31,
+    "missed_wins": 6,
+    "losses": 27
+  },
+  {
+    "market": "MG 2-4 totali",
+    "family": "OFFENSIVA_PULITA",
+    "total": 33,
+    "wins": 28,
+    "losses": 5,
+    "missed_wins": 7
+  },
+  {
+    "market": "DC 12 + O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 27,
+    "wins": 14,
+    "losses": 13
+  },
+  {
+    "market": "1",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 30
+  },
+  {
+    "market": "1X",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 46
+  },
+  {
+    "market": "12",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 50
+  },
+  {
+    "market": "U3.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 59
+  },
+  {
+    "market": "MG 2-4 casa",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 18
+  },
+  {
+    "market": "DC 1X + U3.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 40
+  },
+  {
+    "market": "DC 1X + O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 23
+  },
+  {
+    "market": "1",
+    "family": "DOMINANZA_CON_TETTO",
+    "total": 102,
+    "wins": 70,
+    "losses": 32,
+    "missed_wins": 4
+  },
+  {
+    "market": "MG 2-4 casa",
+    "family": "DOMINANZA_CON_TETTO",
+    "losses": 56,
+    "total": 102,
+    "missed_wins": 17,
+    "wins": 46
+  },
+  {
+    "market": "DC 1X + U3.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "total": 111,
+    "wins": 58,
+    "losses": 53,
+    "missed_wins": 3
+  },
+  {
+    "market": "U3.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "total": 115,
+    "wins": 67,
+    "losses": 48,
+    "missed_wins": 12
+  },
+  {
+    "market": "O1.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "losses": 3,
+    "total": 6,
+    "missed_wins": 108,
+    "wins": 3
+  },
+  {
+    "market": "1X",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 101,
+    "total": 5,
+    "wins": 3,
+    "losses": 2
+  },
+  {
+    "market": "12",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 92,
+    "total": 8,
+    "wins": 8
+  },
+  {
+    "market": "U1.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 19
+  },
+  {
+    "market": "U2.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 53
+  },
+  {
+    "market": "NG",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 49,
+    "total": 11,
+    "wins": 7,
+    "losses": 4
+  },
+  {
+    "market": "O2.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 77,
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "market": "O3.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 51
+  },
+  {
+    "market": "GG",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 74
+  },
+  {
+    "market": "DC 1X + O1.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 91
+  },
+  {
+    "market": "NG",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 48
+  },
+  {
+    "market": "O3.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 7
+  },
+  {
+    "market": "MG 2-4 totali",
+    "family": "RANGE_CONTROLLATO",
+    "losses": 27,
+    "total": 49,
+    "missed_wins": 2,
+    "wins": 22
+  },
+  {
+    "market": "O1.5",
+    "family": "RANGE_CONTROLLATO",
+    "total": 34,
+    "wins": 20,
+    "losses": 14,
+    "missed_wins": 11
+  },
+  {
+    "market": "U3.5",
+    "family": "RANGE_CONTROLLATO",
+    "losses": 6,
+    "total": 42,
+    "wins": 36,
+    "missed_wins": 4
+  },
+  {
+    "market": "DC 12 + O1.5",
+    "family": "RANGE_CONTROLLATO",
+    "total": 30,
+    "wins": 13,
+    "losses": 17
+  },
+  {
+    "market": "12",
+    "family": "RANGE_CONTROLLATO",
+    "total": 4,
+    "wins": 3,
+    "losses": 1,
+    "missed_wins": 28
+  },
+  {
+    "market": "1",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 10
+  },
+  {
+    "market": "1X",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 30
+  },
+  {
+    "market": "O2.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 17,
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "market": "O3.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 11
+  },
+  {
+    "market": "GG",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 26
+  },
+  {
+    "market": "MG 2-4 casa",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 15
+  },
+  {
+    "market": "MG 2-4 ospite",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 16
+  },
+  {
+    "market": "DC 1X + O1.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 21
+  },
+  {
+    "market": "2",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 13,
+    "losses": 4,
+    "total": 17,
+    "wins": 13
+  },
+  {
+    "market": "X2",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 52,
+    "total": 4,
+    "wins": 4
+  },
+  {
+    "market": "MG 2-4 totali",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 87,
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "market": "MG 2-4 ospite",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 33,
+    "total": 6,
+    "wins": 5,
+    "losses": 1
+  },
+  {
+    "market": "DC X2 + U3.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 31,
+    "losses": 9,
+    "total": 16,
+    "wins": 7
+  },
+  {
+    "market": "DC X2 + O1.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 47
+  },
+  {
+    "market": "2",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 21
+  },
+  {
+    "market": "X2",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 41
+  },
+  {
+    "market": "DC X2 + U3.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 32
+  },
+  {
+    "market": "DC X2 + O1.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 25
+  },
+  {
+    "market": "X",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 20
+  },
+  {
+    "market": "U2.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 33
+  },
+  {
+    "market": "DC 1X + U3.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 11,
+    "losses": 8,
+    "total": 21,
+    "wins": 13
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "market": "NG",
+    "missed_wins": 25,
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "family": "OFFENSIVA_SPORCA",
+    "market": "O1.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "OFFENSIVA_SPORCA",
+    "market": "MG 2-4 totali",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "OFFENSIVA_SPORCA",
+    "market": "O2.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "OFFENSIVA_SPORCA",
+    "market": "DC 12 + O1.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "OFFENSIVA_SPORCA",
+    "market": "2",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_SPORCA",
+    "market": "X2",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_SPORCA",
+    "market": "12",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_SPORCA",
+    "market": "O3.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_SPORCA",
+    "market": "GG",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_SPORCA",
+    "market": "MG 2-4 casa",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_SPORCA",
+    "market": "MG 2-4 ospite",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_SPORCA",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "market": "U1.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 20
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "X",
+    "missed_wins": 30
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "2",
+    "missed_wins": 20
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "X2",
+    "missed_wins": 36
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "MG 2-4 ospite",
+    "missed_wins": 15
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "DC X2 + U3.5",
+    "missed_wins": 33
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 21
+  },
+  {
+    "market": "U3.5",
+    "family": "CHIUSA_PROTETTA",
+    "total": 8,
+    "wins": 7,
+    "losses": 1
+  },
+  {
+    "market": "NG",
+    "family": "CHIUSA_PROTETTA",
+    "losses": 3,
+    "total": 8,
+    "wins": 5
+  },
+  {
+    "market": "U2.5",
+    "family": "CHIUSA_PROTETTA",
+    "losses": 3,
+    "total": 8,
+    "wins": 5
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "1",
+    "missed_wins": 5
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "1X",
+    "missed_wins": 8
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "12",
+    "missed_wins": 5
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "O1.5",
+    "missed_wins": 4
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "O2.5",
+    "missed_wins": 3
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "GG",
+    "missed_wins": 3
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "MG 2-4 totali",
+    "missed_wins": 4
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "MG 2-4 casa",
+    "missed_wins": 2,
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "DC 1X + U3.5",
+    "missed_wins": 7
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 4
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "O2.5",
+    "league": "BARB1",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "GG",
+    "league": "BARB1",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "O1.5",
+    "league": "BARB1",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "MG 2-4 totali",
+    "league": "BARB1",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "DC 12 + O1.5",
+    "league": "BARB1",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "2",
+    "league": "BARB1",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "X2",
+    "league": "BARB1",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "12",
+    "league": "BARB1",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "U3.5",
+    "league": "BARB1",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "MG 2-4 ospite",
+    "league": "BARB1",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "DC X2 + U3.5",
+    "league": "BARB1",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "DC X2 + O1.5",
+    "league": "BARB1",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1",
+    "league": "BRACPF",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "U3.5",
+    "league": "BRACPF",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + U3.5",
+    "league": "BRACPF",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 casa",
+    "league": "BRACPF",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1X",
+    "league": "BRACPF",
+    "missed_wins": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "12",
+    "league": "BRACPF",
+    "missed_wins": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O1.5",
+    "league": "BRACPF",
+    "missed_wins": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O2.5",
+    "league": "BRACPF",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "GG",
+    "league": "BRACPF",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 totali",
+    "league": "BRACPF",
+    "missed_wins": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + O1.5",
+    "league": "BRACPF",
+    "missed_wins": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRACPF",
+    "market": "U2.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRACPF",
+    "market": "NG",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "market": "MG 2-4 totali",
+    "league": "BRACPNE",
+    "losses": 4,
+    "total": 4,
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "market": "O1.5",
+    "league": "BRACPNE",
+    "total": 5,
+    "wins": 5
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "market": "DC 12 + O1.5",
+    "league": "BRACPNE",
+    "total": 5,
+    "wins": 5
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "market": "1",
+    "league": "BRACPNE",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "market": "1X",
+    "league": "BRACPNE",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "market": "12",
+    "league": "BRACPNE",
+    "missed_wins": 5
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "market": "O2.5",
+    "league": "BRACPNE",
+    "missed_wins": 4
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRACPNE",
+    "market": "O3.5",
+    "missed_wins": 4
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRACPNE",
+    "market": "GG",
+    "missed_wins": 4
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "market": "MG 2-4 casa",
+    "league": "BRACPNE",
+    "missed_wins": 4
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "market": "MG 2-4 ospite",
+    "league": "BRACPNE",
+    "missed_wins": 5
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRACPNE",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "market": "2",
+    "league": "BRACPNE",
+    "missed_wins": 4
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "market": "X2",
+    "league": "BRACPNE",
+    "missed_wins": 4
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRACPNE",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 4
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRACPNE",
+    "market": "U3.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRACPNE",
+    "market": "U2.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRACPNE",
+    "market": "NG",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRACPNE",
+    "market": "DC X2 + U3.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "market": "1",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "market": "U3.5",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "market": "DC 1X + U3.5",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "market": "MG 2-4 casa",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "market": "X",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "market": "1X",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "market": "X2",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "market": "O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "market": "O2.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "market": "O3.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "market": "GG",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "market": "MG 2-4 ospite",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "league": "AMINAZ",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "U3.5",
+    "total": 49,
+    "wins": 23,
+    "losses": 26
+  },
+  {
+    "league": "AMINAZ",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1",
+    "total": 45,
+    "wins": 34,
+    "losses": 11,
+    "missed_wins": 1
+  },
+  {
+    "league": "AMINAZ",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 casa",
+    "losses": 21,
+    "total": 42,
+    "wins": 21,
+    "missed_wins": 5
+  },
+  {
+    "league": "AMINAZ",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + U3.5",
+    "total": 45,
+    "wins": 17,
+    "losses": 28
+  },
+  {
+    "league": "AMINAZ",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1X",
+    "missed_wins": 42,
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "AMINAZ",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "12",
+    "missed_wins": 40,
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "AMINAZ",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "U1.5",
+    "missed_wins": 8
+  },
+  {
+    "league": "AMINAZ",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "U2.5",
+    "missed_wins": 17
+  },
+  {
+    "league": "AMINAZ",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "NG",
+    "missed_wins": 23
+  },
+  {
+    "league": "BRACAT2",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "U3.5",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "league": "BRACAT2",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "BRACAT2",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + U3.5",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "league": "BRACAT2",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 casa",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "BRACAT2",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1X",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRACAT2",
+    "market": "12",
+    "missed_wins": 1
+  },
+  {
+    "league": "BRACAT2",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O2.5",
+    "league": "BRACAT2",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O3.5",
+    "league": "BRACAT2",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "GG",
+    "league": "BRACAT2",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 totali",
+    "league": "BRACAT2",
+    "missed_wins": 1
+  },
+  {
+    "league": "BRACAT2",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "league": "BUL1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "BUL1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "U3.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "BUL1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 casa",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "BUL1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + U3.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "BUL1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1X",
+    "missed_wins": 1
+  },
+  {
+    "league": "BUL1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "12",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O1.5",
+    "league": "BUL1",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O2.5",
+    "league": "BUL1",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "GG",
+    "league": "BUL1",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 totali",
+    "league": "BUL1",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + O1.5",
+    "league": "BUL1",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1",
+    "league": "CPSUDAM",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "U3.5",
+    "league": "CPSUDAM",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + U3.5",
+    "league": "CPSUDAM",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1X",
+    "league": "CPSUDAM",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "12",
+    "league": "CPSUDAM",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O1.5",
+    "league": "CPSUDAM",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "U2.5",
+    "league": "CPSUDAM",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "NG",
+    "league": "CPSUDAM",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 totali",
+    "league": "CPSUDAM",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 casa",
+    "league": "CPSUDAM",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "CPSUDAM",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "league": "IRLLEI",
+    "market": "O2.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "league": "IRLLEI",
+    "market": "GG",
+    "family": "OFFENSIVA_PULITA",
+    "losses": 3,
+    "total": 3
+  },
+  {
+    "league": "IRLLEI",
+    "market": "O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "league": "IRLLEI",
+    "market": "MG 2-4 totali",
+    "family": "OFFENSIVA_PULITA",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "league": "IRLLEI",
+    "market": "DC 12 + O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "IRLLEI",
+    "market": "2",
+    "missed_wins": 3
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "IRLLEI",
+    "market": "X2",
+    "missed_wins": 3
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "IRLLEI",
+    "market": "12",
+    "missed_wins": 3
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "IRLLEI",
+    "market": "U3.5",
+    "missed_wins": 3
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "IRLLEI",
+    "market": "NG",
+    "missed_wins": 3
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "IRLLEI",
+    "market": "MG 2-4 ospite",
+    "missed_wins": 3
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "IRLLEI",
+    "market": "DC X2 + U3.5",
+    "missed_wins": 3
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "IRLLEI",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": null,
+    "market": "DC 12 + O1.5",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "market": "DC 12 + O1.5",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "market": "U3.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "market": "MG 2-4 casa",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "market": "X",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "market": "1X",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "market": "X2",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "market": "O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "market": "U2.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "market": "GG",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "market": "MG 2-4 totali",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "market": "DC 1X + U3.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "market": "DC X2 + U3.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMINAZ",
+    "market": "X",
+    "missed_wins": 8
+  },
+  {
+    "league": "AMINAZ",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "X2",
+    "missed_wins": 14
+  },
+  {
+    "league": "AMINAZ",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC X2 + U3.5",
+    "missed_wins": 10,
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "2",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "U3.5",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC X2 + U3.5",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 ospite",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "X",
+    "missed_wins": 2
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1X",
+    "missed_wins": 2
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "X2",
+    "missed_wins": 2
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O1.5",
+    "missed_wins": 2
+  },
+  {
+    "league": "NOR1",
+    "market": "O2.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O3.5",
+    "missed_wins": 2
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "GG",
+    "missed_wins": 2
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 totali",
+    "missed_wins": 2
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 casa",
+    "missed_wins": 2
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 2
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 2
+  },
+  {
+    "league": "AMINAZ",
+    "family": "RANGE_CONTROLLATO",
+    "market": "O1.5",
+    "losses": 2,
+    "total": 2,
+    "missed_wins": 11
+  },
+  {
+    "league": "AMINAZ",
+    "family": "RANGE_CONTROLLATO",
+    "market": "U3.5",
+    "total": 16,
+    "wins": 13,
+    "losses": 3
+  },
+  {
+    "league": "AMINAZ",
+    "family": "RANGE_CONTROLLATO",
+    "market": "DC 12 + O1.5",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "league": "AMINAZ",
+    "family": "RANGE_CONTROLLATO",
+    "market": "MG 2-4 totali",
+    "losses": 5,
+    "total": 16,
+    "wins": 11
+  },
+  {
+    "league": "AMINAZ",
+    "family": "RANGE_CONTROLLATO",
+    "market": "X",
+    "missed_wins": 13
+  },
+  {
+    "league": "AMINAZ",
+    "family": "RANGE_CONTROLLATO",
+    "market": "1X",
+    "missed_wins": 14
+  },
+  {
+    "league": "AMINAZ",
+    "family": "RANGE_CONTROLLATO",
+    "market": "X2",
+    "missed_wins": 15
+  },
+  {
+    "league": "AMINAZ",
+    "family": "RANGE_CONTROLLATO",
+    "market": "U1.5",
+    "missed_wins": 5
+  },
+  {
+    "league": "AMINAZ",
+    "family": "RANGE_CONTROLLATO",
+    "market": "U2.5",
+    "missed_wins": 13
+  },
+  {
+    "league": "AMINAZ",
+    "market": "NG",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 5
+  },
+  {
+    "league": "AMINAZ",
+    "market": "DC 1X + U3.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 2,
+    "total": 14,
+    "wins": 9,
+    "losses": 5
+  },
+  {
+    "league": "AMINAZ",
+    "market": "DC X2 + U3.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 12
+  },
+  {
+    "league": "IRL1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "X2",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "IRL1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "U3.5",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "league": "IRL1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "2",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "IRL1",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + U3.5",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "12",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "O1.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "O2.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "O3.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "GG",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "MG 2-4 totali",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "MG 2-4 ospite",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "DC X2 + O1.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "U3.5",
+    "family": "RANGE_CONTROLLATO",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "O1.5",
+    "family": "RANGE_CONTROLLATO",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "MG 2-4 totali",
+    "family": "RANGE_CONTROLLATO",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "DC 12 + O1.5",
+    "family": "RANGE_CONTROLLATO",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "1",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "1X",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "12",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "U1.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "U2.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "NG",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 2
+  },
+  {
+    "league": "IRL1",
+    "market": "DC 1X + U3.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 2
+  },
+  {
+    "league": "SVE1",
+    "market": "X2",
+    "family": "DOMINANZA_CON_TETTO",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "SVE1",
+    "market": "U3.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "league": "SVE1",
+    "market": "DC X2 + U3.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "league": "SVE1",
+    "market": "MG 2-4 ospite",
+    "family": "DOMINANZA_CON_TETTO",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "SVE1",
+    "market": "X",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "SVE1",
+    "market": "1X",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "SVE1",
+    "market": "O1.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "SVE1",
+    "market": "O2.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "SVE1",
+    "market": "O3.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "SVE1",
+    "market": "GG",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "SVE1",
+    "market": "MG 2-4 totali",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "SVE1",
+    "market": "MG 2-4 casa",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "SVE1",
+    "market": "DC 1X + O1.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "SVE1",
+    "market": "DC X2 + O1.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O1.5",
+    "league": "AMINAZ",
+    "missed_wins": 41
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O2.5",
+    "league": "AMINAZ",
+    "missed_wins": 32
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O3.5",
+    "league": "AMINAZ",
+    "missed_wins": 26
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "GG",
+    "league": "AMINAZ",
+    "missed_wins": 26
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + O1.5",
+    "league": "AMINAZ",
+    "missed_wins": 38
+  },
+  {
+    "league": "USA1",
+    "market": "O2.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "USA1",
+    "market": "GG",
+    "family": "OFFENSIVA_PULITA",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "league": "USA1",
+    "market": "DC 12 + O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "USA1",
+    "market": "1",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA1",
+    "market": "1X",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA1",
+    "market": "12",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA1",
+    "market": "O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA1",
+    "market": "U3.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA1",
+    "market": "NG",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA1",
+    "market": "MG 2-4 totali",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA1",
+    "market": "MG 2-4 casa",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA1",
+    "market": "DC 1X + U3.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA1",
+    "market": "DC 1X + O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "BRA1",
+    "market": "O2.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "BRA1",
+    "market": "GG",
+    "family": "OFFENSIVA_PULITA",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "BRA1",
+    "market": "O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "BRA1",
+    "market": "MG 2-4 totali",
+    "family": "OFFENSIVA_PULITA",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "BRA1",
+    "market": "DC 12 + O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "BRA1",
+    "market": "1",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "BRA1",
+    "market": "1X",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "BRA1",
+    "market": "12",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BRA1",
+    "market": "U3.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BRA1",
+    "market": "MG 2-4 casa",
+    "missed_wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BRA1",
+    "market": "DC 1X + U3.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BRA1",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA2",
+    "market": "U3.5",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA2",
+    "market": "NG",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA2",
+    "market": "U2.5",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA2",
+    "market": "1",
+    "missed_wins": 2
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA2",
+    "market": "1X",
+    "missed_wins": 3
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA2",
+    "market": "12",
+    "missed_wins": 2
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": null,
+    "market": "U1.5",
+    "missed_wins": 4
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA2",
+    "market": "U1.5",
+    "missed_wins": 3
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA2",
+    "market": "DC 1X + U3.5",
+    "missed_wins": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA3",
+    "market": "1",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA3",
+    "market": "U3.5",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA3",
+    "market": "DC 1X + U3.5",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA3",
+    "market": "MG 2-4 casa",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA3",
+    "market": "1X",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA3",
+    "market": "12",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA3",
+    "market": "O1.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA3",
+    "market": "U2.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA3",
+    "market": "NG",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA3",
+    "market": "MG 2-4 totali",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA3",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "CIL1",
+    "market": "1",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "CIL1",
+    "market": "U3.5",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "CIL1",
+    "market": "DC 1X + U3.5",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "CIL1",
+    "market": "MG 2-4 casa",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "CIL1",
+    "market": "1X",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "CIL1",
+    "market": "12",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "CIL1",
+    "market": "O1.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "CIL1",
+    "market": "O2.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "CIL1",
+    "market": "GG",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "CIL1",
+    "market": "MG 2-4 totali",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "CIL1",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 2
+  },
+  {
+    "league": "BRA3",
+    "market": "DC 12 + O1.5",
+    "family": "RANGE_CONTROLLATO",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "BRA3",
+    "market": "O1.5",
+    "family": "RANGE_CONTROLLATO",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "BRA3",
+    "market": "MG 2-4 totali",
+    "family": "RANGE_CONTROLLATO",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "BRA3",
+    "market": "1",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 1
+  },
+  {
+    "league": "BRA3",
+    "market": "1X",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 1
+  },
+  {
+    "league": "BRA3",
+    "family": "RANGE_CONTROLLATO",
+    "market": "12",
+    "missed_wins": 1
+  },
+  {
+    "league": "BRA3",
+    "market": "O2.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 1
+  },
+  {
+    "league": "BRA3",
+    "market": "U3.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 1
+  },
+  {
+    "league": "BRA3",
+    "market": "GG",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 1
+  },
+  {
+    "league": "BRA3",
+    "market": "MG 2-4 casa",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 1
+  },
+  {
+    "league": "BRA3",
+    "market": "DC 1X + U3.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 1
+  },
+  {
+    "league": "BRA3",
+    "market": "DC 1X + O1.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 1
+  },
+  {
+    "market": "O2.5",
+    "league": "BEL1",
+    "family": "OFFENSIVA_PULITA",
+    "losses": 9,
+    "total": 9
+  },
+  {
+    "market": "GG",
+    "league": "BEL1",
+    "family": "OFFENSIVA_PULITA",
+    "losses": 9,
+    "total": 9
+  },
+  {
+    "market": "O1.5",
+    "league": "BEL1",
+    "family": "OFFENSIVA_PULITA",
+    "losses": 9,
+    "total": 9
+  },
+  {
+    "market": "X",
+    "league": null,
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 16
+  },
+  {
+    "market": "X",
+    "league": "BEL1",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 9
+  },
+  {
+    "market": "1X",
+    "league": "BEL1",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 9
+  },
+  {
+    "market": "X2",
+    "league": "BEL1",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 9
+  },
+  {
+    "market": "U1.5",
+    "league": null,
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 29
+  },
+  {
+    "market": "U1.5",
+    "league": "BEL1",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 9
+  },
+  {
+    "market": "U2.5",
+    "league": null,
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 41
+  },
+  {
+    "market": "U2.5",
+    "league": "BEL1",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 9
+  },
+  {
+    "market": "U3.5",
+    "league": "BEL1",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 9
+  },
+  {
+    "market": "NG",
+    "league": "BEL1",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 9
+  },
+  {
+    "market": "DC 1X + U3.5",
+    "league": "BEL1",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 9
+  },
+  {
+    "market": "DC X2 + U3.5",
+    "league": "BEL1",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 9
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "market": "1",
+    "losses": 8,
+    "total": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "market": "MG 2-4 casa",
+    "losses": 8,
+    "total": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "market": "DC 1X + U3.5",
+    "total": 8,
+    "wins": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "market": "X",
+    "missed_wins": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "market": "1X",
+    "missed_wins": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "market": "X2",
+    "missed_wins": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "market": "O1.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "market": "U2.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "market": "U3.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "market": "GG",
+    "missed_wins": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "market": "MG 2-4 totali",
+    "missed_wins": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "market": "DC X2 + U3.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "SPA2",
+    "market": "O2.5",
+    "losses": 8,
+    "total": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "SPA2",
+    "market": "DC 12 + O1.5",
+    "losses": 8,
+    "total": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "SPA2",
+    "market": "O1.5",
+    "losses": 8,
+    "total": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "SPA2",
+    "market": "GG",
+    "losses": 8,
+    "total": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "SPA2",
+    "market": "1",
+    "missed_wins": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "SPA2",
+    "market": "1X",
+    "missed_wins": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "SPA2",
+    "market": "12",
+    "missed_wins": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "SPA2",
+    "market": "U1.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "SPA2",
+    "market": "U2.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "SPA2",
+    "market": "U3.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "SPA2",
+    "market": "NG",
+    "missed_wins": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "SPA2",
+    "market": "DC 1X + U3.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRA1",
+    "market": "O1.5",
+    "losses": 8,
+    "total": 8
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRA1",
+    "market": "U3.5",
+    "total": 8,
+    "wins": 8
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRA1",
+    "market": "MG 2-4 totali",
+    "losses": 8,
+    "total": 8
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRA1",
+    "market": "DC 12 + O1.5",
+    "losses": 8,
+    "total": 8
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRA1",
+    "market": "2",
+    "missed_wins": 8
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRA1",
+    "market": "X2",
+    "missed_wins": 8
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRA1",
+    "market": "12",
+    "missed_wins": 8
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRA1",
+    "market": "U1.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRA1",
+    "market": "U2.5",
+    "missed_wins": 8
+  },
+  {
+    "market": "NG",
+    "league": "BRA1",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 8
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRA1",
+    "market": "DC X2 + U3.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "market": "O2.5",
+    "losses": 8,
+    "total": 8,
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "market": "O1.5",
+    "losses": 8,
+    "total": 9,
+    "wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "market": "GG",
+    "losses": 8,
+    "total": 9,
+    "wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "market": "1",
+    "missed_wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "market": "1X",
+    "missed_wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "market": "12",
+    "missed_wins": 9
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "market": "U1.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "market": "U2.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "market": "U3.5",
+    "missed_wins": 9
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "market": "NG",
+    "missed_wins": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "market": "DC 1X + U3.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMINAZ",
+    "market": "MG 2-4 ospite",
+    "missed_wins": 13,
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "market": "2",
+    "missed_wins": 7
+  },
+  {
+    "market": "X2",
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "missed_wins": 7
+  },
+  {
+    "market": "DC X2 + U3.5",
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "missed_wins": 7
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMINAZ",
+    "market": "MG 2-4 totali",
+    "missed_wins": 29
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMINAZ",
+    "market": "DC 12 + O1.5",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMINAZ",
+    "market": "2",
+    "missed_wins": 4,
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "market": "U3.5",
+    "family": "INSTABILE",
+    "league": null,
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "market": "U3.5",
+    "family": "INSTABILE",
+    "league": "AMINAZ",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "market": "MG 2-4 totali",
+    "family": "INSTABILE",
+    "league": null,
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "market": "MG 2-4 totali",
+    "family": "INSTABILE",
+    "league": "AMINAZ",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "market": "O1.5",
+    "family": "INSTABILE",
+    "league": null,
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "market": "O1.5",
+    "family": "INSTABILE",
+    "league": "AMINAZ",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "market": "2",
+    "family": "INSTABILE",
+    "league": null,
+    "missed_wins": 1
+  },
+  {
+    "market": "2",
+    "family": "INSTABILE",
+    "league": "AMINAZ",
+    "missed_wins": 1
+  },
+  {
+    "market": "X2",
+    "family": "INSTABILE",
+    "league": null,
+    "missed_wins": 1
+  },
+  {
+    "market": "X2",
+    "family": "INSTABILE",
+    "league": "AMINAZ",
+    "missed_wins": 1
+  },
+  {
+    "market": "12",
+    "family": "INSTABILE",
+    "league": null,
+    "missed_wins": 1
+  },
+  {
+    "market": "12",
+    "family": "INSTABILE",
+    "league": "AMINAZ",
+    "missed_wins": 1
+  },
+  {
+    "market": "U1.5",
+    "family": "INSTABILE",
+    "league": null,
+    "missed_wins": 1
+  },
+  {
+    "market": "U1.5",
+    "family": "INSTABILE",
+    "league": "AMINAZ",
+    "missed_wins": 1
+  },
+  {
+    "market": "U2.5",
+    "family": "INSTABILE",
+    "league": null,
+    "missed_wins": 1
+  },
+  {
+    "market": "U2.5",
+    "family": "INSTABILE",
+    "league": "AMINAZ",
+    "missed_wins": 1
+  },
+  {
+    "market": "NG",
+    "family": "INSTABILE",
+    "league": null,
+    "missed_wins": 1
+  },
+  {
+    "market": "NG",
+    "family": "INSTABILE",
+    "league": "AMINAZ",
+    "missed_wins": 1
+  },
+  {
+    "market": "DC X2 + U3.5",
+    "family": "INSTABILE",
+    "league": null,
+    "missed_wins": 1
+  },
+  {
+    "market": "DC X2 + U3.5",
+    "family": "INSTABILE",
+    "league": "AMINAZ",
+    "missed_wins": 1
+  },
+  {
+    "league": "AMINAZ",
+    "market": "GG",
+    "family": "OFFENSIVA_PULITA",
+    "losses": 4,
+    "total": 4
+  },
+  {
+    "league": "AMINAZ",
+    "market": "O2.5",
+    "family": "OFFENSIVA_PULITA",
+    "losses": 4,
+    "total": 6,
+    "wins": 2
+  },
+  {
+    "league": "AMINAZ",
+    "market": "O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 6,
+    "wins": 6
+  },
+  {
+    "league": "AMINAZ",
+    "market": "2",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 4
+  },
+  {
+    "league": "AMINAZ",
+    "market": "X2",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 4
+  },
+  {
+    "league": "AMINAZ",
+    "market": "12",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 6
+  },
+  {
+    "league": "AMINAZ",
+    "market": "U2.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 4
+  },
+  {
+    "league": "AMINAZ",
+    "market": "U3.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 4
+  },
+  {
+    "league": "AMINAZ",
+    "market": "NG",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 6
+  },
+  {
+    "league": "AMINAZ",
+    "market": "MG 2-4 totali",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 4,
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "AMINAZ",
+    "market": "MG 2-4 ospite",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 4
+  },
+  {
+    "league": "AMINAZ",
+    "market": "DC X2 + U3.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 4
+  },
+  {
+    "league": "AMINAZ",
+    "market": "DC X2 + O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 4
+  },
+  {
+    "league": "AMINAZ",
+    "market": "GG",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 11
+  },
+  {
+    "league": "AMINAZ",
+    "market": "DC 1X + O1.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 11
+  },
+  {
+    "league": "AMINAZ",
+    "market": "DC X2 + O1.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 11
+  },
+  {
+    "league": "AUSREGU",
+    "market": "O2.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "AUSREGU",
+    "market": "GG",
+    "family": "OFFENSIVA_PULITA",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "AUSREGU",
+    "market": "O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "AUSREGU",
+    "market": "2",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 1
+  },
+  {
+    "market": "X2",
+    "family": "OFFENSIVA_PULITA",
+    "league": "AUSREGU",
+    "missed_wins": 1
+  },
+  {
+    "league": "AUSREGU",
+    "market": "12",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 1
+  },
+  {
+    "league": "AUSREGU",
+    "market": "O3.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 1
+  },
+  {
+    "league": "AUSREGU",
+    "market": "MG 2-4 casa",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 1
+  },
+  {
+    "league": "AUSREGU",
+    "market": "DC X2 + O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AUSREG",
+    "market": "2",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AUSREG",
+    "market": "MG 2-4 casa",
+    "losses": 1,
+    "total": 2,
+    "wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AUSREG",
+    "market": "U3.5",
+    "losses": 1,
+    "total": 1,
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AUSREG",
+    "market": "DC X2 + U3.5",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "league": "AUSREG",
+    "market": "X2",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 1
+  },
+  {
+    "market": "12",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AUSREG",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AUSREG",
+    "market": "O1.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AUSREG",
+    "market": "O2.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AUSREG",
+    "market": "O3.5",
+    "missed_wins": 1
+  },
+  {
+    "league": "AUSREG",
+    "market": "GG",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AUSREG",
+    "market": "MG 2-4 totali",
+    "missed_wins": 2
+  },
+  {
+    "league": "AUSREG",
+    "market": "MG 2-4 ospite",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AUSREG",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "1",
+    "losses": 3,
+    "total": 5,
+    "wins": 2,
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "DC 1X + U3.5",
+    "losses": 4,
+    "total": 8,
+    "wins": 4
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "U3.5",
+    "total": 9,
+    "wins": 8,
+    "losses": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "MG 2-4 casa",
+    "losses": 6,
+    "total": 9,
+    "wins": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "2",
+    "missed_wins": 2,
+    "total": 3,
+    "wins": 2,
+    "losses": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "X2",
+    "missed_wins": 6
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "12",
+    "missed_wins": 7
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "O1.5",
+    "missed_wins": 7
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "U2.5",
+    "missed_wins": 5
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "NG",
+    "missed_wins": 5
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "MG 2-4 totali",
+    "missed_wins": 6
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "MG 2-4 ospite",
+    "missed_wins": 4
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "DC X2 + U3.5",
+    "missed_wins": 4,
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 5
+  },
+  {
+    "market": "O2.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "missed_wins": 4
+  },
+  {
+    "market": "GG",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "missed_wins": 4
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "market": "U3.5",
+    "total": 3,
+    "wins": 2,
+    "losses": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "market": "MG 2-4 totali",
+    "total": 3,
+    "wins": 1,
+    "losses": 2
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "market": "O1.5",
+    "total": 3,
+    "wins": 2,
+    "losses": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "market": "DC 1X + U3.5",
+    "total": 3,
+    "wins": 1,
+    "losses": 2
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "market": "1",
+    "missed_wins": 1
+  },
+  {
+    "market": "1X",
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "missed_wins": 1
+  },
+  {
+    "market": "12",
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "missed_wins": 3
+  },
+  {
+    "market": "O2.5",
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "missed_wins": 2
+  },
+  {
+    "market": "GG",
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "missed_wins": 2
+  },
+  {
+    "market": "MG 2-4 casa",
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "missed_wins": 2
+  },
+  {
+    "market": "DC 1X + O1.5",
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "missed_wins": 1
+  },
+  {
+    "market": "2",
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "missed_wins": 2
+  },
+  {
+    "market": "X2",
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "missed_wins": 2
+  },
+  {
+    "market": "O3.5",
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "market": "MG 2-4 ospite",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "market": "U1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "market": "U2.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "market": "NG",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "market": "DC X2 + U3.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "1X",
+    "missed_wins": 5
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "U1.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 4
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "market": "X",
+    "missed_wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "O2.5",
+    "total": 17,
+    "wins": 7,
+    "losses": 10
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "GG",
+    "total": 17,
+    "wins": 9,
+    "losses": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "O1.5",
+    "total": 11,
+    "wins": 10,
+    "losses": 1,
+    "missed_wins": 4
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "MG 2-4 totali",
+    "total": 17,
+    "wins": 14,
+    "losses": 3
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "1",
+    "missed_wins": 9
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "1X",
+    "missed_wins": 15
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "12",
+    "missed_wins": 11
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "O3.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "MG 2-4 casa",
+    "missed_wins": 7
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 12
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING1",
+    "market": "1",
+    "total": 6,
+    "wins": 1,
+    "losses": 5
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING1",
+    "market": "MG 2-4 casa",
+    "total": 8,
+    "wins": 1,
+    "losses": 7
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING1",
+    "market": "DC 1X + U3.5",
+    "losses": 4,
+    "total": 6,
+    "wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING1",
+    "market": "1X",
+    "missed_wins": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING1",
+    "market": "12",
+    "missed_wins": 6
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING1",
+    "market": "O1.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING1",
+    "market": "O2.5",
+    "missed_wins": 6,
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING1",
+    "market": "O3.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING1",
+    "market": "GG",
+    "missed_wins": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING1",
+    "market": "MG 2-4 ospite",
+    "missed_wins": 6
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING1",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 3
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "DC 12 + O1.5",
+    "losses": 4,
+    "total": 7,
+    "wins": 3
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "U1.5",
+    "missed_wins": 3
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "U2.5",
+    "missed_wins": 10
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "U3.5",
+    "missed_wins": 15
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "NG",
+    "missed_wins": 8
+  },
+  {
+    "league": "ING1",
+    "market": "DC 1X + U3.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 13
+  },
+  {
+    "league": "ING1",
+    "market": "U3.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "losses": 1,
+    "total": 5,
+    "missed_wins": 2,
+    "wins": 4
+  },
+  {
+    "league": "ING1",
+    "market": "2",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 3,
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "ING1",
+    "market": "X2",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 7
+  },
+  {
+    "league": "ING1",
+    "market": "MG 2-4 totali",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 7
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING1",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 7
+  },
+  {
+    "league": "ING1",
+    "market": "X",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 6
+  },
+  {
+    "league": "ING1",
+    "market": "X2",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 8
+  },
+  {
+    "market": "DC X2 + U3.5",
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "missed_wins": 7
+  },
+  {
+    "market": "DC X2 + O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "missed_wins": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "MG 2-4 ospite",
+    "missed_wins": 3
+  },
+  {
+    "market": "O3.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ITA1",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING2",
+    "market": "U3.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING2",
+    "market": "MG 2-4 casa",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING2",
+    "market": "DC X2 + U3.5",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING2",
+    "market": "NG",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING2",
+    "market": "1",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING2",
+    "market": "1X",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING2",
+    "market": "12",
+    "missed_wins": 1
+  },
+  {
+    "market": "U1.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING2",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING2",
+    "market": "U2.5",
+    "missed_wins": 1
+  },
+  {
+    "market": "DC 1X + U3.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING2",
+    "missed_wins": 1
+  },
+  {
+    "league": "ING1",
+    "market": "X",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "ING1",
+    "market": "U2.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING1",
+    "market": "DC X2 + U3.5",
+    "missed_wins": 4,
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "market": "2",
+    "missed_wins": 2
+  },
+  {
+    "league": "AUSREG",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "AUSREG",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + U3.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "AUSREG",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1X",
+    "missed_wins": 1
+  },
+  {
+    "league": "AUSREG",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "MG 2-4 totali",
+    "league": "BOL1",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "MG 2-4 ospite",
+    "league": "BOL1",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "DC X2 + O1.5",
+    "league": "BOL1",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "X",
+    "league": null,
+    "missed_wins": 3
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "X",
+    "league": "BRA2",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "X2",
+    "league": null,
+    "missed_wins": 3
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "X2",
+    "league": "BRA2",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "DC X2 + U3.5",
+    "league": null,
+    "missed_wins": 2,
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "DC X2 + U3.5",
+    "league": "BRA2",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "U3.5",
+    "league": "BRA3",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "NG",
+    "league": "BRA3",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "U2.5",
+    "league": "BRA3",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "MG 2-4 casa",
+    "league": "BRA3",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA3",
+    "market": "X",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA3",
+    "market": "1X",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA3",
+    "market": "X2",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA3",
+    "market": "O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA3",
+    "market": "O2.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": null,
+    "market": "O3.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA3",
+    "market": "O3.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA3",
+    "market": "GG",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "MG 2-4 totali",
+    "league": "BRA3",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "MG 2-4 ospite",
+    "league": null,
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "market": "MG 2-4 ospite",
+    "league": "BRA3",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA3",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": null,
+    "market": "DC X2 + O1.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA3",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "market": "U3.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "market": "U2.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "market": "NG",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": null,
+    "market": "DC 12 + U3.5",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "market": "DC 12 + U3.5",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "market": "X",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "market": "1X",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "market": "X2",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "market": "O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "market": "GG",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "market": "MG 2-4 totali",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "market": "DC 1X + U3.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "market": "DC X2 + U3.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "league": "TTOLONE",
+    "market": "1",
+    "family": "DOMINANZA_CON_TETTO",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "TTOLONE",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 casa",
+    "total": 2,
+    "wins": 1,
+    "losses": 1
+  },
+  {
+    "league": "TTOLONE",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + U3.5",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "league": "TTOLONE",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1X",
+    "missed_wins": 1
+  },
+  {
+    "league": "TTOLONE",
+    "market": "12",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "TTOLONE",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O1.5",
+    "missed_wins": 2
+  },
+  {
+    "league": "TTOLONE",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O2.5",
+    "missed_wins": 2
+  },
+  {
+    "league": "TTOLONE",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O3.5",
+    "missed_wins": 2
+  },
+  {
+    "league": "TTOLONE",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "GG",
+    "missed_wins": 2
+  },
+  {
+    "league": "TTOLONE",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 totali",
+    "missed_wins": 1
+  },
+  {
+    "league": "TTOLONE",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "league": "ITA3",
+    "family": "RANGE_CONTROLLATO",
+    "market": "U3.5",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "ITA3",
+    "family": "RANGE_CONTROLLATO",
+    "market": "MG 2-4 totali",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "ITA3",
+    "family": "RANGE_CONTROLLATO",
+    "market": "O1.5",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "ITA3",
+    "family": "RANGE_CONTROLLATO",
+    "market": "DC 1X + U3.5",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "ITA3",
+    "family": "RANGE_CONTROLLATO",
+    "market": "NG",
+    "losses": 2,
+    "total": 2
+  },
+  {
+    "league": "ITA3",
+    "family": "RANGE_CONTROLLATO",
+    "market": "X",
+    "missed_wins": 2
+  },
+  {
+    "league": "ITA3",
+    "family": "RANGE_CONTROLLATO",
+    "market": "1X",
+    "missed_wins": 2
+  },
+  {
+    "league": "ITA3",
+    "family": "RANGE_CONTROLLATO",
+    "market": "X2",
+    "missed_wins": 2
+  },
+  {
+    "league": "ITA3",
+    "family": "RANGE_CONTROLLATO",
+    "market": "U2.5",
+    "missed_wins": 2
+  },
+  {
+    "league": "ITA3",
+    "family": "RANGE_CONTROLLATO",
+    "market": "GG",
+    "missed_wins": 2
+  },
+  {
+    "league": "ITA3",
+    "family": "RANGE_CONTROLLATO",
+    "market": "DC X2 + U3.5",
+    "missed_wins": 2
+  },
+  {
+    "league": "ITA3",
+    "family": "RANGE_CONTROLLATO",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 2
+  },
+  {
+    "league": "ITA3",
+    "family": "RANGE_CONTROLLATO",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "GG",
+    "league": "AMIF",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "O2.5",
+    "league": "AMIF",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "MG 2-4 totali",
+    "league": "AMIF",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "O1.5",
+    "league": "AMIF",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "DC 12 + O1.5",
+    "league": "AMIF",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "1",
+    "league": "AMIF",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "1X",
+    "league": "AMIF",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "12",
+    "league": "AMIF",
+    "missed_wins": 1
+  },
+  {
+    "league": "AMIF",
+    "family": "OFFENSIVA_PULITA",
+    "market": "U1.5",
+    "missed_wins": 1
+  },
+  {
+    "league": "AMIF",
+    "family": "OFFENSIVA_PULITA",
+    "market": "U2.5",
+    "missed_wins": 1
+  },
+  {
+    "league": "AMIF",
+    "family": "OFFENSIVA_PULITA",
+    "market": "U3.5",
+    "missed_wins": 1
+  },
+  {
+    "league": "AMIF",
+    "family": "OFFENSIVA_PULITA",
+    "market": "NG",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "DC 1X + U3.5",
+    "league": "AMIF",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "1",
+    "league": "AMINAZ",
+    "missed_wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "1X",
+    "league": "AMINAZ",
+    "missed_wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "O3.5",
+    "league": "AMINAZ",
+    "missed_wins": 2
+  },
+  {
+    "league": "AMINAZ",
+    "market": "MG 2-4 casa",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "market": "DC 1X + O1.5",
+    "league": "AMINAZ",
+    "missed_wins": 2
+  },
+  {
+    "league": "ARGCP",
+    "market": "U3.5",
+    "family": "CHIUSA_PROTETTA",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "ARGCP",
+    "market": "U2.5",
+    "family": "CHIUSA_PROTETTA",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "ARGCP",
+    "market": "NG",
+    "family": "CHIUSA_PROTETTA",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "league": "ARGCP",
+    "market": "DC X2 + U3.5",
+    "family": "CHIUSA_PROTETTA",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "league": "ARGCP",
+    "market": "1",
+    "family": "CHIUSA_PROTETTA",
+    "missed_wins": 1
+  },
+  {
+    "league": "ARGCP",
+    "market": "1X",
+    "family": "CHIUSA_PROTETTA",
+    "missed_wins": 1
+  },
+  {
+    "league": "ARGCP",
+    "market": "12",
+    "family": "CHIUSA_PROTETTA",
+    "missed_wins": 1
+  },
+  {
+    "league": "ARGCP",
+    "market": "U1.5",
+    "family": "CHIUSA_PROTETTA",
+    "missed_wins": 1
+  },
+  {
+    "league": "ARGCP",
+    "market": "DC 1X + U3.5",
+    "family": "CHIUSA_PROTETTA",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "1",
+    "league": "COLCP",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 casa",
+    "league": "COLCP",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + U3.5",
+    "league": "COLCP",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "U3.5",
+    "league": "COLCP",
+    "total": 2,
+    "wins": 2
+  },
+  {
+    "league": "COLCP",
+    "market": "1X",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "league": "COLCP",
+    "market": "12",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O1.5",
+    "league": "COLCP",
+    "missed_wins": 2
+  },
+  {
+    "league": "COLCP",
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "O2.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "GG",
+    "league": "COLCP",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "MG 2-4 totali",
+    "league": "COLCP",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "DC 1X + O1.5",
+    "league": "COLCP",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "2",
+    "league": "TTOLONE",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "X2",
+    "league": "TTOLONE",
+    "missed_wins": 1
+  },
+  {
+    "league": "TTOLONE",
+    "market": "MG 2-4 ospite",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 1
+  },
+  {
+    "league": "TTOLONE",
+    "market": "DC X2 + O1.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 1
+  },
+  {
+    "market": "1",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "market": "U3.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "losses": 2,
+    "total": 3,
+    "wins": 1
+  },
+  {
+    "market": "MG 2-4 casa",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "total": 3,
+    "wins": 2,
+    "losses": 1
+  },
+  {
+    "market": "DC 1X + U3.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "losses": 2,
+    "total": 3,
+    "wins": 1
+  },
+  {
+    "market": "1X",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "missed_wins": 3
+  },
+  {
+    "market": "12",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "missed_wins": 3
+  },
+  {
+    "market": "O1.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "missed_wins": 2
+  },
+  {
+    "market": "O2.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "missed_wins": 2
+  },
+  {
+    "market": "O3.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "missed_wins": 2
+  },
+  {
+    "market": "NG",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "missed_wins": 3
+  },
+  {
+    "market": "MG 2-4 totali",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "missed_wins": 2
+  },
+  {
+    "market": "DC 1X + O1.5",
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "missed_wins": 2
+  },
+  {
+    "market": "2",
+    "league": "SVECP",
+    "family": "DOMINANZA_CON_TETTO",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "market": "MG 2-4 casa",
+    "league": "SVECP",
+    "family": "DOMINANZA_CON_TETTO",
+    "losses": 3,
+    "total": 3
+  },
+  {
+    "market": "U3.5",
+    "league": "SVECP",
+    "family": "DOMINANZA_CON_TETTO",
+    "losses": 2,
+    "total": 3,
+    "wins": 1
+  },
+  {
+    "market": "DC X2 + U3.5",
+    "league": "SVECP",
+    "family": "DOMINANZA_CON_TETTO",
+    "losses": 2,
+    "total": 3,
+    "wins": 1
+  },
+  {
+    "market": "X2",
+    "league": "SVECP",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 3
+  },
+  {
+    "market": "12",
+    "league": "SVECP",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 3
+  },
+  {
+    "market": "O1.5",
+    "league": "SVECP",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "market": "O2.5",
+    "league": "SVECP",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "market": "O3.5",
+    "league": "SVECP",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "market": "NG",
+    "league": "SVECP",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 3
+  },
+  {
+    "market": "DC X2 + O1.5",
+    "league": "SVECP",
+    "family": "DOMINANZA_CON_TETTO",
+    "missed_wins": 2
+  },
+  {
+    "market": "O2.5",
+    "league": "AMINAZ",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 3
+  },
+  {
+    "market": "O3.5",
+    "league": "AMINAZ",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 3
+  },
+  {
+    "market": "MG 2-4 casa",
+    "league": "AMINAZ",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 3
+  },
+  {
+    "market": "MG 2-4 ospite",
+    "league": "AMINAZ",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 3
+  },
+  {
+    "market": "2",
+    "family": "RANGE_CONTROLLATO",
+    "league": "AMINAZ",
+    "missed_wins": 2
+  },
+  {
+    "market": "12",
+    "family": "RANGE_CONTROLLATO",
+    "league": "AMINAZ",
+    "missed_wins": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "market": "U1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "market": "U2.5",
+    "missed_wins": 1
+  },
+  {
+    "league": "USA4",
+    "market": "O2.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 3,
+    "wins": 2,
+    "losses": 1
+  },
+  {
+    "league": "USA4",
+    "market": "GG",
+    "family": "OFFENSIVA_PULITA",
+    "total": 3,
+    "wins": 2,
+    "losses": 1
+  },
+  {
+    "league": "USA4",
+    "market": "O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "league": "USA4",
+    "market": "MG 2-4 totali",
+    "family": "OFFENSIVA_PULITA",
+    "total": 3,
+    "wins": 3
+  },
+  {
+    "league": "USA4",
+    "market": "X",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 1
+  },
+  {
+    "league": "USA4",
+    "market": "1X",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA4",
+    "market": "X2",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA4",
+    "market": "O3.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 1
+  },
+  {
+    "league": "USA4",
+    "market": "MG 2-4 casa",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA4",
+    "market": "MG 2-4 ospite",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA4",
+    "market": "DC 1X + O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "league": "USA4",
+    "market": "DC X2 + O1.5",
+    "family": "OFFENSIVA_PULITA",
+    "missed_wins": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMINAZ",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 8
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "AMINAZ",
+    "market": "1",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "U1.5",
+    "league": "SVECP",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "market": "U2.5",
+    "league": "SVECP",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "2786",
+    "market": "U3.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "2786",
+    "market": "MG 2-4 totali",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "2786",
+    "market": "DC 1X + U3.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "2786",
+    "market": "X",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "2786",
+    "market": "1X",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "2786",
+    "market": "X2",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "2786",
+    "market": "U1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "2786",
+    "market": "U2.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "2786",
+    "market": "NG",
+    "missed_wins": 1
+  },
+  {
+    "league": "2786",
+    "market": "DC X2 + U3.5",
+    "family": "RANGE_CONTROLLATO",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA2",
+    "market": "2",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA2",
+    "market": "U3.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA2",
+    "market": "MG 2-4 ospite",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA2",
+    "market": "DC X2 + U3.5",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA2",
+    "market": "X",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA2",
+    "market": "1X",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA2",
+    "market": "X2",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA2",
+    "market": "O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA2",
+    "market": "U2.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA2",
+    "market": "GG",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA2",
+    "market": "MG 2-4 totali",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA2",
+    "market": "DC 1X + U3.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA2",
+    "market": "DC 1X + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "USA2",
+    "market": "DC X2 + O1.5",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "USA4",
+    "market": "2",
+    "missed_wins": 1
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "USA4",
+    "market": "12",
+    "missed_wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "USA4",
+    "market": "U3.5",
+    "missed_wins": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "USA4",
+    "market": "DC X2 + U3.5",
+    "missed_wins": 1
+  },
+  {
+    "market": "1",
+    "family": "OFFENSIVA_PULITA",
+    "league": "USA4",
+    "missed_wins": 1
+  },
+  {
+    "market": "U2.5",
+    "family": "OFFENSIVA_PULITA",
+    "league": "USA4",
+    "missed_wins": 1
+  },
+  {
+    "market": "NG",
+    "family": "OFFENSIVA_PULITA",
+    "league": "USA4",
+    "missed_wins": 1
+  },
+  {
+    "market": "DC 1X + U3.5",
+    "family": "OFFENSIVA_PULITA",
+    "league": "USA4",
+    "missed_wins": 1
+  },
+  {
+    "market": "U3.5",
+    "family": "CHIUSA_PROTETTA",
+    "league": "2797",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "market": "U2.5",
+    "family": "CHIUSA_PROTETTA",
+    "league": "2797",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "market": "NG",
+    "family": "CHIUSA_PROTETTA",
+    "league": "2797",
+    "total": 1,
+    "wins": 1
+  },
+  {
+    "market": "DC X2 + U3.5",
+    "family": "CHIUSA_PROTETTA",
+    "league": "2797",
+    "losses": 1,
+    "total": 1
+  },
+  {
+    "market": "1",
+    "family": "CHIUSA_PROTETTA",
+    "league": "2797",
+    "missed_wins": 1
+  },
+  {
+    "market": "1X",
+    "family": "CHIUSA_PROTETTA",
+    "league": "2797",
+    "missed_wins": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "2797",
+    "market": "12",
+    "missed_wins": 1
+  },
+  {
+    "league": "2797",
+    "market": "O1.5",
+    "family": "CHIUSA_PROTETTA",
+    "missed_wins": 1
+  },
+  {
+    "league": "2797",
+    "market": "O2.5",
+    "family": "CHIUSA_PROTETTA",
+    "missed_wins": 1
+  },
+  {
+    "market": "MG 2-4 totali",
+    "family": "CHIUSA_PROTETTA",
+    "league": "2797",
+    "missed_wins": 1
+  },
+  {
+    "league": "2797",
+    "market": "MG 2-4 casa",
+    "family": "CHIUSA_PROTETTA",
+    "missed_wins": 1
+  },
+  {
+    "league": "2797",
+    "market": "DC 1X + U3.5",
+    "family": "CHIUSA_PROTETTA",
+    "missed_wins": 1
+  },
+  {
+    "league": "2797",
+    "market": "DC 1X + O1.5",
+    "family": "CHIUSA_PROTETTA",
+    "missed_wins": 1
+  }
+]

@@ -1174,6 +1174,36 @@ async def get_upload_skipped():
 from fastapi.responses import FileResponse  # noqa: E402  (colocated for clarity)
 
 
+@api_router.get("/admin/db-info")
+async def admin_db_info():
+    """Espone la config MongoDB effettivamente in uso dal processo backend.
+    Utile per diagnosticare divergenze con script esterni di export.
+    """
+    from pathlib import Path as _P
+    # server info: quale istanza mongo stiamo interrogando davvero
+    try:
+        server_info = await client.server_info()
+        server_key = f"{server_info.get('host', '?')}:{server_info.get('version', '?')}"
+    except Exception as e:
+        server_key = f"error: {e}"
+    # Collections + counts (ground truth dal backend live)
+    counts = {}
+    for coll_name in ["matches", "predictions", "market_scores",
+                      "family_counters", "settings", "upload_skipped"]:
+        try:
+            counts[coll_name] = await db[coll_name].count_documents({})
+        except Exception as e:
+            counts[coll_name] = f"error: {e}"
+    return {
+        "mongo_url": os.environ["MONGO_URL"],
+        "db_name": os.environ["DB_NAME"],
+        "mongo_server": server_key,
+        "collections": counts,
+        "env_file": str(_P(ROOT_DIR) / ".env"),
+        "process_pid": os.getpid(),
+    }
+
+
 @api_router.get("/admin/exports/list")
 async def admin_exports_list():
     """List available export ZIP files under backend/exports/."""

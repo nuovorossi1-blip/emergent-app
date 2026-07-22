@@ -1,0 +1,14 @@
+[
+  {
+    "key": "llm_model",
+    "value": "deepseek-chat"
+  },
+  {
+    "key": "ai_spent",
+    "value": 0.5120000000000027
+  },
+  {
+    "key": "ai_count",
+    "value": 323
+  }
+]

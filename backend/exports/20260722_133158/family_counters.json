@@ -1,0 +1,366 @@
+[
+  {
+    "league": null,
+    "family": "RANGE_CONTROLLATO",
+    "matches": 49
+  },
+  {
+    "league": null,
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 126
+  },
+  {
+    "league": null,
+    "family": "CHIUSA_PROTETTA",
+    "matches": 9
+  },
+  {
+    "league": null,
+    "family": "OFFENSIVA_SPORCA",
+    "matches": 1
+  },
+  {
+    "league": null,
+    "family": "OFFENSIVA_PULITA",
+    "matches": 69
+  },
+  {
+    "league": "AUT1",
+    "family": "RANGE_CONTROLLATO",
+    "matches": 1
+  },
+  {
+    "league": "SVE2",
+    "family": "RANGE_CONTROLLATO",
+    "matches": 1
+  },
+  {
+    "league": "AMINAZ",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 50
+  },
+  {
+    "league": "GER2",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 1
+  },
+  {
+    "league": "CPSUDAM",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 8
+  },
+  {
+    "league": "CPLIB",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 3
+  },
+  {
+    "league": "CPLIB",
+    "family": "RANGE_CONTROLLATO",
+    "matches": 1
+  },
+  {
+    "league": "CPLIB",
+    "family": "CHIUSA_PROTETTA",
+    "matches": 1
+  },
+  {
+    "league": "USA2",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 2
+  },
+  {
+    "league": "BRA1",
+    "family": "RANGE_CONTROLLATO",
+    "matches": 11
+  },
+  {
+    "league": "BRA1",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 1
+  },
+  {
+    "league": "2787",
+    "family": "OFFENSIVA_SPORCA",
+    "matches": 1
+  },
+  {
+    "league": "ITA1",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 10
+  },
+  {
+    "league": "ARG1",
+    "family": "RANGE_CONTROLLATO",
+    "matches": 1
+  },
+  {
+    "league": "BRA2",
+    "family": "RANGE_CONTROLLATO",
+    "matches": 1
+  },
+  {
+    "league": "BEL1",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 1
+  },
+  {
+    "league": "BEL1",
+    "family": "OFFENSIVA_PULITA",
+    "matches": 11
+  },
+  {
+    "league": "ARG1RS",
+    "family": "RANGE_CONTROLLATO",
+    "matches": 1
+  },
+  {
+    "league": "ARG1RS",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 1
+  },
+  {
+    "league": "USA3",
+    "family": "OFFENSIVA_PULITA",
+    "matches": 1
+  },
+  {
+    "league": "USA3",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 3
+  },
+  {
+    "league": "LIT1",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 1
+  },
+  {
+    "league": "GER2",
+    "family": "OFFENSIVA_PULITA",
+    "matches": 1
+  },
+  {
+    "league": "ITA1",
+    "family": "OFFENSIVA_PULITA",
+    "matches": 3
+  },
+  {
+    "league": "2797",
+    "family": "RANGE_CONTROLLATO",
+    "matches": 2
+  },
+  {
+    "league": "BRACAT2",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 2
+  },
+  {
+    "league": "BRACPV",
+    "family": "CHIUSA_PROTETTA",
+    "matches": 1
+  },
+  {
+    "league": "BARB1",
+    "family": "OFFENSIVA_PULITA",
+    "matches": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRACPF",
+    "matches": 3
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "BRACPNE",
+    "matches": 5
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "BRAU20",
+    "matches": 1
+  },
+  {
+    "league": "BUL1",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 1
+  },
+  {
+    "league": "IRLLEI",
+    "family": "OFFENSIVA_PULITA",
+    "matches": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "EUCHL",
+    "matches": 1
+  },
+  {
+    "league": "NOR1",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 2
+  },
+  {
+    "league": "AMINAZ",
+    "family": "RANGE_CONTROLLATO",
+    "matches": 16
+  },
+  {
+    "league": "IRL1",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 2
+  },
+  {
+    "league": "IRL1",
+    "family": "RANGE_CONTROLLATO",
+    "matches": 2
+  },
+  {
+    "league": "SVE1",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 2
+  },
+  {
+    "league": "USA1",
+    "family": "OFFENSIVA_PULITA",
+    "matches": 2
+  },
+  {
+    "league": "BRA1",
+    "family": "OFFENSIVA_PULITA",
+    "matches": 2
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA2",
+    "matches": 3
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "CIL1",
+    "matches": 2
+  },
+  {
+    "league": "BRA3",
+    "family": "RANGE_CONTROLLATO",
+    "matches": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "SPA2",
+    "matches": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "SPA2",
+    "matches": 8
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "BOL1",
+    "matches": 9
+  },
+  {
+    "family": "INSTABILE",
+    "matches": 1
+  },
+  {
+    "family": "INSTABILE",
+    "league": "AMINAZ",
+    "matches": 1
+  },
+  {
+    "league": "AMINAZ",
+    "family": "OFFENSIVA_PULITA",
+    "matches": 6
+  },
+  {
+    "league": "AUSREGU",
+    "family": "OFFENSIVA_PULITA",
+    "matches": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AUSREG",
+    "matches": 2
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "ITA1",
+    "matches": 3
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "ING1",
+    "matches": 17
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING1",
+    "matches": 8
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "ING2",
+    "matches": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "BRA3",
+    "matches": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "ECU1",
+    "matches": 1
+  },
+  {
+    "league": "TTOLONE",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 2
+  },
+  {
+    "league": "ITA3",
+    "family": "RANGE_CONTROLLATO",
+    "matches": 2
+  },
+  {
+    "family": "OFFENSIVA_PULITA",
+    "league": "AMIF",
+    "matches": 1
+  },
+  {
+    "league": "ARGCP",
+    "family": "CHIUSA_PROTETTA",
+    "matches": 1
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "COLCP",
+    "matches": 2
+  },
+  {
+    "family": "DOMINANZA_CON_TETTO",
+    "league": "AMIU21",
+    "matches": 3
+  },
+  {
+    "league": "SVECP",
+    "family": "DOMINANZA_CON_TETTO",
+    "matches": 3
+  },
+  {
+    "league": "USA4",
+    "family": "OFFENSIVA_PULITA",
+    "matches": 3
+  },
+  {
+    "family": "RANGE_CONTROLLATO",
+    "league": "2786",
+    "matches": 1
+  },
+  {
+    "family": "CHIUSA_PROTETTA",
+    "league": "2797",
+    "matches": 1
+  }
+]

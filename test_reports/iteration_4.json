@@ -1,0 +1,35 @@
+{
+  "summary": "Backend-only testing of admin diagnostic endpoints added in this session (/api/admin/db-info, /api/admin/exports/list, /api/admin/exports/{filename}) plus regression on /api/matches, /api/matches/days, /api/ml/stats, /api/upload/skipped. Created pytest suite /app/backend/tests/test_admin_db_info.py with 15 tests. All 15 PASSED (100%). db-info returns exact match with /app/backend/.env (mongo_url=mongodb://localhost:27017, db_name=test_database) and confirms real DB state (matches=0, predictions=0, market_scores=780, family_counters=73, settings=3, upload_skipped=1, pid=1809). Exports list returns >=1 ZIP (3 available including scoreblast_export_latest.zip, ~7.3KB). Download endpoint returns 200 with content-type application/zip. Path traversal blocked correctly for both URL-encoded (..%2F.env -> 400) and literal (../.env -> 404 via ingress) variants; no .env content leaked in either case. Missing files return 404. All regression endpoints respond 200.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_admin_db_info.py",
+    "/app/test_reports/pytest/admin_db_info_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py line 1198-1199: uses os.environ[\"MONGO_URL\"] / os.environ[\"DB_NAME\"] with hard subscript — will raise KeyError if unset. Currently fine because .env is loaded, but consider os.environ.get with a clear 5xx if missing to avoid opaque server errors.",
+    "server.py line 1237: path-traversal check is string-based ('/', '..', '\\\\' in filename). This works correctly here because FastAPI passes the raw path segment; verified both %2F-encoded and literal ../ requests are blocked. Consider also resolving target and checking that resolved path is inside exports_dir as defense-in-depth.",
+    "server.py is 2058 lines — exceeds the 700-line guideline. Consider splitting admin/matches/ml routers into separate modules."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_admin_db_info.py (new)"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "N/A (skipped per request)"
+  },
+  "seed_data_creation": "None. Verified against existing DB state (market_scores=780, matches=0, predictions=0, family_counters=73, settings=3, upload_skipped=1) which matches the expected reality documented in the task.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Test suite /app/backend/tests/test_admin_db_info.py covers all admin diagnostic endpoints and can be reused for regression. Uses http://localhost:8001 as BASE_URL. Reads /app/backend/.env directly to assert equality with /api/admin/db-info response. Real DB state expected: matches=0, predictions=0, market_scores=780. If those change, update TestAdminDbInfo.test_db_info_counts_reality accordingly.",
+  "rca_of_issue": "Not a bug — user's suspicion of divergent DB was rooted out. Both the export script and backend runtime use the same MONGO_URL=mongodb://localhost:27017 and DB_NAME=test_database. /api/admin/db-info confirms process_pid=1809 (single backend), mongo_server 7.0.37, and true counts. The new endpoint gives users/scripts a reliable fingerprint of the live backend's DB config so any future divergence (e.g., a stale replica or different DB name) can be diagnosed instantly by comparing script config vs HTTP response."
+}
