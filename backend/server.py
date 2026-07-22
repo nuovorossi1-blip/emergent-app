@@ -1170,6 +1170,53 @@ async def get_upload_skipped():
     return doc
 
 
+# === DIAGNOSTIC EXPORT (temporary admin endpoint) ===============================
+from fastapi.responses import FileResponse  # noqa: E402  (colocated for clarity)
+
+
+@api_router.get("/admin/exports/list")
+async def admin_exports_list():
+    """List available export ZIP files under backend/exports/."""
+    from pathlib import Path as _P
+    exports_dir = _P(__file__).resolve().parent / "exports"
+    if not exports_dir.exists():
+        return {"exports": [], "message": "No exports found. Run scripts/export_collections.py first."}
+    zips = sorted(
+        [p for p in exports_dir.glob("scoreblast_export_*.zip")],
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+    return {
+        "exports": [
+            {
+                "name": p.name,
+                "url": f"/api/admin/exports/{p.name}",
+                "size_bytes": p.stat().st_size,
+                "modified_at": datetime.fromtimestamp(p.stat().st_mtime, tz=timezone.utc).isoformat(),
+            }
+            for p in zips
+        ]
+    }
+
+
+@api_router.get("/admin/exports/{filename}")
+async def admin_exports_download(filename: str):
+    """Serve export ZIP or JSON files from backend/exports/. Prevents path traversal."""
+    from pathlib import Path as _P
+    # Sanitize: block traversal and only allow expected filenames
+    if "/" in filename or ".." in filename or "\\" in filename:
+        raise HTTPException(400, "Invalid filename")
+    exports_dir = _P(__file__).resolve().parent / "exports"
+    target = exports_dir / filename
+    if not target.exists() or not target.is_file():
+        raise HTTPException(404, f"File not found: {filename}")
+    media = "application/zip" if filename.endswith(".zip") else "application/json"
+    return FileResponse(str(target), media_type=media, filename=filename)
+
+
+
+
+
 @api_router.get("/matches")
 async def get_matches(day: Optional[str] = None, q: Optional[str] = None):
     query: Dict[str, Any] = {}

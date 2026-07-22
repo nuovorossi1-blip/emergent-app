@@ -1,0 +1,37 @@
+{
+  "exported_at": "2026-07-22T12:57:48.505224+00:00",
+  "mongo_url": "mongodb://localhost:27017",
+  "db_name": "test_database",
+  "collections": {
+    "matches": {
+      "count": 0,
+      "file": "matches.json",
+      "bytes": 2
+    },
+    "predictions": {
+      "count": 0,
+      "file": "predictions.json",
+      "bytes": 2
+    },
+    "market_scores": {
+      "count": 780,
+      "file": "market_scores.json",
+      "bytes": 89829
+    },
+    "family_counters": {
+      "count": 73,
+      "file": "family_counters.json",
+      "bytes": 6094
+    },
+    "settings": {
+      "count": 3,
+      "file": "settings.json",
+      "bytes": 177
+    },
+    "upload_skipped": {
+      "count": 1,
+      "file": "upload_skipped.json",
+      "bytes": 237
+    }
+  }
+}
