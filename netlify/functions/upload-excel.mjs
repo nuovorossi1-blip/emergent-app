@@ -33463,8 +33463,26 @@ function toIsoDate(d) {
 }
 function parseExcelBytes(buffer, filename) {
   const wb = XLSX.read(buffer, { type: "array", cellDates: false });
-  const sheet = wb.Sheets[wb.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: null });
+  // PATCH 19/09/2026 — leggere TUTTI i fogli, non solo il primo.
+  // iLovePDF, convertendo il PDF Sisal, crea un foglio per ogni PAGINA: un file
+  // da ~1200 partite arriva con decine di fogli. Leggendo solo SheetNames[0] ne
+  // entravano 137 e le altre sparivano senza nemmeno finire fra gli scarti.
+  // Stessa modifica, in TypeScript, in lib/excelParser.ts: le due copie vanno
+  // tenute allineate finche' questo bundle resta un artefatto committato.
+  const rows = [];
+  const origine = [];
+  for (const nomeFoglio of wb.SheetNames) {
+    const sheet = wb.Sheets[nomeFoglio];
+    if (!sheet) continue;
+    const righe = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: null });
+    for (let i = 0; i < righe.length; i++) {
+      rows.push(righe[i]);
+      origine.push({ foglio: nomeFoglio, riga: i + 1 });
+    }
+  }
+  const piuFogli = wb.SheetNames.length > 1;
+  const rifRiga = (idx) => (origine[idx] ? origine[idx].riga : idx + 1);
+  const rifFoglio = (idx) => (piuFogli && origine[idx] ? ` (foglio "${origine[idx].foglio}")` : "");
   const baseYear = (/* @__PURE__ */ new Date()).getFullYear();
   let firstDay = parseFirstDay(rows);
   if (!firstDay) firstDay = /* @__PURE__ */ new Date();
@@ -33491,12 +33509,12 @@ function parseExcelBytes(buffer, filename) {
     const sq2 = row[COL_SQ2] != null ? String(row[COL_SQ2]).trim() : "";
     if (!sq1 || !sq2) {
       skipped.push({
-        row: idx + 1,
+        row: rifRiga(idx),
         time: timeStr,
         sq1,
         sq2,
         manif: "N/D",
-        reason: "Squadre mancanti",
+        reason: "Squadre mancanti" + rifFoglio(idx),
         odds_read: {},
         missing: []
       });
@@ -33530,12 +33548,12 @@ function parseExcelBytes(buffer, filename) {
       const oddsRead = {};
       for (const [k, v] of Object.entries(odds)) if (v !== null) oddsRead[k] = v;
       skipped.push({
-        row: idx + 1,
+        row: rifRiga(idx),
         time: timeStr,
         sq1,
         sq2,
         manif,
-        reason: `Quote mancanti: ${missing.join(", ")}`,
+        reason: `Quote mancanti: ${missing.join(", ")}` + rifFoglio(idx),
         odds_read: oddsRead,
         missing
       });

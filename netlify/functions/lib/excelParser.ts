@@ -225,8 +225,32 @@ function toIsoDate(d: Date): string {
 export async function parseExcelBytes(buffer: ArrayBuffer, filename: string): Promise<ParsedExcel> {
   const XLSX = await import("xlsx");
   const wb = XLSX.read(buffer, { type: "array", cellDates: false });
-  const sheet = wb.Sheets[wb.SheetNames[0]];
-  const rows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: null });
+
+  // TUTTI i fogli, non solo il primo (corretto il 19/09/2026).
+  // iLovePDF, convertendo il PDF Sisal, crea un foglio per ogni PAGINA del PDF:
+  // un file da ~1200 partite arriva quindi con decine di fogli. Leggendo solo
+  // `SheetNames[0]` se ne importavano 137 e le altre sparivano in silenzio, senza
+  // nemmeno finire fra le righe scartate (il parser non le vedeva proprio).
+  // I fogli si concatenano nell'ordine del file: e' lo stesso ordine delle pagine
+  // del PDF, quindi la logica che fa scattare il giorno successivo quando l'orario
+  // torna indietro continua a funzionare da un foglio all'altro.
+  const rows: any[][] = [];
+  const origine: { foglio: string; riga: number }[] = [];
+  for (const nome of wb.SheetNames) {
+    const sheet = wb.Sheets[nome];
+    if (!sheet) continue;
+    const righe: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: null });
+    for (let i = 0; i < righe.length; i++) {
+      rows.push(righe[i]);
+      origine.push({ foglio: nome, riga: i + 1 });
+    }
+  }
+  const piuFogli = wb.SheetNames.length > 1;
+  // Riferimento leggibile per la schermata degli scarti: con un foglio solo resta
+  // il numero di riga di sempre, con piu' fogli si aggiunge il nome del foglio.
+  const rifRiga = (idx: number) => origine[idx]?.riga ?? idx + 1;
+  const rifFoglio = (idx: number) =>
+    piuFogli && origine[idx] ? ` (foglio "${origine[idx].foglio}")` : "";
 
   const baseYear = new Date().getFullYear();
   let firstDay = parseFirstDay(rows);
@@ -259,8 +283,8 @@ export async function parseExcelBytes(buffer: ArrayBuffer, filename: string): Pr
     const sq2 = row[COL_SQ2] != null ? String(row[COL_SQ2]).trim() : "";
     if (!sq1 || !sq2) {
       skipped.push({
-        row: idx + 1, time: timeStr, sq1, sq2, manif: "N/D",
-        reason: "Squadre mancanti", odds_read: {}, missing: [],
+        row: rifRiga(idx), time: timeStr, sq1, sq2, manif: "N/D",
+        reason: "Squadre mancanti" + rifFoglio(idx), odds_read: {}, missing: [],
       });
       continue;
     }
@@ -297,8 +321,8 @@ export async function parseExcelBytes(buffer: ArrayBuffer, filename: string): Pr
       const oddsRead: Record<string, number> = {};
       for (const [k, v] of Object.entries(odds)) if (v !== null) oddsRead[k] = v;
       skipped.push({
-        row: idx + 1, time: timeStr, sq1, sq2, manif,
-        reason: `Quote mancanti: ${missing.join(", ")}`,
+        row: rifRiga(idx), time: timeStr, sq1, sq2, manif,
+        reason: `Quote mancanti: ${missing.join(", ")}` + rifFoglio(idx),
         odds_read: oddsRead, missing,
       });
       continue;

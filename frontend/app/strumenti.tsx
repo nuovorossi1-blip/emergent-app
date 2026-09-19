@@ -44,6 +44,10 @@ export default function Strumenti() {
       const out = await api.uploadExcel(file.uri, file.name, file.mimeType);
       const skippedCount = out.skipped || 0;
       const lines = [
+        // "Righe lette" mancava, e la sua assenza ha nascosto per mesi il fatto
+        // che del file se ne leggeva solo il primo foglio: si vedeva "137 valide"
+        // senza poterlo confrontare con quante righe il file contenesse davvero.
+        `Righe lette: ${out.rows_seen ?? "?"}`,
         `Nuove: ${out.inserted}`,
         `Aggiornate: ${out.updated}`,
         `Già presenti: ${out.unchanged ?? 0}`,

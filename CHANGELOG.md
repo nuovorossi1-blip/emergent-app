@@ -88,6 +88,47 @@ codice + `.md` insieme -> costruisce.
 
 ## Log (più recente in cima)
 
+### 2026-09-19 (2) — L'Excel aveva ~1200 partite, ne entravano 137: si leggeva un foglio solo
+
+**Segnalazione di Rossi**: file da circa 1200 record, l'import risponde
+"Valide totali: 137, Righe scartate: 0".
+
+**Causa**: `parseExcelBytes` leggeva **solo il primo foglio**:
+`wb.Sheets[wb.SheetNames[0]]`. iLovePDF, convertendo il PDF Sisal in .xlsx, crea
+**un foglio per ogni PAGINA del PDF**: un file da 1200 partite arriva con decine
+di fogli. Tutto quello che stava dal secondo foglio in poi non veniva nemmeno
+guardato — per questo "Righe scartate: 0": il parser quelle righe non le vedeva,
+quindi non aveva niente da scartare. Il difetto c'e' da sempre; si notava solo
+con file su piu' pagine.
+
+**Correzione**: i fogli vengono concatenati nell'ordine del file, che e' l'ordine
+delle pagine del PDF. La regola che fa scattare il giorno successivo quando
+l'orario "torna indietro" continua quindi a funzionare **anche fra un foglio e
+l'altro** (verificato). Nella schermata degli scarti il numero di riga ora e'
+quello del foglio a cui la riga appartiene, con il nome del foglio accanto
+quando i fogli sono piu' di uno.
+
+**Due copie da tenere allineate**: la modifica e' in
+`netlify/functions/lib/excelParser.ts` E dentro `netlify/functions/upload-excel.mjs`,
+il bundle committato che gira davvero in produzione. Il bundle non e' stato
+rigenerato: il sorgente `.ts` della function fu cancellato il 14/09 e da allora
+il bundle e' stato modificato a mano (RPC `bulk_upsert_matches`, patch
+`createRequire`), quindi ricompilarlo dal sorgente vecchio avrebbe riportato
+indietro quelle due correzioni. E' stato patchato in modo chirurgico, nello
+stesso punto. **Chi tocchera' il parser deve cambiare tutte e due le copie.**
+
+**Verifiche ESEGUENDO** (file .xlsx di prova con 3 fogli e 6 partite, creato al
+momento, formato Sisal):
+- bundle PRIMA della correzione: 3 partite su 6 (solo il primo foglio)
+- bundle DOPO: 6 su 6, con il cambio giorno corretto fra foglio 1 e foglio 2
+  (21:00 -> 12:30 = giorno successivo)
+- parser TypeScript: 6 su 6, stesso risultato
+- il bundle si importa senza errori (la patch `createRequire` del 14/09 e' intatta)
+
+**In piu'**: il riepilogo dell'import ora mostra anche **"Righe lette"**. Mancava,
+e la sua assenza ha nascosto il problema: si leggeva "137 valide" senza poterlo
+confrontare con quante righe il file contenesse davvero.
+
 ### 2026-09-19 — «Non mi carica i file Excel»: l'import funzionava, era muto
 
 **Cosa succedeva davvero.** L'import Excel **non era rotto**. Verificato sul sito in
