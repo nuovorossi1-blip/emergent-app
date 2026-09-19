@@ -16,7 +16,7 @@ import { useBottomNav } from "@/src/components/BottomNavContext";
 import { useToast } from "@/src/components/Toast";
 import { selectedListCache, matchesCache, marketStatsCache, mlStatsCache } from "@/src/utils/cache";
 import BottomNav from "@/src/components/BottomNav";
-import { AI_CHAT_URL } from "@/src/utils/aiChat";
+import { AI_CHAT_URL, AI_CHAT_NAME, ARENA_URL, ARENA_NAME } from "@/src/utils/aiChat";
 
 export default function Selected() {
   const router = useRouter();
@@ -159,6 +159,67 @@ export default function Selected() {
     }
   };
 
+  /**
+   * Analisi delle SOLE partite selezionate su un sito esterno.
+   *
+   * 19/09/2026 — La logica era scritta dentro l'onPress del tasto TypingMind.
+   * Ora le destinazioni sono due (TypingMind e Battle Agent Arena) con lo
+   * STESSO prompt, quindi la stessa identica funzione serve a entrambi i tasti:
+   * cambia solo l'indirizzo. Il comportamento del tasto TypingMind non cambia
+   * di una virgola — copia prima e apre dopo, perche' aprendo prima il
+   * documento perde il fuoco e la copia negli appunti fallisce.
+   */
+  const apriAnalisiEsterna = async (url: string, nomeSito: string) => {
+    if (items.length === 0) { notify("Vuoto", "Nessuna partita selezionata"); return; }
+    try {
+      // 16/09/2026 — NIENTE PIU' INVOLUCRO. Il prompt del server veniva
+      // infilato dentro AISTUDIO_FRAMEWORK al posto di {{CSV}}: quel framework
+      // e' una consegna DIVERSA ("raccoglitore dati web, non fare EV
+      // matematico") e si aspettava una semplice tabella di quote. Ricevendo un
+      // prompt completo, il modello si trovava due consegne opposte e seguiva
+      // la prima. Il testo di /aistudio-prompt e' gia' completo di ruolo,
+      // processo, formato di output e disclaimer: va incollato cosi' com'e'.
+      const { csv: filled, count } = await api.aiStudioPrompt();
+
+      // Si copia PRIMA e si apre DOPO: aprendo prima, il documento perde il
+      // fuoco e la scrittura negli appunti fallisce in silenzio.
+      let copied = false;
+      if (Platform.OS === "web" && typeof navigator !== "undefined") {
+        try {
+          await (navigator as any).clipboard.writeText(filled);
+          copied = true;
+        } catch {
+          // Ripiego per i browser che non concedono la clipboard API
+          try {
+            const ta = document.createElement("textarea");
+            ta.value = filled;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+            copied = true;
+          } catch {}
+        }
+      }
+
+      let newWin: Window | null = null;
+      if (Platform.OS === "web" && typeof window !== "undefined") {
+        newWin = window.open(url, "_blank", "noopener,noreferrer");
+      }
+      if (Platform.OS === "web" && !newWin) {
+        notify("Popup bloccato", "Abilita i popup e riprova.");
+        return;
+      }
+      notify(
+        copied ? "Prompt copiato ✓" : "Prompt pronto",
+        `${count} partite. ${copied ? "Incolla con Ctrl+V" : "Copia manuale richiesta"} nella scheda ${nomeSito}.`,
+      );
+    } catch (e: any) { notify("Errore", e?.message); }
+  };
+
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
@@ -166,62 +227,39 @@ export default function Selected() {
           <Ionicons name="chevron-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Selezionate ({items.length})</Text>
+        <TouchableOpacity testID="sel-clear" onPress={clearAll} style={styles.iconBtn}>
+          <Ionicons name="trash-outline" size={20} color={colors.danger} />
+        </TouchableOpacity>
+      </View>
+
+      {/* I tasti azione stanno su una riga propria: 19/09/2026, con l'aggiunta di
+          BATTLE ARENA erano quattro elementi piu' il titolo nella stessa riga e
+          su un telefono stretto finivano schiacciati o fuori schermo. La riga
+          scorre in orizzontale, cosi' regge anche schermi piccoli. */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        // Senza questo la ScrollView, che ha flexGrow 1 di suo, si mangerebbe
+        // l'altezza della lista sottostante.
+        style={styles.azioniWrap}
+        contentContainerStyle={styles.azioni}
+      >
         <TouchableOpacity
           testID="sel-aistudio"
-          onPress={async () => {
-            if (items.length === 0) { notify("Vuoto", "Nessuna partita selezionata"); return; }
-            try {
-              const { csv, count } = await api.aiStudioPrompt();
-              // 16/09/2026 — NIENTE PIU' INVOLUCRO.
-      // Qui il prompt del server veniva infilato dentro AISTUDIO_FRAMEWORK
-      // al posto di {{CSV}}: quel framework e' una consegna DIVERSA
-      // ("raccoglitore dati web, non fare EV matematico") e si aspettava
-      // una semplice tabella di quote. Ricevendo un prompt completo, il
-      // modello si trovava due consegne opposte e seguiva la prima.
-      // Il testo che arriva da /aistudio-prompt e' gia' completo di ruolo,
-      // processo, formato di output e disclaimer: va incollato cosi' com'e'.
-      const filled = csv;
-              // IMPORTANT: copy FIRST while document has focus, then open new tab
-              let copied = false;
-              if (Platform.OS === "web" && typeof navigator !== "undefined") {
-                try {
-                  await (navigator as any).clipboard.writeText(filled);
-                  copied = true;
-                } catch {
-                  // Fallback: use textarea
-                  try {
-                    const ta = document.createElement("textarea");
-                    ta.value = filled;
-                    ta.style.position = "fixed";
-                    ta.style.opacity = "0";
-                    document.body.appendChild(ta);
-                    ta.focus();
-                    ta.select();
-                    document.execCommand("copy");
-                    document.body.removeChild(ta);
-                    copied = true;
-                  } catch {}
-                }
-              }
-              // THEN open new tab
-              let newWin: Window | null = null;
-              if (Platform.OS === "web" && typeof window !== "undefined") {
-                newWin = window.open(AI_CHAT_URL, "_blank", "noopener,noreferrer");
-              }
-              if (Platform.OS === "web" && !newWin) {
-                notify("Popup bloccato", "Abilita i popup e riprova.");
-                return;
-              }
-              notify(
-                copied ? "Prompt copiato ✓" : "Prompt pronto",
-                `${count} partite. ${copied ? "Incolla con Ctrl+V" : "Copia manuale richiesta"} nella scheda TypingMind.`,
-              );
-            } catch (e: any) { notify("Errore", e?.message); }
-          }}
+          onPress={() => apriAnalisiEsterna(AI_CHAT_URL, AI_CHAT_NAME)}
           style={styles.aiStudioBtn}
         >
           <Ionicons name="planet" size={14} color={colors.primary} />
           <Text style={styles.aiStudioBtnTxt}>TYPINGMIND</Text>
+        </TouchableOpacity>
+        {/* Stessa analisi, stesso prompt, altro sito (19/09/2026). */}
+        <TouchableOpacity
+          testID="sel-arena"
+          onPress={() => apriAnalisiEsterna(ARENA_URL, ARENA_NAME)}
+          style={[styles.aiStudioBtn, { borderColor: "#A78BFA" }]}
+        >
+          <Ionicons name="rocket" size={14} color="#A78BFA" />
+          <Text style={[styles.aiStudioBtnTxt, { color: "#A78BFA" }]}>BATTLE ARENA</Text>
         </TouchableOpacity>
         <TouchableOpacity
           testID="sel-autofetch"
@@ -238,10 +276,7 @@ export default function Selected() {
             </>
           )}
         </TouchableOpacity>
-        <TouchableOpacity testID="sel-clear" onPress={clearAll} style={styles.iconBtn}>
-          <Ionicons name="trash-outline" size={20} color={colors.danger} />
-        </TouchableOpacity>
-      </View>
+      </ScrollView>
 
       {loading ? (
         <ActivityIndicator color={colors.primary} style={{ marginTop: 60 }} />
@@ -354,6 +389,11 @@ const styles = StyleSheet.create({
   header: { flexDirection: "row", alignItems: "center", paddingHorizontal: 8, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.border },
   iconBtn: { padding: 8 },
   title: { flex: 1, color: colors.text, fontSize: 16, fontWeight: "800", textAlign: "center" },
+  azioniWrap: { flexGrow: 0, flexShrink: 0 },
+  azioni: {
+    flexDirection: "row", alignItems: "center", gap: 8,
+    paddingHorizontal: 12, paddingVertical: 8,
+  },
   aiStudioBtn: {
     flexDirection: "row", alignItems: "center", gap: 4,
     backgroundColor: "rgba(255,87,34,0.15)", borderWidth: 1, borderColor: colors.primary,

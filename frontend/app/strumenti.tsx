@@ -16,7 +16,7 @@ import { colors } from "@/src/theme";
 import BottomNav from "@/src/components/BottomNav";
 import { confirmAction, notify, openExternalUrl } from "@/src/utils/platform";
 import { matchesCache, daysCache } from "@/src/utils/cache";
-import { AI_CHAT_URL, AI_MULTIPLA_PROMPT } from "@/src/utils/aiChat";
+import { AI_CHAT_URL, AI_CHAT_NAME, ARENA_URL, ARENA_NAME, MULTIPLA_ESTERNA_PROMPT } from "@/src/utils/aiChat";
 import { isAndroidBrowser, isAndroidShell, downloadLatestApk, RELEASE_LATEST_PAGE } from "@/src/utils/androidApp";
 
 export default function Strumenti() {
@@ -139,74 +139,42 @@ export default function Strumenti() {
    * da solo le partite del giorno e propone una multipla. Rossi poi seleziona
    * a mano nell'app quelle che gli interessano.
    */
-  const openAIMultipla = async () => {
-    setBusy("aimultipla");
+  /**
+   * Tasti "Multipla via ... (esterna)" di Strumenti.
+   *
+   * Non dipendono dalla Schedina: copiano il prompt di Rossi (identico per
+   * entrambi) e aprono il sito scelto, dove sara' il modello a cercare le
+   * partite del giorno sul web. Cambia solo la destinazione.
+   *
+   * 19/09/2026 — Qui c'era anche "Framework TypingMind", che generava un CSV
+   * delle partite selezionate con una consegna diversa. Rimosso su richiesta di
+   * Rossi e sostituito dalla versione Battle Agent Arena di questo stesso
+   * tasto. L'analisi delle partite selezionate resta dove ha senso: in Schedina.
+   */
+  const apriMultiplaEsterna = async (url: string, nomeSito: string, chiave: string) => {
+    setBusy(chiave);
     try {
       // La scheda va aperta PRIMA di qualunque await, altrimenti il browser la
-      // blocca come popup (stessa trappola gia' nota su openAIStudio).
+      // blocca come popup (trappola gia' pagata su questo stesso tasto).
       let newWin: Window | null = null;
       if (Platform.OS === "web" && typeof window !== "undefined") {
-        newWin = window.open(AI_CHAT_URL, "_blank", "noopener,noreferrer");
+        newWin = window.open(url, "_blank", "noopener,noreferrer");
       }
       try {
-        await Clipboard.setStringAsync(AI_MULTIPLA_PROMPT);
+        await Clipboard.setStringAsync(MULTIPLA_ESTERNA_PROMPT);
       } catch {
         if (Platform.OS === "web" && typeof navigator !== "undefined") {
-          try { await (navigator as any).clipboard.writeText(AI_MULTIPLA_PROMPT); } catch {}
+          try { await (navigator as any).clipboard.writeText(MULTIPLA_ESTERNA_PROMPT); } catch {}
         }
       }
       if (Platform.OS !== "web") {
-        openExternalUrl(AI_CHAT_URL);
+        openExternalUrl(url);
       }
       if (Platform.OS === "web" && !newWin) {
-        notify("Popup bloccato", "Abilita i popup per questo sito o apri manualmente " + AI_CHAT_URL + " e incolla con Ctrl+V.");
+        notify("Popup bloccato", "Abilita i popup per questo sito o apri manualmente " + url + " e incolla con Ctrl+V.");
         return;
       }
-      notify("Prompt Copiato ✓", "Incolla con Ctrl+V nella nuova scheda di TypingMind: cerchera' le partite di oggi e proporra' una multipla.");
-    } catch (e: any) {
-      notify("Errore", e?.message);
-    } finally {
-      setBusy(null);
-    }
-  };
-
-  const openAIStudio = async () => {
-    setBusy("aistudio");
-    try {
-      const { csv, count } = await api.aiStudioPrompt();
-      if (count === 0) {
-        notify("Nessuna partita selezionata", "Seleziona almeno una partita per usare il framework TypingMind.");
-        return;
-      }
-      // 16/09/2026 — NIENTE PIU' INVOLUCRO.
-      // Qui il prompt del server veniva infilato dentro AISTUDIO_FRAMEWORK
-      // al posto di {{CSV}}: quel framework e' una consegna DIVERSA
-      // ("raccoglitore dati web, non fare EV matematico") e si aspettava
-      // una semplice tabella di quote. Ricevendo un prompt completo, il
-      // modello si trovava due consegne opposte e seguiva la prima.
-      // Il testo che arriva da /aistudio-prompt e' gia' completo di ruolo,
-      // processo, formato di output e disclaimer: va incollato cosi' com'e'.
-      const filled = csv;
-      // CRITICAL: open the new tab BEFORE any async call (popup blocker)
-      let newWin: Window | null = null;
-      if (Platform.OS === "web" && typeof window !== "undefined") {
-        newWin = window.open(AI_CHAT_URL, "_blank", "noopener,noreferrer");
-      }
-      try {
-        await Clipboard.setStringAsync(filled);
-      } catch {
-        if (Platform.OS === "web" && typeof navigator !== "undefined") {
-          try { await (navigator as any).clipboard.writeText(filled); } catch {}
-        }
-      }
-      if (Platform.OS !== "web") {
-        openExternalUrl(AI_CHAT_URL);
-      }
-      if (Platform.OS === "web" && !newWin) {
-        notify("Popup bloccato", "Abilita i popup per questo sito o apri manualmente " + AI_CHAT_URL + " e incolla con Ctrl+V.");
-        return;
-      }
-      notify("Prompt Copiato ✓", `${count} partite. Incolla con Ctrl+V nella nuova scheda di TypingMind.`);
+      notify("Prompt Copiato ✓", `Incolla con Ctrl+V nella nuova scheda di ${nomeSito}: cerchera' le partite di oggi e proporra' una multipla.`);
     } catch (e: any) {
       notify("Errore", e?.message);
     } finally {
@@ -329,16 +297,16 @@ export default function Strumenti() {
         <Tool
           testID="tool-ai-multipla"
           icon="sparkles-outline"
-          title="Multipla via TypingMind (esterna)"
+          title={`Multipla via ${AI_CHAT_NAME} (esterna)`}
           desc="Cerca le partite di oggi sul web e propone una multipla da quota 13. Non usa la Schedina."
-          onPress={openAIMultipla}
+          onPress={() => apriMultiplaEsterna(AI_CHAT_URL, AI_CHAT_NAME, "aimultipla")}
         />
         <Tool
-          testID="tool-aistudio"
+          testID="tool-ai-multipla-arena"
           icon="planet-outline"
-          title="Framework TypingMind"
-          desc="Genera CSV partite e copia framework prompt per analisi web esterna."
-          onPress={openAIStudio}
+          title={`Multipla via ${ARENA_NAME} (esterna)`}
+          desc="Stesso prompt, ma su Battle Agent Arena. Cerca le partite di oggi sul web e propone una multipla da quota 13."
+          onPress={() => apriMultiplaEsterna(ARENA_URL, ARENA_NAME, "aimultipla-arena")}
         />
         <Tool
           testID="tool-selected"

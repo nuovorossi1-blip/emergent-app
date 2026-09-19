@@ -22,6 +22,10 @@ export type MultiplaRequest = {
   minOdd?: number;
   minProb?: number;
   maxPerLeague?: number;
+  /** Pattern di mercato ammessi: "1" "2" "O2.5" "GG" "1X" "X2".
+   *  Vuoto o assente = nessun vincolo, il motore prende la giocata piu'
+   *  probabile di ogni partita (comportamento fino al 19/09/2026). */
+  patterns?: string[];
   locked?: { matchId: string; market: string }[];
   excludeMatches?: string[];
   excludeLeagues?: string[];
@@ -43,6 +47,11 @@ export type MultiplaLeg = {
   odd_estimated: boolean;
   locked: boolean;
   alternatives: { market: string; prob: number; odd: number; odd_estimated: boolean }[];
+  /** Quante volte quel mercato e' uscito davvero nel database: su partite con la
+   *  stessa lettura di quote e su partite concluse dello stesso campionato.
+   *  null quando il campione e' troppo piccolo (meno di 20 partite). */
+  storico_scenario?: { pct: number; total: number } | null;
+  storico_campionato?: { pct: number; total: number } | null;
 };
 
 export type MultiplaResponse = {

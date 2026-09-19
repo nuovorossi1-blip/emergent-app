@@ -88,6 +88,72 @@ codice + `.md` insieme -> costruisce.
 
 ## Log (più recente in cima)
 
+### 2026-09-19 (3) — Quattro tasti per due siti esterni, e pattern di mercato nella Multipla
+
+**I quattro tasti** (richiesta di Rossi). Le stesse due analisi si possono ora
+mandare su TypingMind oppure su Battle Agent Arena (`https://arena.ai/agent`):
+
+| Dove | Tasto | Sito | Prompt |
+|---|---|---|---|
+| Strumenti | Multipla via TypingMind (esterna) | TypingMind | `MULTIPLA_ESTERNA_PROMPT` |
+| Strumenti | Multipla via Battle Agent Arena (esterna) | Arena | `MULTIPLA_ESTERNA_PROMPT` |
+| Schedina | TYPINGMIND | TypingMind | `/aistudio-prompt`, partite selezionate |
+| Schedina | BATTLE ARENA | Arena | `/aistudio-prompt`, partite selezionate |
+
+- `src/utils/aiChat.ts`: aggiunte `ARENA_URL` e `ARENA_NAME`; `AI_MULTIPLA_PROMPT`
+  sostituito dal testo nuovo di Rossi (flusso QUOTE → PATTERN → DATI → CONFERMA →
+  MERCATO → VALORE, priorita' 1ª → 2ª → 3ª divisione, quota minima per mercato
+  1,35, una sola multipla da 5-8 eventi a quota totale ≥ 13), copiato alla lettera
+  e riletto dal file dopo la scrittura per verificarlo. Vale sempre la lezione del
+  16/09: quel testo NON va mai avvolto in un altro framework.
+- `strumenti.tsx`: i due handler quasi identici diventano una funzione sola
+  parametrica sul sito. **Il tasto "Framework TypingMind" e' stato rimosso** su
+  conferma di Rossi: generava un CSV delle partite selezionate con una consegna
+  diversa, e quell'analisi vive gia' in Schedina.
+- `selected.tsx`: la logica del tasto TypingMind, che stava dentro l'onPress, e'
+  ora una funzione riusabile — comportamento identico (copia PRIMA, apre DOPO:
+  aprendo prima il documento perde il fuoco e la copia fallisce in silenzio) — e
+  serve entrambi i tasti. **In piu'**: con il quarto elemento l'intestazione
+  diventava illeggibile su schermi stretti, quindi i tasti azione sono passati a
+  una riga propria che scorre in orizzontale.
+
+**Pattern di mercato nella schermata Multipla.** Sei pastiglie a scelta multipla:
+`1`, `2`, `Over 2.5`, `GG`, `1X`, `X2` — tutti gia' dentro la whitelist del
+verdetto, quindi nessuna eccezione da gestire. Nessuno selezionato = come prima.
+Con uno o piu', per ogni partita si guardano SOLO quei mercati e si tiene il
+migliore: niente numero fisso per tipo, la composizione dipende da cosa offre la
+giornata. Il filtro sta DOPO `giocateAmmissibili`, quindi un pattern che va
+contro la lettura della partita non produce una gamba incoerente: quella partita
+viene scartata e finisce nel contatore `skipped_no_pattern`.
+
+**Storico reale per ogni gamba**, come chiesto, su due basi:
+- **per scenario di quote**, da `scenario_market_scores` (il dato che il motore
+  usa gia' internamente per correggere le probabilita', finora mai mostrato);
+- **per campionato**, calcolato al volo sulle partite concluse di quel campionato
+  con `evaluateMarketStrict` — non esiste una tabella pronta. Una query per
+  campionato (max 8), solo la colonna `result`.
+- Sotto le 20 partite di campione si stampa "—": una percentuale su pochi casi
+  ingannerebbe e basta.
+
+**Verifica ESEGUENDO la function** con un database finto di 24 partite e 8
+campionati, cinque casi: senza pattern (5 gambe, quota 11,74 — comportamento
+invariato), solo `1` (5 gambe tutte "1", 12 partite scartate dal pattern),
+`1`+`O2.5` (6 gambe **miste**: 5 volte "1" e una "O2.5", quota 21,40), solo `GG`
+(4 gambe, 20 scartate), pattern non ammesso (400 con l'elenco di quelli validi).
+In tutti i casi i due storici compaiono con percentuale e dimensione del campione.
+
+> **Trappola sui dati di prova, costata un giro.** La prima versione del test
+> dava sempre "—" sullo storico per scenario. Non era un difetto del codice: i
+> dati finti usavano i nomi di colonna in maiuscolo (`odd_X`, `odd_GG`), mentre
+> nella tabella `matches` sono **minuscoli** (`odd_x`, `odd_gg`, `odd_1x`,
+> `odd_o25`… — vedi `rowToOdds`). Con le quote lette a meta', `classifyScenario`
+> restituiva "sconosciuto" e lo storico per scenario non poteva esistere. Chi
+> scrivera' altri test su `matches` usi `rowToOdds` come riferimento.
+
+Strumenti: `tsc` 0 errori, eslint 0 errori, `npm run build:web` verde, e i test a
+runtime del motore (`buildFinalVerdict` alle quattro soglie, NG mai giocato)
+invariati.
+
 ### 2026-09-19 (2) — L'Excel aveva ~1200 partite, ne entravano 137: si leggeva un foglio solo
 
 **Segnalazione di Rossi**: file da circa 1200 record, l'import risponde

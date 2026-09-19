@@ -1,6 +1,8 @@
 import {
-  structuralAnalysis, giocateAmmissibili, type Odds, type MlScoreEntry, type RankedMarket,
+  structuralAnalysis, giocateAmmissibili, evaluateMarketStrict,
+  type Odds, type MlScoreEntry, type RankedMarket,
 } from "./lib/clusterEngine";
+import { parseResult } from "./lib/marketEval";
 import { classifyScenario } from "./lib/scenario";
 import { leagueTier, tierLabel, type LeagueTier } from "./lib/leagueTier";
 import { pgGet, pgPatch, rowToOdds, jsonResponse } from "./lib/supabaseRest";
@@ -60,6 +62,12 @@ type Leg = {
   odd_estimated: boolean;
   locked: boolean;
   alternatives: { market: string; prob: number; odd: number; odd_estimated: boolean }[];
+  /** Quante volte quel mercato e' uscito davvero, nel database di Rossi.
+   *  `scenario`: partite con la stessa lettura di quote (scenario_market_scores).
+   *  `campionato`: partite concluse dello stesso campionato, calcolate al volo.
+   *  null quando il campione e' troppo piccolo per dire qualcosa. */
+  storico_scenario: { pct: number; total: number } | null;
+  storico_campionato: { pct: number; total: number } | null;
 };
 
 type Option = { market: string; prob: number; odd: number; odd_estimated: boolean };
@@ -73,10 +81,29 @@ type Candidate = {
   time: string;
   options: Option[];   // ordinate come il ranking: la prima e' il pick del motore
   ranking: RankedMarket[];
+  scenario: string;
 };
 
 const MAX_EVENTS = 8;
 const MAX_ALTERNATIVES = 4;
+
+/**
+ * Pattern di mercato selezionabili (19/09/2026, scelti da Rossi).
+ * Sono tutti gia' dentro la whitelist del verdetto: nessuna eccezione da fare.
+ * La chiave e' quella che arriva dal frontend, il valore il nome esatto del
+ * mercato nel motore.
+ */
+const PATTERN_MARKETS: Record<string, string> = {
+  "1": "1",
+  "2": "2",
+  "O2.5": "O2.5",
+  "GG": "GG",
+  "1X": "1X",
+  "X2": "X2",
+};
+
+/** Campione minimo sotto il quale una percentuale storica non significa niente. */
+const MIN_CAMPIONE = 20;
 
 export default async (req: Request): Promise<Response> => {
   if (req.method !== "POST") return jsonResponse({ error: "Usa POST" }, 405);
@@ -101,6 +128,21 @@ export default async (req: Request): Promise<Response> => {
   const locked: { matchId: string; market: string }[] = Array.isArray(body?.locked) ? body.locked.filter((l: any) => l?.matchId && l?.market) : [];
   const excludeMatches = new Set<string>(Array.isArray(body?.excludeMatches) ? body.excludeMatches.map(String) : []);
   const excludeLeagues = new Set<string>(Array.isArray(body?.excludeLeagues) ? body.excludeLeagues.map((l: string) => String(l).toUpperCase().trim()) : []);
+  // Pattern di mercato: lista vuota o assente = comportamento di sempre (il
+  // motore prende la giocata piu' probabile di ogni partita). Con uno o piu'
+  // pattern, per ogni partita si guardano SOLO quei mercati e si tiene il
+  // migliore: la multipla si compone dalle partite dove quei pattern reggono
+  // di piu'. Non c'e' una quota fissa per tipo: se in un giorno l'1 e' piu'
+  // affidabile dell'Over, escono piu' "1", e viceversa.
+  const patternsIn: string[] = Array.isArray(body?.patterns) ? body.patterns.map((x: any) => String(x).toUpperCase().trim()) : [];
+  const patterns: string[] = [];
+  for (const p of patternsIn) {
+    const m = PATTERN_MARKETS[p];
+    if (!m) return jsonResponse({ error: `Pattern non riconosciuto: "${p}". Ammessi: ${Object.keys(PATTERN_MARKETS).join(", ")}` }, 400);
+    if (!patterns.includes(m)) patterns.push(m);
+  }
+  const patternSet = new Set(patterns.map((m) => m.toUpperCase()));
+
   const apply = !!body?.apply;
   const replaceSelection = body?.replaceSelection !== false;
 
@@ -122,7 +164,7 @@ export default async (req: Request): Promise<Response> => {
   //    Lo storico per scenario si legge una volta per scenario, non per partita.
   const mlCache = new Map<string, Record<string, MlScoreEntry>>();
   const candidates: Candidate[] = [];
-  let skippedStarted = 0, skippedExcluded = 0, skippedNoPlay = 0;
+  let skippedStarted = 0, skippedExcluded = 0, skippedNoPlay = 0, skippedNoPattern = 0;
 
   for (const row of rows) {
     const id = String(row.id);
@@ -148,10 +190,18 @@ export default async (req: Request): Promise<Response> => {
     const options: Option[] = giocateAmmissibili(ranking, odds, minOdd)
       .filter((r) => r.odd !== null && r.odd !== undefined)
       .filter((r) => r.coverage >= minProb)
+      // Con i pattern attivi restano solo quei mercati. `giocateAmmissibili` ha
+      // gia' tolto i mercati che contraddicono la lettura della partita, quindi
+      // un pattern che va contro la direzione qui non c'e' proprio: la partita
+      // viene scartata invece di produrre una gamba incoerente.
+      .filter((r) => !patternSet.size || patternSet.has(r.market.toUpperCase().trim()))
       .slice(0, MAX_ALTERNATIVES)
       .map((r) => ({ market: r.market, prob: round4(r.coverage), odd: r.odd as number, odd_estimated: !!r.odd_estimated }));
 
-    if (!options.length && !isLocked) { skippedNoPlay++; continue; }
+    if (!options.length && !isLocked) {
+      if (patternSet.size) skippedNoPattern++; else skippedNoPlay++;
+      continue;
+    }
     candidates.push({
       match_id: id,
       squadra1: row.squadra1,
@@ -161,6 +211,7 @@ export default async (req: Request): Promise<Response> => {
       time: String(row.time || ""),
       options,
       ranking,
+      scenario,
     });
   }
 
@@ -244,6 +295,47 @@ export default async (req: Request): Promise<Response> => {
     usedIds.add(replacement.c.match_id);
   }
 
+  // 5-bis) Storico REALE di ogni gamba, dal database di Rossi. Due numeri:
+  //   - per SCENARIO: quante volte quel mercato e' uscito in partite lette allo
+  //     stesso modo dalle quote. E' il dato che il motore usa gia' internamente
+  //     per correggere le probabilita': qui viene solo mostrato.
+  //   - per CAMPIONATO: quante volte quel mercato e' uscito nelle partite
+  //     concluse di quel campionato. Non esiste una tabella pronta, si calcola
+  //     al volo — una query per campionato (al massimo 8), solo la colonna
+  //     `result`, e il conteggio con la stessa funzione che assegna gli esiti.
+  const storicoLega = new Map<string, string[]>();
+  for (const leg of legs) {
+    if (!storicoLega.has(leg.manifestazione)) {
+      try {
+        const done = await pgGet(`matches?manifestazione=eq.${encodeURIComponent(leg.manifestazione)}&result=not.is.null&select=result&limit=2000`);
+        storicoLega.set(leg.manifestazione, done.map((r: any) => String(r.result || "")));
+      } catch {
+        storicoLega.set(leg.manifestazione, []);   // senza storico si mostra "—"
+      }
+    }
+  }
+  for (const leg of legs) {
+    const c = candidates.find((x) => x.match_id === leg.match_id);
+    const ml = c ? mlCache.get(c.scenario) : undefined;
+    const voce = ml?.[leg.market];
+    leg.storico_scenario = voce && voce.total >= MIN_CAMPIONE
+      ? { pct: Math.round(voce.win_rate * 10) / 10, total: voce.total }
+      : null;
+
+    let vinte = 0, valutate = 0;
+    for (const res of storicoLega.get(leg.manifestazione) || []) {
+      const parsed = parseResult(res);
+      if (!parsed) continue;
+      const esito = evaluateMarketStrict(leg.market, parsed[0], parsed[1]);
+      if (esito === null) continue;      // mercato non valutabile su quel punteggio
+      valutate++;
+      if (esito) vinte++;
+    }
+    leg.storico_campionato = valutate >= MIN_CAMPIONE
+      ? { pct: Math.round((vinte / valutate) * 1000) / 10, total: valutate }
+      : null;
+  }
+
   legs.sort((a, b) => a.tier - b.tier || a.time.localeCompare(b.time));
   const total = round2(totalOdd());
   const probAll = round4(legs.reduce((p, l) => p * l.prob, 1));
@@ -251,7 +343,10 @@ export default async (req: Request): Promise<Response> => {
 
   let reason: string | null = null;
   if (legs.length < events) {
-    reason = `Trovate solo ${legs.length} partite giocabili su ${events} (probabilita' >= ${Math.round(minProb * 100)}%, quota >= ${minOdd.toFixed(2)}, max ${maxPerLeague} per campionato).`;
+    reason = `Trovate solo ${legs.length} partite giocabili su ${events}`
+      + (patterns.length ? ` con i pattern ${patterns.join(", ")}` : "")
+      + ` (probabilita' >= ${Math.round(minProb * 100)}%, quota >= ${minOdd.toFixed(2)}, max ${maxPerLeague} per campionato).`
+      + (patterns.length && skippedNoPattern ? ` ${skippedNoPattern} partite scartate perche' nessuno dei pattern scelti regge.` : "");
   } else if (total < minTotalOdd) {
     reason = `Con ${events} partite arrivo a quota ${total.toFixed(2)}, non a ${minTotalOdd}: abbassa la quota minima o aumenta le partite.`;
   }
@@ -282,18 +377,22 @@ export default async (req: Request): Promise<Response> => {
     reason,
     applied,
     day,
-    requested: { events, minTotalOdd, minOdd, minProb, maxPerLeague },
+    requested: { events, minTotalOdd, minOdd, minProb, maxPerLeague, patterns },
     total_odd: total,
     total_estimated: legs.some((l) => l.odd_estimated),
     total_prob: probAll,
     legs,
     tiers_used: Array.from(new Set(legs.map((l) => l.tier))).sort(),
-    pool: { matches: rows.length, candidates: candidates.length, skipped_started: skippedStarted, skipped_excluded: skippedExcluded, skipped_no_play: skippedNoPlay },
+    pool: { matches: rows.length, candidates: candidates.length, skipped_started: skippedStarted, skipped_excluded: skippedExcluded, skipped_no_play: skippedNoPlay, skipped_no_pattern: skippedNoPattern },
   });
 };
 
 function toLeg(c: Candidate, opt: Option, locked: boolean): Leg {
   return {
+    // Lo storico si riempie dopo, quando le gambe sono decise: calcolarlo per
+    // ogni candidato scartato sarebbe lavoro buttato.
+    storico_scenario: null,
+    storico_campionato: null,
     match_id: c.match_id,
     squadra1: c.squadra1,
     squadra2: c.squadra2,

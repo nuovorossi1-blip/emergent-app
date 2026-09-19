@@ -23,6 +23,21 @@ import { selectedListCache, matchesCache } from "@/src/utils/cache";
  * netlify/functions/build-multipla.ts: qui solo interfaccia e stato.
  */
 
+/**
+ * I sei pattern scelti da Rossi il 19/09/2026. Sono tutti gia' nella whitelist
+ * del verdetto, quindi selezionarli non forza il motore a proporre mercati che
+ * Rossi aveva escluso. La chiave deve corrispondere a PATTERN_MARKETS in
+ * netlify/functions/build-multipla.ts.
+ */
+const PATTERN_LIST = [
+  { key: "1", label: "1" },
+  { key: "2", label: "2" },
+  { key: "O2.5", label: "Over 2.5" },
+  { key: "GG", label: "GG" },
+  { key: "1X", label: "1X" },
+  { key: "X2", label: "X2" },
+];
+
 const TODAY = () => new Date().toLocaleString("sv-SE", { timeZone: "Europe/Rome" }).slice(0, 10);
 
 export default function Multipla() {
@@ -34,6 +49,15 @@ export default function Multipla() {
   const [events, setEvents] = useState(5);
   const [minTotal, setMinTotal] = useState("10");
   const [minOdd, setMinOdd] = useState<number | null>(null);
+  /**
+   * Pattern di mercato (19/09/2026). Nessuno selezionato = come prima, il
+   * motore prende la giocata piu' probabile di ogni partita. Con uno o piu'
+   * pattern, per ogni partita si guardano SOLO quei mercati: la multipla esce
+   * dalle partite dove quei pattern reggono di piu'. Non c'e' una quota fissa
+   * per tipo — scegliendo 1 e Over 2.5 possono uscire tutte "1", tutte "O2.5"
+   * o un misto, secondo quello che offre la giornata.
+   */
+  const [patterns, setPatterns] = useState<string[]>([]);
   const [replace, setReplace] = useState(true);
 
   const [busy, setBusy] = useState(false);
@@ -63,12 +87,13 @@ export default function Multipla() {
    * Genera o ricompone. `keep` = gambe da bloccare (quelle che Rossi non ha
    * scartato), con l'eventuale pronostico cambiato a mano.
    */
-  const generate = useCallback(async (keep: MultiplaLeg[] = [], exM = excludeMatches, exL = excludeLeagues, overrides = pickOverride) => {
+  const generate = useCallback(async (keep: MultiplaLeg[] = [], exM = excludeMatches, exL = excludeLeagues, overrides = pickOverride, pat = patterns) => {
     if (!isFinite(minTotalNum)) { toast.show("Quota minima non valida"); return; }
     setBusy(true);
     try {
       const r = await api.buildMultipla({
         day, events, minTotalOdd: minTotalNum, minProb: 0.45, maxPerLeague: 2,
+        patterns: pat,
         locked: keep.map((l) => ({ matchId: l.match_id, market: overrides[l.match_id] || l.market })),
         excludeMatches: exM, excludeLeagues: exL,
       });
@@ -79,7 +104,7 @@ export default function Multipla() {
     } finally {
       setBusy(false);
     }
-  }, [day, events, minTotalNum, excludeMatches, excludeLeagues, pickOverride, toast]);
+  }, [day, events, minTotalNum, excludeMatches, excludeLeagues, pickOverride, patterns, toast]);
 
   const otherLegs = (id: string) => (res?.legs || []).filter((l) => l.match_id !== id);
 
@@ -172,6 +197,30 @@ export default function Multipla() {
             />
           </View>
         </View>
+        <View style={styles.field}>
+          <Text style={styles.label}>PATTERN DI MERCATO</Text>
+          <View style={styles.patternWrap}>
+            {PATTERN_LIST.map((p) => {
+              const on = patterns.includes(p.key);
+              return (
+                <TouchableOpacity
+                  key={p.key}
+                  testID={`multipla-pattern-${p.key}`}
+                  onPress={() => setPatterns(on ? patterns.filter((x) => x !== p.key) : [...patterns, p.key])}
+                  style={[styles.patternChip, on && styles.patternChipOn]}
+                >
+                  <Text style={[styles.patternTxt, on && styles.patternTxtOn]}>{p.label}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          <Text style={styles.patternHint}>
+            {patterns.length === 0
+              ? "Nessuno selezionato: per ogni partita il motore sceglie la giocata più probabile, qualunque mercato sia."
+              : `Ogni gamba sarà ${patterns.join(" o ")}: il motore sceglie, partita per partita, quello dei due che regge di più. Non c'è un numero fisso per tipo.`}
+          </Text>
+        </View>
+
         <Text style={styles.hint}>
           Servono gambe da circa @{isFinite(minTotalNum) ? Math.pow(minTotalNum, 1 / events).toFixed(2) : "—"} {"l'una."}
           Soglia per gamba {minOdd ? minOdd.toFixed(2) : "…"} (dalle Impostazioni), probabilità minima 45%, max 2 partite per campionato.
@@ -216,6 +265,16 @@ export default function Multipla() {
                       <Text style={[styles.prob, { color: leg.prob >= 0.6 ? colors.success : leg.prob >= 0.5 ? colors.primary : colors.warning }]}>{Math.round(leg.prob * 100)}%</Text>
                       {leg.locked ? <Ionicons name="lock-closed" size={12} color={colors.textDim} /> : null}
                     </View>
+                    {/* Lo storico VERO dal database, accanto alla stima del motore:
+                        quante volte quel mercato e' uscito in partite lette allo
+                        stesso modo dalle quote, e nelle partite concluse di quel
+                        campionato. "—" quando il campione e' sotto le 20 partite:
+                        una percentuale su pochi casi ingannerebbe e basta. */}
+                    <Text style={styles.storico}>
+                      storico — scenario: {leg.storico_scenario ? `${leg.storico_scenario.pct}% su ${leg.storico_scenario.total}` : "—"}
+                      {"  ·  "}
+                      {league.shortLabel}: {leg.storico_campionato ? `${leg.storico_campionato.pct}% su ${leg.storico_campionato.total}` : "—"}
+                    </Text>
                     {leg.alternatives.length ? (
                       <Text style={styles.alts}>alternative: {leg.alternatives.map((a) => `${a.market} @${fmtOdd(a)}`).join(" · ")}</Text>
                     ) : null}
@@ -298,6 +357,18 @@ const styles = StyleSheet.create({
   stepVal: { flex: 1, color: colors.text, fontSize: 18, fontWeight: "900", textAlign: "center" },
   input: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 11, color: colors.text, fontSize: 18, fontWeight: "900", textAlign: "center" },
   hint: { color: colors.textDim, fontSize: 12, lineHeight: 17 },
+
+  // Pattern di mercato: pastiglie a scelta multipla, vanno a capo da sole
+  // cosi' reggono qualsiasi larghezza di schermo.
+  patternWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  patternChip: {
+    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface,
+  },
+  patternChipOn: { borderColor: colors.primary, backgroundColor: "rgba(255,87,34,0.15)" },
+  patternTxt: { color: colors.textMuted, fontSize: 13, fontWeight: "800" },
+  patternTxtOn: { color: colors.primary },
+  patternHint: { color: colors.textDim, fontSize: 11, lineHeight: 16, marginTop: 8 },
   primaryBtn: { backgroundColor: colors.primary, borderRadius: 12, paddingVertical: 14, alignItems: "center" },
   primaryTxt: { color: "#0A0A0A", fontWeight: "900", fontSize: 15 },
   secondaryBtn: { paddingVertical: 12, alignItems: "center" },
@@ -316,6 +387,7 @@ const styles = StyleSheet.create({
   odd: { color: colors.textMuted, fontSize: 13, fontWeight: "700" },
   prob: { fontSize: 13, fontWeight: "900" },
   alts: { color: colors.textDim, fontSize: 11, marginTop: 4 },
+  storico: { color: colors.textMuted, fontSize: 11, marginTop: 4 },
   cardActions: { flexDirection: "row", flexWrap: "wrap", gap: 8, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 },
   actionBtn: { flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8, backgroundColor: colors.bg },
   actionTxt: { color: colors.textMuted, fontSize: 12, fontWeight: "700" },
