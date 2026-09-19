@@ -93,6 +93,19 @@ codice + `.md` insieme -> costruisce.
 **Segnalazione di Rossi**: file da circa 1200 record, l'import risponde
 "Valide totali: 137, Righe scartate: 0".
 
+> **CAUSA VERA, trovata da Rossi il 19/09 — non era questa.** Il problema stava
+> nel FILE, non nel codice: il PDF Sisal scaricato con **Edge** produce, passato
+> a iLovePDF, un .xlsx da cui si recuperano poche righe. Scaricando lo stesso PDF
+> con **Opera** e aprendolo direttamente in iLovePDF, la conversione e' corretta e
+> l'import carica tutto. Regola pratica per il futuro: se l'import legge molte
+> meno righe del previsto, il primo sospetto e' la conversione del PDF, non il
+> parser — si riscarica il PDF con un browser diverso e si riconverte.
+>
+> La correzione qui sotto (leggere tutti i fogli) resta valida e verificata: e' un
+> difetto reale che si sarebbe manifestato con qualsiasi file su piu' pagine. Solo,
+> non era il motivo dei 137 record di Rossi. Lezione: quando i numeri non tornano,
+> chiedere il file PRIMA di correggere il codice su un'ipotesi.
+
 **Causa**: `parseExcelBytes` leggeva **solo il primo foglio**:
 `wb.Sheets[wb.SheetNames[0]]`. iLovePDF, convertendo il PDF Sisal in .xlsx, crea
 **un foglio per ogni PAGINA del PDF**: un file da 1200 partite arriva con decine
