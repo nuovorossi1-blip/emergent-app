@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useBottomNav } from "@/src/components/BottomNavContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,6 +8,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { api } from "@/src/api";
 import { colors } from "@/src/theme";
 import BottomNav from "@/src/components/BottomNav";
+import { confirmAction } from "@/src/utils/platform";
 
 type Score = { market: string; wins: number; losses: number; total: number; missed_wins?: number; win_rate: number };
 
@@ -30,13 +31,13 @@ export default function Stats() {
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
   const reset = () => {
-    Alert.alert("Azzerare apprendimento?", "Tutti i punteggi delle famiglie verranno cancellati.", [
-      { text: "Annulla", style: "cancel" },
-      {
-        text: "Azzera", style: "destructive",
-        onPress: async () => { await api.statsReset(); load(); },
-      },
-    ]);
+    confirmAction({
+      title: "Azzerare apprendimento?",
+      message: "Tutti i punteggi delle famiglie verranno cancellati.",
+      confirmText: "Azzera",
+      destructive: true,
+      onConfirm: async () => { await api.statsReset(); load(); },
+    });
   };
 
   const families = Object.keys(data);

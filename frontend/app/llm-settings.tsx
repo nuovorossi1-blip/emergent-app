@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -7,7 +7,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { api } from "@/src/api";
 import { colors } from "@/src/theme";
 import BottomNav from "@/src/components/BottomNav";
-import { openExternalUrl, confirmAction } from "@/src/utils/platform";
+import { confirmAction, notify, openExternalUrl } from "@/src/utils/platform";
 
 export default function LlmSettings() {
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function LlmSettings() {
 
   const select = async (id: string) => {
     setSelectedId(id);
-    try { await api.setLlmSettings(id); await load(); } catch (e: any) { Alert.alert("Errore", e?.message); }
+    try { await api.setLlmSettings(id); await load(); } catch (e: any) { notify("Errore", e?.message); }
   };
 
   const resetBudget = () => confirmAction({

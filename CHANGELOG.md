@@ -88,6 +88,41 @@ codice + `.md` insieme -> costruisce.
 
 ## Log (più recente in cima)
 
+### 2026-09-19 — «Non mi carica i file Excel»: l'import funzionava, era muto
+
+**Cosa succedeva davvero.** L'import Excel **non era rotto**. Verificato sul sito in
+produzione: `/upload-skipped` riportava l'ultimo caricamento di pochi minuti prima —
+`calcio base per data (4).xlsx`, 137 righe lette, 137 valide, 0 scartate. Il file
+arrivava, veniva letto e scritto. Solo che l'app non diceva niente e la lista non
+cambiava, quindi sembrava che non caricasse.
+
+**Causa.** In react-native-web `Alert.alert` e' una funzione **vuota**:
+`class Alert { static alert() {} }`. Su web — cioe' nel browser, nella PWA installata
+e dentro il guscio Android, che carica il sito — ogni `Alert.alert` spariva nel nulla.
+Erano **41 messaggi in 8 schermate**: esiti, conferme e soprattutto ERRORI. Nel caso
+dell'import, con 0 righe scartate si finiva proprio sul ramo
+`Alert.alert("Import completato", ...)`, l'unico senza alternativa per il web
+(il ramo con gli scarti un `window.confirm` ce l'aveva gia').
+
+**Correzioni.**
+- Nuova `notify(title, message?)` in `src/utils/platform.ts`: `window.alert` su web,
+  `Alert.alert` su nativo. Tutti i 41 `Alert.alert` convertiti; i tre casi con piu'
+  pulsanti (uscita dall'app, azzeramento apprendimento, import con scarti) passano a
+  `confirmAction`, che era gia' cross-platform. Nessun `Alert.alert` resta fuori da
+  `platform.ts`, e gli import ormai inutili sono stati tolti.
+- **Cache invalidata dopo l'import**: `matchesCache.invalidate()` e
+  `daysCache.invalidate()` (a `daysCache` mancava il metodo, aggiunto). Senza, dopo
+  aver caricato l'Excel la lista continuava a mostrare i dati di prima e le giornate
+  nuove non comparivano nella striscia dei giorni: il secondo motivo per cui sembrava
+  che l'import non avesse fatto niente.
+
+**Nota su questo import specifico**: `inserted 0, updated 0, unchanged 137` significa
+che quelle 137 partite erano gia' nel database con le stesse identiche quote — il file
+era gia' stato caricato. Non e' un errore.
+
+Verifiche: `tsc` 0 errori, eslint 0 errori, `npm run build:web` verde, e i test a
+runtime del motore (`buildFinalVerdict` alle quattro soglie) invariati.
+
 ### 2026-09-18 (2) — Tasto "Genera Multipla": il motore compone la schedina
 
 **Cosa**: in Strumenti → ANALISI, nuovo tasto **Genera Multipla** (schermata

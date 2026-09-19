@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator,
-  TextInput, RefreshControl, Modal, FlatList, Alert, useWindowDimensions, Platform, BackHandler,
+  TextInput, RefreshControl, Modal, FlatList, useWindowDimensions, Platform, BackHandler,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
@@ -259,15 +259,13 @@ export default function Home() {
   useEffect(() => {
     if (Platform.OS !== "android") return;
     const handler = BackHandler.addEventListener("hardwareBackPress", () => {
-      Alert.alert(
-        "Esci dall'app",
-        "Vuoi davvero uscire dall'applicazione?",
-        [
-          { text: "Annulla", style: "cancel", onPress: () => {} },
-          { text: "Esci", style: "destructive", onPress: () => BackHandler.exitApp() },
-        ],
-        { cancelable: true },
-      );
+      confirmAction({
+        title: "Esci dall'app",
+        message: "Vuoi davvero uscire dall'applicazione?",
+        confirmText: "Esci",
+        destructive: true,
+        onConfirm: () => BackHandler.exitApp(),
+      });
       return true; // blocca il default (chiusura immediata)
     });
     return () => handler.remove();

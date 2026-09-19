@@ -8,7 +8,7 @@
  * - Action bar: Salva / Salva → Prossima (salta alla partita successiva)
  */
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { api, Match, MARKET_FAMILIES, ODD_LABELS, OddsKey } from "@/src/api";
@@ -17,6 +17,7 @@ import { useToast } from "@/src/components/Toast";
 import BottomNav, { useNavMetrics } from "@/src/components/BottomNav";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { selectedListCache, matchesCache, marketStatsCache, mlStatsCache, matchDetailCache } from "@/src/utils/cache";
+import { notify } from "@/src/utils/platform";
 
 const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 // 18 risultati comuni nel calcio (raggruppati per popolarità)
@@ -117,7 +118,7 @@ export default function RisultatoPage() {
         router.replace(`/risultato/${nextMatchId}`);
       }
     } catch (e: any) {
-      Alert.alert("Errore", e?.message || "Impossibile salvare");
+      notify("Errore", e?.message || "Impossibile salvare");
     } finally {
       setSaving(false);
     }

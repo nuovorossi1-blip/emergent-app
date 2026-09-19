@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator,
-  TextInput, Alert,
-} from "react-native";
+  TextInput, } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,7 +15,7 @@ import { ScoreInput } from "@/src/components/ScoreInput";
 import { FamilyLegendModal } from "@/src/components/FamilyLegendModal";
 import { predictionQueue } from "@/src/utils/predictionQueue";
 import BottomNav, { useNavMetrics } from "@/src/components/BottomNav";
-import { confirmAction } from "@/src/utils/platform";
+import { confirmAction, notify } from "@/src/utils/platform";
 
 /**
  * La soglia di quota si legge UNA VOLTA per sessione. Se due schermate la
@@ -128,7 +127,7 @@ export default function MatchDetail() {
     } catch (e: any) {
       // Con dati gia' a schermo un errore di rete non deve buttare un alert
       // in faccia: si tiene quello che c'e'.
-      if (!cached) Alert.alert("Errore", e?.message || "Caricamento");
+      if (!cached) notify("Errore", e?.message || "Caricamento");
     } finally {
       setLoading(false);
     }
@@ -301,16 +300,16 @@ export default function MatchDetail() {
       matchDetailCache.invalidate(id);
       if (out.learning?.applied) {
         const ok = out.learning.result_ok;
-        Alert.alert(
+        notify(
           ok ? "✓ Pronostico VINTO" : "✗ Pronostico PERSO",
           `Mercato: ${out.learning.main_prediction}\n\nIl sistema ha aggiornato i punteggi della famiglia di pronostico per migliorare le prossime previsioni.`,
         );
       } else {
-        Alert.alert("Salvato", "Risultato salvato");
+        notify("Salvato", "Risultato salvato");
       }
       await load(true);
     } catch (e: any) {
-      Alert.alert("Errore", e?.message);
+      notify("Errore", e?.message);
     }
   };
 

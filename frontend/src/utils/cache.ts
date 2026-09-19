@@ -47,6 +47,9 @@ export const daysCache = {
   set(days: string[]) {
     daysSnapshot = { days, ts: Date.now() };
   },
+  invalidate() {
+    daysSnapshot = null;
+  },
 };
 
 export const marketStatsCache = {

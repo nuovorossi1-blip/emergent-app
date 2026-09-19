@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert, Platform } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Platform } from "react-native";
 import { useBottomNav } from "@/src/components/BottomNavContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,7 +9,7 @@ import BottomNav from "@/src/components/BottomNav";
 import { colors } from "@/src/theme";
 import { BOOK_RULES } from "@/src/book-content";
 import { api } from "@/src/api";
-import { openExternalUrl } from "@/src/utils/platform";
+import { notify, openExternalUrl } from "@/src/utils/platform";
 import { AI_CHAT_URL } from "@/src/utils/aiChat";
 
 export default function Book() {
@@ -29,7 +29,7 @@ export default function Book() {
     try {
       const { csv, count } = await api.aiStudioPrompt();
       if (count === 0) {
-        Alert.alert("Nessuna partita selezionata", "Seleziona almeno una partita prima di usare il framework TypingMind.");
+        notify("Nessuna partita selezionata", "Seleziona almeno una partita prima di usare il framework TypingMind.");
         return;
       }
       // 16/09/2026 — NIENTE PIU' INVOLUCRO.
@@ -56,12 +56,12 @@ export default function Book() {
         openExternalUrl(AI_CHAT_URL);
       }
       if (Platform.OS === "web" && !newWin) {
-        Alert.alert("Popup bloccato", "Abilita i popup per questo sito e riprova, oppure apri manualmente " + AI_CHAT_URL + " e incolla con Ctrl+V.");
+        notify("Popup bloccato", "Abilita i popup per questo sito e riprova, oppure apri manualmente " + AI_CHAT_URL + " e incolla con Ctrl+V.");
         return;
       }
-      Alert.alert("Prompt copiato ✓", `${count} partite. Incolla con Ctrl+V nella nuova scheda di TypingMind.`);
+      notify("Prompt copiato ✓", `${count} partite. Incolla con Ctrl+V nella nuova scheda di TypingMind.`);
     } catch (e: any) {
-      Alert.alert("Errore", e?.message);
+      notify("Errore", e?.message);
     }
   };
 

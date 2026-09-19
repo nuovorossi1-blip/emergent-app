@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator,
-  TextInput, Alert, Platform,
+  TextInput, Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,7 +10,7 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { api, Match, quickPrediction, evaluateMarketOutcome } from "@/src/api";
 import { colors } from "@/src/theme";
 import { ScoreInput } from "@/src/components/ScoreInput";
-import { confirmAction } from "@/src/utils/platform";
+import { confirmAction, notify } from "@/src/utils/platform";
 import { parseLeagueCode } from "@/src/utils/leagues";
 import { useBottomNav } from "@/src/components/BottomNavContext";
 import { useToast } from "@/src/components/Toast";
@@ -64,7 +64,7 @@ export default function Selected() {
 
   const autoFetchResults = async () => {
     if (items.length === 0) {
-      Alert.alert("Vuoto", "Nessuna partita selezionata");
+      notify("Vuoto", "Nessuna partita selezionata");
       return;
     }
     setFetchingResults(true);
@@ -78,12 +78,12 @@ export default function Selected() {
       mlStatsCache.invalidate();
       await load(true);
       if (reviews.length > 0) {
-        Alert.alert("Auto-fetch completato", `${summary}\n\nAlcune partite hanno confidence bassa e richiedono conferma manuale.`);
+        notify("Auto-fetch completato", `${summary}\n\nAlcune partite hanno confidence bassa e richiedono conferma manuale.`);
       } else {
-        Alert.alert("Auto-fetch completato", summary);
+        notify("Auto-fetch completato", summary);
       }
     } catch (e: any) {
-      Alert.alert("Errore", e?.message || "Auto-fetch fallito");
+      notify("Errore", e?.message || "Auto-fetch fallito");
     } finally {
       setFetchingResults(false);
     }
@@ -97,7 +97,7 @@ export default function Selected() {
       mlStatsCache.invalidate();
       await load(true);
     } catch (e: any) {
-      Alert.alert("Errore", e?.message || "Errore");
+      notify("Errore", e?.message || "Errore");
     }
   };
 
@@ -133,7 +133,7 @@ export default function Selected() {
       .filter(([, v]) => v.trim())
       .map(([id, result]) => ({ id, result: result.trim() }));
     if (payload.length === 0) {
-      Alert.alert("Vuoto", "Inserisci almeno un risultato");
+      notify("Vuoto", "Inserisci almeno un risultato");
       return;
     }
     try {
@@ -153,9 +153,9 @@ export default function Selected() {
       marketStatsCache.invalidate();
       mlStatsCache.invalidate();
       await load(true);
-      Alert.alert("Salvato", `${out.updated} risultati aggiornati`);
+      notify("Salvato", `${out.updated} risultati aggiornati`);
     } catch (e: any) {
-      Alert.alert("Errore", e?.message);
+      notify("Errore", e?.message);
     }
   };
 
@@ -169,7 +169,7 @@ export default function Selected() {
         <TouchableOpacity
           testID="sel-aistudio"
           onPress={async () => {
-            if (items.length === 0) { Alert.alert("Vuoto", "Nessuna partita selezionata"); return; }
+            if (items.length === 0) { notify("Vuoto", "Nessuna partita selezionata"); return; }
             try {
               const { csv, count } = await api.aiStudioPrompt();
               // 16/09/2026 — NIENTE PIU' INVOLUCRO.
@@ -209,14 +209,14 @@ export default function Selected() {
                 newWin = window.open(AI_CHAT_URL, "_blank", "noopener,noreferrer");
               }
               if (Platform.OS === "web" && !newWin) {
-                Alert.alert("Popup bloccato", "Abilita i popup e riprova.");
+                notify("Popup bloccato", "Abilita i popup e riprova.");
                 return;
               }
-              Alert.alert(
+              notify(
                 copied ? "Prompt copiato ✓" : "Prompt pronto",
                 `${count} partite. ${copied ? "Incolla con Ctrl+V" : "Copia manuale richiesta"} nella scheda TypingMind.`,
               );
-            } catch (e: any) { Alert.alert("Errore", e?.message); }
+            } catch (e: any) { notify("Errore", e?.message); }
           }}
           style={styles.aiStudioBtn}
         >

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Platform,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Platform,
 } from "react-native";
 import { useBottomNav } from "@/src/components/BottomNavContext";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,7 +14,8 @@ import * as Clipboard from "expo-clipboard";
 import { api } from "@/src/api";
 import { colors } from "@/src/theme";
 import BottomNav from "@/src/components/BottomNav";
-import { openExternalUrl, confirmAction } from "@/src/utils/platform";
+import { confirmAction, notify, openExternalUrl } from "@/src/utils/platform";
+import { matchesCache, daysCache } from "@/src/utils/cache";
 import { AI_CHAT_URL, AI_MULTIPLA_PROMPT } from "@/src/utils/aiChat";
 import { isAndroidBrowser, isAndroidShell, downloadLatestApk, RELEASE_LATEST_PAGE } from "@/src/utils/androidApp";
 
@@ -49,28 +50,24 @@ export default function Strumenti() {
         `Valide totali: ${out.total_parsed}`,
         `Righe scartate: ${skippedCount}`,
       ];
+      // Dopo un import le partite in memoria sono vecchie: senza questo la lista
+      // continuava a mostrare i dati di prima e sembrava che l'import non avesse
+      // fatto niente.
+      matchesCache.invalidate();
+      daysCache.invalidate();   // l'Excel puo' portare giornate nuove
       if (skippedCount > 0) {
-        if (Platform.OS === "web") {
-          // window.confirm fallback
-          const go = (typeof window !== "undefined" && window.confirm)
-            ? window.confirm(`Import completato\n\n${lines.join("\n")}\n\nVuoi vedere i dettagli degli scarti?`)
-            : false;
-          if (go) router.push("/scartati");
-        } else {
-          Alert.alert(
-            "Import completato",
-            lines.join("\n"),
-            [
-              { text: "Chiudi", style: "cancel" },
-              { text: "Vedi Scarti", onPress: () => router.push("/scartati") },
-            ],
-          );
-        }
+        confirmAction({
+          title: "Import completato",
+          message: `${lines.join("\n")}\n\nVuoi vedere i dettagli degli scarti?`,
+          confirmText: "Vedi scarti",
+          cancelText: "Chiudi",
+          onConfirm: () => router.push("/scartati"),
+        });
       } else {
-        Alert.alert("Import completato", lines.join("\n"));
+        notify("Import completato", lines.join("\n"));
       }
     } catch (e: any) {
-      Alert.alert("Errore Import", e?.message || "Errore parser");
+      notify("Errore Import", e?.message || "Errore parser");
     } finally {
       setBusy(null);
     }
@@ -90,18 +87,18 @@ export default function Strumenti() {
         a.download = name;
         a.click();
         URL.revokeObjectURL(url);
-        Alert.alert("Esportato", "Download completato");
+        notify("Esportato", "Download completato");
       } else {
         const path = `${FileSystem.cacheDirectory}${name}`;
         await FileSystem.writeAsStringAsync(path, json);
         if (await Sharing.isAvailableAsync()) {
           await Sharing.shareAsync(path, { mimeType: "application/json" });
         } else {
-          Alert.alert("Salvato", path);
+          notify("Salvato", path);
         }
       }
     } catch (e: any) {
-      Alert.alert("Errore Export", e?.message);
+      notify("Errore Export", e?.message);
     } finally {
       setBusy(null);
     }
@@ -121,12 +118,12 @@ export default function Strumenti() {
       }
       const payload = JSON.parse(text);
       const out = await api.importDb(payload);
-      Alert.alert(
+      notify(
         "Import Backup",
         `Partite importate: ${out.inserted_matches}\nDuplicati saltati: ${out.skipped_matches}\nPronostici: ${out.inserted_predictions}`,
       );
     } catch (e: any) {
-      Alert.alert("Errore", e?.message);
+      notify("Errore", e?.message);
     } finally {
       setBusy(null);
     }
@@ -158,12 +155,12 @@ export default function Strumenti() {
         openExternalUrl(AI_CHAT_URL);
       }
       if (Platform.OS === "web" && !newWin) {
-        Alert.alert("Popup bloccato", "Abilita i popup per questo sito o apri manualmente " + AI_CHAT_URL + " e incolla con Ctrl+V.");
+        notify("Popup bloccato", "Abilita i popup per questo sito o apri manualmente " + AI_CHAT_URL + " e incolla con Ctrl+V.");
         return;
       }
-      Alert.alert("Prompt Copiato ✓", "Incolla con Ctrl+V nella nuova scheda di TypingMind: cerchera' le partite di oggi e proporra' una multipla.");
+      notify("Prompt Copiato ✓", "Incolla con Ctrl+V nella nuova scheda di TypingMind: cerchera' le partite di oggi e proporra' una multipla.");
     } catch (e: any) {
-      Alert.alert("Errore", e?.message);
+      notify("Errore", e?.message);
     } finally {
       setBusy(null);
     }
@@ -174,7 +171,7 @@ export default function Strumenti() {
     try {
       const { csv, count } = await api.aiStudioPrompt();
       if (count === 0) {
-        Alert.alert("Nessuna partita selezionata", "Seleziona almeno una partita per usare il framework TypingMind.");
+        notify("Nessuna partita selezionata", "Seleziona almeno una partita per usare il framework TypingMind.");
         return;
       }
       // 16/09/2026 — NIENTE PIU' INVOLUCRO.
@@ -202,12 +199,12 @@ export default function Strumenti() {
         openExternalUrl(AI_CHAT_URL);
       }
       if (Platform.OS === "web" && !newWin) {
-        Alert.alert("Popup bloccato", "Abilita i popup per questo sito o apri manualmente " + AI_CHAT_URL + " e incolla con Ctrl+V.");
+        notify("Popup bloccato", "Abilita i popup per questo sito o apri manualmente " + AI_CHAT_URL + " e incolla con Ctrl+V.");
         return;
       }
-      Alert.alert("Prompt Copiato ✓", `${count} partite. Incolla con Ctrl+V nella nuova scheda di TypingMind.`);
+      notify("Prompt Copiato ✓", `${count} partite. Incolla con Ctrl+V nella nuova scheda di TypingMind.`);
     } catch (e: any) {
-      Alert.alert("Errore", e?.message);
+      notify("Errore", e?.message);
     } finally {
       setBusy(null);
     }
@@ -229,7 +226,7 @@ export default function Strumenti() {
       destructive: true,
       onConfirm: async () => {
         await api.deleteAll();
-        Alert.alert("Fatto", "Database svuotato");
+        notify("Fatto", "Database svuotato");
       },
     });
   };
